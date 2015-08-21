@@ -31,6 +31,7 @@ alias go='git checkout '
 # Rails
 
 alias cd-rails='cd /Users/masa/workspace-rails;ls'
+alias precompile="RAILS_ENV=production rake assets:clean && RAILS_ENV=production bundle exec rake assets:precompile"
 alias dbreset="rake db:drop && rake db:create && rake db:migrate && rake db:seed"
 alias testlog='tail -f log/test.log'
 
