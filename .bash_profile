@@ -270,6 +270,7 @@ alias be="bundle exec "
 alias precompile="RAILS_ENV=production rake assets:clean && RAILS_ENV=production bundle exec rake assets:precompile"
 alias dbreset="rake db:drop && rake db:create && rake db:migrate && rake db:schema:dump && rake db:seed"
 alias testlog='tail -f log/test.log'
+alias killserver='kill -9 $(cat /Users/masa/projects/login_users_demo/tmp/pids/server.pid)'
 
 # Jekyll
 alias jek="jekyll serve -w"
