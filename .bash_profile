@@ -35,7 +35,7 @@ PS1='\[\e[1;33m\]\u\[\e[0m\]@\[\e[1;34m\]\h\[\e[0m\]:\[\e[1;32m\]\w\[\e[0m\]\[\e
 alias ..='cd ..'
 alias ...='cd ...'
 alias desk='cd ~/Desktop'
-alias code='cd ~/projects'
+alias code='cd ~/code'
 
 # Show hidden files in OS X Finder
 alias show_files='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app; echo Dot files shown'
@@ -85,15 +85,11 @@ function app_files() {
 ### Added by the Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:$PATH"
 
-# {{{
-# Node Completion - Auto-generated, do not touch.
-shopt -s progcomp
-for f in $(command ls ~/.node-completion); do
-  f="$HOME/.node-completion/$f"
-  test -f "$f" && . "$f"
-done
-# }}}
-
 ### rbenv
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
+
+# NVM
+# http://dev.topheman.com/install-nvm-with-homebrew-to-use-multiple-versions-of-node-and-iojs-easily/
+export NVM_DIR=~/.nvm
+source $(brew --prefix nvm)/nvm.sh
