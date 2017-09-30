@@ -7,39 +7,37 @@ export GREP_OPTIONS='--color=auto'
 export TERM="xterm-color"
 
 # ANSI codes
-BLACK="\[\e[0;30m\]"
-RED="\[\e[0;31m\]"
-GREEN="\[\e[0;32m\]"
-BROWN="\[\e[0;33m\]"
-BLUE="\[\e[0;34m\]"
-PURPLE="\[\e[0;35m\]"
-CYAN="\[\e[0;36m\]"
-LIGHT_GRAY="\[\e[0;37m\]"
-DARK_GRAY="\[\e[1;30m\]"
-LIGHT_RED="\[\e[1;31m\]"
-LIGHT_GREEN="\[\e[1;32m\]"
-YELLOW="\[\e[1;33m\]"
-LIGHT_BLUE="\[\e[1;34m\]"
-LIGHT_PURPLE="\[\e[1;35m\]"
-LIGHT_CYAN="\[\e[1;36m\]"
-WHITE="\[\e[1;37m\]"
-END_COLOR="\[\e[0m\]"
+# BLACK="\[\e[0;30m\]"
+# RED="\[\e[0;31m\]"
+# GREEN="\[\e[0;32m\]"
+# BROWN="\[\e[0;33m\]"
+# BLUE="\[\e[0;34m\]"
+# PURPLE="\[\e[0;35m\]"
+# CYAN="\[\e[0;36m\]"
+# LIGHT_GRAY="\[\e[0;37m\]"
+# DARK_GRAY="\[\e[1;30m\]"
+# LIGHT_RED="\[\e[1;31m\]"
+# LIGHT_GREEN="\[\e[1;32m\]"
+# YELLOW="\[\e[1;33m\]"
+# LIGHT_BLUE="\[\e[1;34m\]"
+# LIGHT_PURPLE="\[\e[1;35m\]"
+# LIGHT_CYAN="\[\e[1;36m\]"
+# WHITE="\[\e[1;37m\]"
+# END_COLOR="\[\e[0m\]"
 
 # Custom prompt
 source ~/.git-prompt.sh
-# PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
-# PS1="$BROWN\u$END_COLOR@$GREEN\h$END_COLOR:$LIGHT_BLUE\w$END_COLOR$GRAY$(__git_ps1)\n\$ "
 PS1='\[\e[1;33m\]\u\[\e[0m\]@\[\e[1;34m\]\h\[\e[0m\]:\[\e[1;32m\]\w\[\e[0m\]\[\e[0;37m\]$(__git_ps1)\n\$ '
 
-# Move dirs
+# Change dirs
 alias ..='cd ..'
 alias ...='cd ...'
 alias desk='cd ~/Desktop'
 alias code='cd ~/code'
 
 # Show hidden files in OS X Finder
-alias show_files='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app; echo Dot files shown'
-alias hide_files='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app; echo Dot files hidden'
+alias show-files='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app; echo Dot files shown'
+alias hide-files='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app; echo Dot files hidden'
 
 # Git
 export GITHUB_USERNAME='mnishiguchi'
@@ -65,7 +63,7 @@ alias testlog='tail -f log/test.log'
 # Jekyll
 alias jek="jekyll serve -w"
 
-# Utiities
+# Utils
 alias reload='source ~/.bash_profile'
 alias timestamp='date "+%Y%m%d%H%M%S"'
 alias chrome='open -a "Google Chrome.app"'
@@ -82,10 +80,10 @@ function app_files() {
   find app -type f | awk '{print "_"$0"_"}'
 }
 
-### Added by the Heroku Toolbelt
+# Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:$PATH"
 
-### rbenv
+# rbenv
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
 
@@ -93,3 +91,9 @@ eval "$(rbenv init -)"
 # http://dev.topheman.com/install-nvm-with-homebrew-to-use-multiple-versions-of-node-and-iojs-easily/
 export NVM_DIR=~/.nvm
 source $(brew --prefix nvm)/nvm.sh
+
+### react native android
+# https://facebook.github.io/react-native/docs/getting-started.html
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/platform-tools
