@@ -18,7 +18,7 @@ WHITE="\[\e[1;37m\]"
 END_COLOR="\[\e[0m\]"
 
 # Prompt
-source ~/bin/git-prompt.sh
+source ~/git-prompt.sh
 [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 GIT_PS1_SHOWDIRTYSTATE=1
 PS1="${YELLOW}\u${END_COLOR}:${LIGHT_CYAN}\w${END_COLOR}${LIGHT_GRAY}\$(__git_ps1) \$ "
