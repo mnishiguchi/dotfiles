@@ -17,12 +17,6 @@ LIGHT_CYAN="\[\e[1;36m\]"
 WHITE="\[\e[1;37m\]"
 END_COLOR="\[\e[0m\]"
 
-# Prompt
-source ~/git-prompt.sh
-[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
-GIT_PS1_SHOWDIRTYSTATE=1
-PS1="${YELLOW}\u${END_COLOR}:${LIGHT_CYAN}\w${END_COLOR}${LIGHT_GRAY}\$(__git_ps1) \$ "
-
 # cd
 alias ..='cd ..'
 alias ...='cd ...'
@@ -135,6 +129,13 @@ END
 if [ $ITERM_SESSION_ID ]; then
   export PROMPT_COMMAND='echo -ne "\033]0;${PWD##*/}\007"'
 fi
+
+# Prompt
+source ~/git-prompt.sh
+[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
+GIT_PS1_SHOWDIRTYSTATE=1
+# Call iterm2_print_user_vars in PS1 for loading iterms vars: https://gitlab.com/gnachman/iterm2/issues/5958
+PS1="${YELLOW}\u${END_COLOR}:${LIGHT_CYAN}\w${END_COLOR}${LIGHT_GRAY}\$(__git_ps1)\[$(iterm2_print_user_vars)\] \$ "
 
 # aws
 export AWS_DEFAULT_REGION=us-east-1
