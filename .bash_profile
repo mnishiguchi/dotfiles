@@ -225,16 +225,19 @@ alias gla='git log --oneline --graph  --decorate --all'
 export BUNDLER_EDITOR='code'
 alias be="bundle exec"
 alias bu="bundle update"
-alias cap="bundle exec cap"
-alias dbreset="rake db:drop && rake db:create && rake db:migrate && rake db:seed"
-alias precompile="RAILS_ENV=production rake assets:clean && RAILS_ENV=production bundle exec rake assets:precompile"
+alias cap="be cap"
+alias dbreset="be rake db:drop && be rake db:create && be rake db:migrate && be rake db:seed"
+alias precompile="RAILS_ENV=production be rake assets:clean && RAILS_ENV=production be rake assets:precompile"
 alias devlog='tail -f log/development.log'
 alias testlog='tail -f log/test.log'
-alias pryr='bundle exec pry -r ./config/environment'
+alias pryr='be pry -r ./config/environment'
 
 alias rcop='rubocop'
 alias rcop-fix='rubocop -a'
 alias rcop-todo='rubocop --auto-gen-config'
+
+# Jekyll
+alias jek="be jekyll serve -w"
 
 # Python
 alias pr="pipenv run"
@@ -242,9 +245,6 @@ alias pr="pipenv run"
 # Puma-dev
 alias pdev-log="tail -f ~/Library/Logs/puma-dev.log"
 alias pdev-restart="touch tmp/restart.txt"
-
-# Jekyll
-alias jek="jekyll serve -w"
 
 # Utiities
 alias reload='source ~/.bash_profile'
