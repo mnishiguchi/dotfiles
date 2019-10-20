@@ -79,6 +79,9 @@ alias desk='cd ~/Desktop'
 alias src='cd ~/src && ls'
 alias edit='code'
 alias dot='code ~/dotfiles'
+alias clear='clear && source ~/.bash_profile'
+alias timestamp='date "+%Y%m%d%H%M%S"'
+alias chrome='open -a "Google Chrome.app"'
 
 # Search a manpage arg1 for a term arg2 case insensitive
 mans() { man $1 | grep -iC2 --color=always $2 | less; }
@@ -214,22 +217,22 @@ alias gc='git commit'
 alias gcam='gc --am'
 alias go='git checkout'
 alias gf='git fetch'
-alias gp='git push'
 alias gb='git branch'
 alias gd='git diff'
 alias grm='git rm --cached -r'
 alias gl='git log --oneline --graph --decorate'
 alias gla='git log --oneline --graph  --decorate --all'
 
-# Ruby and Rails
+# Ruby
 export BUNDLER_EDITOR='code'
 alias be="bundle exec"
+alias bi="bundle install"
 alias bu="bundle update"
 alias cap="be cap"
+alias fman="be foreman start -f"
 alias dbreset="be rake db:drop && be rake db:create && be rake db:migrate && be rake db:seed"
-alias precompile="RAILS_ENV=production be rake assets:clean && RAILS_ENV=production be rake assets:precompile"
-alias devlog='tail -f log/development.log'
-alias testlog='tail -f log/test.log'
+alias logdev='tail -f log/development.log'
+alias logtest='tail -f log/test.log'
 alias pryr='be pry -r ./config/environment'
 
 alias rcop='rubocop'
@@ -256,11 +259,6 @@ alias pr="pipenv run"
 # Puma-dev
 alias pdev-log="tail -f ~/Library/Logs/puma-dev.log"
 alias pdev-restart="touch tmp/restart.txt"
-
-# Utiities
-alias reload='source ~/.bash_profile'
-alias timestamp='date "+%Y%m%d%H%M%S"'
-alias chrome='open -a "Google Chrome.app"'
 
 # SSH
 # `ssh-add` adds private keys to the ssh agent, there is an issue with this not happening by default on start / reboot.
