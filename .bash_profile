@@ -236,6 +236,17 @@ alias rcop='rubocop'
 alias rcop-fix='rubocop -a'
 alias rcop-todo='rubocop --auto-gen-config'
 
+# Install bundler with specific version
+installBundler() {
+  if [ -z $1 ]; then
+    # echo "Installing default bundler..."
+    gem install bundler
+  else
+    # echo "Installing bundler $1..."
+    gem uninstall -xI bundler && gem install bundler --version "$1"
+  fi
+}
+
 # Jekyll
 alias jek="be jekyll serve -w"
 
