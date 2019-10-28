@@ -22,6 +22,8 @@ LIGHT_CYAN="\[\e[1;36m\]"
 WHITE="\[\e[1;37m\]"
 END_COLOR="\[\e[0m\]"
 
+export GREP_OPTIONS='--color=always'
+
 # iterm2
 test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
 
