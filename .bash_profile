@@ -4,6 +4,41 @@
 # 1. ENVIRONMENT CONFIGURATION
 # -------------------------------
 
+# RBENV etc
+eval "$(rbenv init -)"
+export PATH="$HOME/.rbenv/bin:$PATH"
+
+eval "$(nodenv init -)"
+export PATH="$HOME/.nodenv/bin:$PATH"
+
+eval "$(pyenv init -)"
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+
+# Heroku
+export PATH="/usr/local/heroku/bin:$PATH"
+
+# Yarn
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+# Flutter
+export PATH=$PATH:$HOME/src/flutter/bin
+
+# Strap
+STRAP_BIN_DIR=~/src/strap/bin
+if [ -d $STRAP_BIN_DIR ]; then
+  PATH="$STRAP_BIN_DIR:${PATH}"
+fi
+
+# Use specific version of java
+export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+
+# Remove duplicate path entries: https://unix.stackexchange.com/a/149054
+PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
+
+# AWS
+export AWS_DEFAULT_REGION=us-east-1
+
 BLACK="\[\e[0;30m\]"
 RED="\[\e[0;31m\]"
 GREEN="\[\e[0;32m\]"
@@ -76,10 +111,8 @@ alias _='sudo'
 alias o='open'
 alias c='pbcopy' # Copy text from stdin into the clipboard buffer
 alias v='pbpaste' # Pastes from your clipboard to stdout
-alias downloads='cd ~/Downloads'
 alias desk='cd ~/Desktop'
 alias src='cd ~/src && ls'
-alias edit='code'
 alias dot='code ~/dotfiles'
 alias clear='clear && source ~/.bash_profile'
 alias timestamp='date "+%Y%m%d%H%M%S"'
@@ -207,7 +240,7 @@ alias finderHideHidden='defaults write com.apple.finder ShowAllFiles FALSE'
 alias cleanupLS="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
 
 # ---------------------------------------
-# 8. WEB DEVELOPMENT
+# 8. SOFTWARE ENGINEERING
 # ---------------------------------------
 
 # Git
@@ -266,44 +299,13 @@ alias pdev-restart="touch tmp/restart.txt"
 # `ssh-add` adds private keys to the ssh agent, there is an issue with this not happening by default on start / reboot.
 ssh-add -K 2>/dev/null
 
-# Heroku
-export PATH="/usr/local/heroku/bin:$PATH"
-
 # Yarn
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 alias ya='yarn add '
 alias yr='yarn remove '
 alias yu='yarn upgrade '
 
-# Flutter
-export PATH=$PATH:$HOME/src/flutter/bin
-
-# RBENV etc
-eval "$(rbenv init -)"
-export PATH="$HOME/.rbenv/bin:$PATH"
-
-eval "$(nodenv init -)"
-export PATH="$HOME/.nodenv/bin:$PATH"
-
-eval "$(pyenv init -)"
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-
-# Strap
-STRAP_BIN_DIR=~/src/strap/bin
-if [ -d $STRAP_BIN_DIR ]; then
-  PATH="$STRAP_BIN_DIR:${PATH}"
-fi
-
-# Use specific version of java
-export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
-
 # AWS
-export AWS_DEFAULT_REGION=us-east-1
-alias aws-config='cat ~/.aws/config'
-alias aws-credentials='cat ~/.aws/credentials'
-
-# Remove duplicate path entries: https://unix.stackexchange.com/a/149054
-PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
+alias aws-config='code ~/.aws/config'
+alias aws-credentials='code ~/.aws/credentials'
 
 alias inknotes='code ~/inknotes.md'
