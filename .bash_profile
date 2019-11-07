@@ -233,8 +233,8 @@ ii() {
 alias cleanupDS="find . -type f -name '*.DS_Store' -ls -delete"
 
 # Show/Hide hidden files in Finder
-alias finderShowHidden='defaults write com.apple.finder ShowAllFiles TRUE'
-alias finderHideHidden='defaults write com.apple.finder ShowAllFiles FALSE'
+alias finderShowHidden='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app; echo Dot files shown'
+alias finderHideHidden='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app; echo Dot files hidden'
 
 # Clean up LaunchServices to remove duplicates in the "Open With" menu
 alias cleanupLS="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
