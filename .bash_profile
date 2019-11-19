@@ -4,7 +4,6 @@
 # 1. ENVIRONMENT CONFIGURATION
 # -------------------------------
 
-# RBENV etc
 eval "$(rbenv init -)"
 export PATH="$HOME/.rbenv/bin:$PATH"
 
@@ -15,16 +14,12 @@ eval "$(pyenv init -)"
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 
-# Heroku
 export PATH="/usr/local/heroku/bin:$PATH"
-
-# Yarn
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-# Flutter
 export PATH=$PATH:$HOME/src/flutter/bin
+export PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
+export PATH=$PATH:/usr/local/opt/rabbitmq/sbin
 
-# Strap
 STRAP_BIN_DIR=~/src/strap/bin
 if [ -d $STRAP_BIN_DIR ]; then
   PATH="$STRAP_BIN_DIR:${PATH}"
