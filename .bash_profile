@@ -19,6 +19,7 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH=$PATH:$HOME/src/flutter/bin
 export PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
 export PATH=$PATH:/usr/local/opt/rabbitmq/sbin
+export PATH="/usr/local/sbin:$PATH"
 
 STRAP_BIN_DIR=~/src/strap/bin
 if [ -d $STRAP_BIN_DIR ]; then
@@ -303,4 +304,4 @@ alias yu='yarn upgrade '
 alias aws-config='code ~/.aws/config'
 alias aws-credentials='code ~/.aws/credentials'
 
-alias inknotes='code ~/inknotes.md'
+alias inknotes='mdless ~/inknotes.md'
