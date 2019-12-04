@@ -304,4 +304,7 @@ alias yu='yarn upgrade '
 alias aws-config='code ~/.aws/config'
 alias aws-credentials='code ~/.aws/credentials'
 
-alias inknotes='mdless ~/inknotes.md'
+# My memo
+# Cd to home so that I can use global ruby.
+# The dev-null redirection is for skipping std ouput of my custom cd definition.
+alias inknotes='cd ~ > /dev/null ; mdless ~/inknotes.md ; cd - > /dev/null'
