@@ -81,7 +81,7 @@ source ~/git-prompt.sh
 [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 export GIT_PS1_SHOWDIRTYSTATE=1
 # Call iterm2_print_user_vars in PS1 for loading iterms vars: https://gitlab.com/gnachman/iterm2/issues/5958
-export PS1="${YELLOW}\u${END_COLOR}:${LIGHT_CYAN}\w${END_COLOR}${LIGHT_GRAY}\$(__git_ps1)\[$(iterm2_print_user_vars)\] \n\$ "
+export PS1="${YELLOW}\u${END_COLOR}:${LIGHT_CYAN}\w${END_COLOR}${LIGHT_GRAY}\$(__git_ps1)\[$([ -v iterm2_print_user_vars ] && iterm2_print_user_vars)\] \n\$ "
 
 # -----------------------------
 # 2. MAKE TERMINAL BETTER
@@ -93,7 +93,6 @@ alias mkdir='mkdir -pv'                  # Preferred 'mkdir' implementation
 alias ll='ls -FlAhp'                     # Preferred 'ls' implementation
 alias l='clear && ll'
 alias less='less -FSRXc'                 # Preferred 'less' implementation
-cd() { builtin cd "$@"; ll; }            # Always list directory contents upon 'cd'
 alias ..='cd ../'                        # Go back 1 directory level
 alias ...='cd ../../'                    # Go back 2 directory levels
 alias which='type -all'                  # Find executables
