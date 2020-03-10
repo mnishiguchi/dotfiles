@@ -4,16 +4,6 @@
 # 1. ENVIRONMENT CONFIGURATION
 # -------------------------------
 
-eval "$(rbenv init -)"
-export PATH="$HOME/.rbenv/bin:$PATH"
-
-eval "$(nodenv init -)"
-export PATH="$HOME/.nodenv/bin:$PATH"
-
-eval "$(pyenv init -)"
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-
 export PATH="/usr/local/heroku/bin:$PATH"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH=$PATH:$HOME/src/flutter/bin
@@ -58,20 +48,6 @@ export GREP_OPTIONS='--color=always'
 # iterm2
 test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
 
-# https://www.iterm2.com/3.3/documentation-scripting-fundamentals.html
-# https://gitlab.com/gnachman/iterm2/issues/5958
-function iterm2_print_user_vars() {
-  iterm2_set_user_var rubyVersion $(ruby -v | awk '{ print $2 }')
-  iterm2_set_user_var nodeVersion $(node -v)
-  # This is a workaround to support both python 2 and 3.
-  iterm2_set_user_var pythonVersion $(
-    python <<END
-import platform
-print(platform.python_version())
-END
-  )
-}
-
 # Show current dir in an iterm tab: https://gist.github.com/phette23/5270658#gistcomment-1336409
 if [ $ITERM_SESSION_ID ]; then
   export PROMPT_COMMAND='echo -ne "\033]0;${PWD##*/}\007"'
@@ -80,8 +56,8 @@ fi
 source ~/git-prompt.sh
 [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 export GIT_PS1_SHOWDIRTYSTATE=1
-# Call iterm2_print_user_vars in PS1 for loading iterms vars: https://gitlab.com/gnachman/iterm2/issues/5958
-export PS1="${YELLOW}\u${END_COLOR}:${LIGHT_CYAN}\w${END_COLOR}${LIGHT_GRAY}\$(__git_ps1)\[$([ -v iterm2_print_user_vars ] && iterm2_print_user_vars)\] \n\$ "
+
+export PS1="${YELLOW}\u${END_COLOR}:${LIGHT_CYAN}\w${END_COLOR}${LIGHT_GRAY}\$(__git_ps1) \n\$ "
 
 # -----------------------------
 # 2. MAKE TERMINAL BETTER
@@ -90,8 +66,10 @@ export PS1="${YELLOW}\u${END_COLOR}:${LIGHT_CYAN}\w${END_COLOR}${LIGHT_GRAY}\$(_
 alias cp='cp -iv'                        # Preferred 'cp' implementation
 alias mv='mv -iv'                        # Preferred 'mv' implementation
 alias mkdir='mkdir -pv'                  # Preferred 'mkdir' implementation
-alias ll='ls -FlAhp'                     # Preferred 'ls' implementation
-alias l='clear && ll'
+alias grep='rg'                          # https://github.com/BurntSushi/ripgrep
+alias cat='bat'                          # https://github.com/sharkdp/bat
+alias ls='exa'                           # https://the.exa.website
+alias ll='exa -alh'                      # https://the.exa.website
 alias less='less -FSRXc'                 # Preferred 'less' implementation
 alias ..='cd ../'                        # Go back 1 directory level
 alias ...='cd ../../'                    # Go back 2 directory levels
@@ -307,3 +285,11 @@ alias aws-credentials='code ~/.aws/credentials'
 # Cd to home so that I can use global ruby.
 # The dev-null redirection is for skipping std ouput of my custom cd definition.
 alias inknotes='cd ~ > /dev/null ; mdless ~/inknotes.md ; cd - > /dev/null'
+
+alias vsconfig='code ~/Library/"Application Support"/Code/User/settings.json'
+
+# https://starship.rs/
+eval "$(starship init bash)"
+
+# https://github.com/anyenv/anyenv
+eval "$(anyenv init -)"
