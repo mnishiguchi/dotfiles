@@ -42,7 +42,7 @@ alias mkdir='mkdir -pv'                  # Preferred 'mkdir' implementation
 alias grep='rg'                          # https://github.com/BurntSushi/ripgrep
 alias cat='bat'                          # https://github.com/sharkdp/bat
 alias ls='exa'                           # https://the.exa.website
-alias ll='exa -alh'                      # https://the.exa.website
+alias ll='gls --time-style=long-iso -lAF'
 alias less='less -FSRXc'                 # Preferred 'less' implementation
 alias ..='cd ../'                        # Go back 1 directory level
 alias ...='cd ../../'                    # Go back 2 directory levels
