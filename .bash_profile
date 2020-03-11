@@ -254,6 +254,13 @@ alias yu='yarn upgrade '
 alias aws-config='code ~/.aws/config'
 alias aws-credentials='code ~/.aws/credentials'
 
+# Docker
+alias dk='docker'
+alias dc='docker-compose'
+alias dcr='docker-compose run'
+alias dcx='docker-compose exec'
+alias dcl='docker-compose logs'
+
 # My memo
 # Cd to home so that I can use global ruby.
 # The dev-null redirection is for skipping std ouput of my custom cd definition.
