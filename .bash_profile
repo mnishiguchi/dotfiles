@@ -25,39 +25,12 @@ PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH})
 # AWS
 export AWS_DEFAULT_REGION=us-east-1
 
-BLACK="\[\e[0;30m\]"
-RED="\[\e[0;31m\]"
-GREEN="\[\e[0;32m\]"
-BROWN="\[\e[0;33m\]"
-BLUE="\[\e[0;34m\]"
-PURPLE="\[\e[0;35m\]"
-CYAN="\[\e[0;36m\]"
-LIGHT_GRAY="\[\e[0;37m\]"
-DARK_GRAY="\[\e[1;30m\]"
-LIGHT_RED="\[\e[1;31m\]"
-LIGHT_GREEN="\[\e[1;32m\]"
-YELLOW="\[\e[1;33m\]"
-LIGHT_BLUE="\[\e[1;34m\]"
-LIGHT_PURPLE="\[\e[1;35m\]"
-LIGHT_CYAN="\[\e[1;36m\]"
-WHITE="\[\e[1;37m\]"
-END_COLOR="\[\e[0m\]"
-
 export GREP_OPTIONS='--color=always'
-
-# iterm2
-test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
 
 # Show current dir in an iterm tab: https://gist.github.com/phette23/5270658#gistcomment-1336409
 if [ $ITERM_SESSION_ID ]; then
   export PROMPT_COMMAND='echo -ne "\033]0;${PWD##*/}\007"'
 fi
-
-source ~/git-prompt.sh
-[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
-export GIT_PS1_SHOWDIRTYSTATE=1
-
-export PS1="${YELLOW}\u${END_COLOR}:${LIGHT_CYAN}\w${END_COLOR}${LIGHT_GRAY}\$(__git_ps1) \n\$ "
 
 # -----------------------------
 # 2. MAKE TERMINAL BETTER
