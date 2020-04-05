@@ -109,11 +109,11 @@ export LANG=en_US.UTF-8
 # ------------------------------------------------------------------------------
 
 export PATH="/usr/local/heroku/bin:$PATH"
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-export PATH=$PATH:$HOME/src/flutter/bin
 export PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
-export PATH=$PATH:/usr/local/opt/rabbitmq/sbin
 export PATH="/usr/local/sbin:$PATH"
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+export PATH=$PATH:/usr/local/opt/rabbitmq/sbin
+export PATH=$PATH:$HOME/src/flutter/bin
 
 STRAP_BIN_DIR=~/src/strap/bin
 if [ -d $STRAP_BIN_DIR ]; then
@@ -122,9 +122,6 @@ fi
 
 # Use specific version of java
 export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
-
-# Remove duplicate path entries: https://unix.stackexchange.com/a/149054
-PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
 
 # AWS
 export AWS_DEFAULT_REGION=us-east-1
@@ -239,15 +236,15 @@ my-ps() { ps $@ -u $USER -o pid,%cpu,%mem,start,time,bsdtime,command; }
 # 6. NETWORKING
 # ------------------------------------------------------------------------------
 
-alias myip='curl icanhazip.com'                   # Public facing IP Address
-alias netCons='lsof -i'                           # Show all open TCP/IP sockets
-alias flushDNS='dscacheutil -flushcache'          # Flush out the DNS Cache
-alias lsock='sudo /usr/sbin/lsof -i -P'           # Display open sockets
-alias lsockU='sudo /usr/sbin/lsof -nP | grep UDP' # Display only open UDP sockets
-alias lsockT='sudo /usr/sbin/lsof -nP | grep TCP' # Display only open TCP sockets
-alias ipInfo0='ipconfig getpacket en0'            # Get info on connections for en0
-alias ipInfo1='ipconfig getpacket en1'            # Get info on connections for en1
-alias openPorts='sudo lsof -i | grep LISTEN'      # All listening connections
+alias my-ip='curl icanhazip.com'                                  # Public facing IP Address
+alias flushDNS='dscacheutil -flushcache'                         # Flush out the DNS Cache
+alias ip-info0='ipconfig getpacket en0'                          # Get info on connections for en0
+alias ip-info1='ipconfig getpacket en1'                          # Get info on connections for en1
+alias show-listening-connections='sudo lsof -i | grep LISTEN'    # All listening connections
+alias show-network-connections='lsof -i'                         # Show all open TCP/IP sockets
+alias show-open-sockets='sudo /usr/sbin/lsof -i -P'              # Display open sockets
+alias show-open-tcp-sockets='sudo /usr/sbin/lsof -nP | grep TCP' # Display only open TCP sockets
+alias show-open-udp-sockets='sudo /usr/sbin/lsof -nP | grep UDP' # Display only open UDP sockets
 
 # Display useful host related informaton
 host-info() {
