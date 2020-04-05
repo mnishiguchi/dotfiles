@@ -40,7 +40,7 @@ ZSH_THEME="spaceship"
 # DISABLE_LS_COLORS="true"
 
 # Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
 # ENABLE_CORRECTION="true"
@@ -129,10 +129,10 @@ PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH})
 # AWS
 export AWS_DEFAULT_REGION=us-east-1
 
-# Show current dir in an iterm tab: https://gist.github.com/phette23/5270658#gistcomment-1336409
-if [ $ITERM_SESSION_ID ]; then
-  export PROMPT_COMMAND='echo -ne "\033]0;${PWD##*/}\007"'
-fi
+# Show current dir in an iterm tab: https://gist.github.com/phette23/5270658#gistcomment-3020766
+precmd() {
+  echo -ne "\e]1;${PWD##*/}\a"
+}
 
 # ------------------------------------------------------------------------------
 # 2. MAKE TERMINAL BETTER
