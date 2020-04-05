@@ -273,3 +273,5 @@ eval "$(starship init bash)"
 
 # https://github.com/anyenv/anyenv
 eval "$(anyenv init -)"
+# This will set the LANG variable for your environment
+export LANG=en_US.UTF-8
