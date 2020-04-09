@@ -141,8 +141,6 @@ alias path='echo -e ${PATH//:/\\n}'         # Echo all executable Paths
 trash() { command mv "$@" ~/.Trash; }       # Moves a file to the MacOS trash
 preview() { qlmanage -p "$*" >&/dev/null; } # Opens any file in MacOS Quicklook Preview
 
-alias _='sudo'
-alias o='open'
 alias desk='cd ~/Desktop'
 alias src='cd ~/src && ls'
 alias dot='code ~/dotfiles'
@@ -364,3 +362,9 @@ eval "$(anyenv init -)"
 
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/mnishiguchi/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/mnishiguchi/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/mnishiguchi/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/mnishiguchi/google-cloud-sdk/completion.zsh.inc'; fi
