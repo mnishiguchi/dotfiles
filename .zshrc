@@ -368,3 +368,9 @@ if [ -f '/Users/mnishiguchi/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/mni
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/mnishiguchi/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/mnishiguchi/google-cloud-sdk/completion.zsh.inc'; fi
+
+# k8s
+# https://kubernetes.io/docs/tasks/tools/install-kubectl/
+alias k=kubectl
+source <(kubectl completion zsh)
+complete -F __start_kubectl k
