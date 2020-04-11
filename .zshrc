@@ -108,12 +108,15 @@ export LANG=en_US.UTF-8
 # 1. ENVIRONMENT CONFIGURATION
 # ------------------------------------------------------------------------------
 
-export PATH="/usr/local/heroku/bin:$PATH"
-export PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
-export PATH="/usr/local/sbin:$PATH"
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-export PATH=$PATH:/usr/local/opt/rabbitmq/sbin
-export PATH=$PATH:$HOME/src/flutter/bin
+PATH="/usr/local/heroku/bin:$PATH"
+PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
+PATH="/usr/local/sbin:$PATH"
+PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+PATH=$PATH:/usr/local/opt/rabbitmq/sbin
+PATH=$PATH:$HOME/src/flutter/bin
+
+# Remove duplicate path entries: https://unix.stackexchange.com/a/149054
+export PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
 
 STRAP_BIN_DIR=~/src/strap/bin
 if [ -d $STRAP_BIN_DIR ]; then
