@@ -110,7 +110,6 @@ export LANG=en_US.UTF-8
 
 PATH="/usr/local/heroku/bin:$PATH"
 PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
-PATH="/usr/local/sbin:$PATH"
 PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 PATH=$PATH:/usr/local/opt/rabbitmq/sbin
 PATH=$PATH:$HOME/src/flutter/bin
