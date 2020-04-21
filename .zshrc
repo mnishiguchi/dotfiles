@@ -122,6 +122,8 @@ if [ -d $STRAP_BIN_DIR ]; then
   PATH="$STRAP_BIN_DIR:${PATH}"
 fi
 
+export ANDROID_HOME=$HOME/Library/Android/sdk
+
 # Use specific version of java
 export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 
