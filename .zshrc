@@ -139,11 +139,12 @@ precmd() {
 # 2. MAKE TERMINAL BETTER
 # ------------------------------------------------------------------------------
 
-alias cat='bat'                             # https://github.com/sharkdp/bat
-alias which='type -a'                       # Find executables
-alias path='echo -e ${PATH//:/\\n}'         # Echo all executable Paths
-trash() { command mv "$@" ~/.Trash; }       # Moves a file to the MacOS trash
-preview() { qlmanage -p "$*" >&/dev/null; } # Opens any file in MacOS Quicklook Preview
+alias cat='bat'                              # https://github.com/sharkdp/bat
+alias which='type -a'                        # Find executables
+alias path='echo -e ${PATH//:/\\n}'          # Echo all executable Paths
+trash() { command mv "$@" ~/.Trash; }        # Moves a file to the MacOS trash
+preview() { qlmanage -p "$*" >&/dev/null; }  # Opens any file in MacOS Quicklook Preview
+alias DT='tee ~/Desktop/terminal-output.txt' # Pipe content to file on MacOS Desktop
 
 alias desk='cd ~/Desktop'
 alias src='cd ~/src && ls'
