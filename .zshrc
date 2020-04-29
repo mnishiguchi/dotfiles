@@ -341,8 +341,7 @@ alias yr='yarn remove '
 alias yu='yarn upgrade '
 
 # AWS
-alias aws-config='code ~/.aws/config'
-alias aws-credentials='code ~/.aws/credentials'
+alias aws-config='code ~/.aws'
 
 # Docker
 alias dk='docker'
