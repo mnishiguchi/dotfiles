@@ -21,9 +21,6 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 # Remove duplicate path entries: https://unix.stackexchange.com/a/149054
 PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
 
-# AWS
-export AWS_DEFAULT_REGION=us-east-1
-
 export GREP_OPTIONS='--color=always'
 
 # Show current dir in an iterm tab: https://gist.github.com/phette23/5270658#gistcomment-1336409

@@ -127,9 +127,6 @@ export ANDROID_HOME=$HOME/Library/Android/sdk
 # Use specific version of java
 export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 
-# AWS
-export AWS_DEFAULT_REGION=us-east-1
-
 # Show current dir in an iterm tab: https://gist.github.com/phette23/5270658#gistcomment-3020766
 precmd() {
   echo -ne "\e]1;${PWD##*/}\a"
