@@ -143,6 +143,7 @@ trash() { command mv "$@" ~/.Trash; }        # Moves a file to the MacOS trash
 preview() { qlmanage -p "$*" >&/dev/null; }  # Opens any file in MacOS Quicklook Preview
 alias DT='tee ~/Desktop/terminal-output.txt' # Pipe content to file on MacOS Desktop
 
+alias blog='code ~/src/mnishiguchi-jekyll'
 alias desk='cd ~/Desktop'
 alias src='cd ~/src && ls'
 alias dot='code ~/dotfiles'
