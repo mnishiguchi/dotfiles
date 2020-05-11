@@ -143,10 +143,10 @@ trash() { command mv "$@" ~/.Trash; }        # Moves a file to the MacOS trash
 preview() { qlmanage -p "$*" >&/dev/null; }  # Opens any file in MacOS Quicklook Preview
 alias DT='tee ~/Desktop/terminal-output.txt' # Pipe content to file on MacOS Desktop
 
-alias blog='code ~/src/mnishiguchi-jekyll'
+alias blog='cd ~/src/mnishiguchi-jekyll && code .'
 alias desk='cd ~/Desktop'
 alias src='cd ~/src && ls'
-alias dot='code ~/dotfiles'
+alias dot='cd ~/dotfiles && code .'
 alias reload='source ~/.zshrc'
 alias timestamp='date "+%Y%m%d%H%M%S"'
 alias chrome='open -a "Google Chrome.app"'
@@ -292,6 +292,7 @@ alias gdca='git diff --cached'
 alias grm='git rm --cached -r'
 alias gl='git log --oneline --graph --decorate'
 alias gla='git log --oneline --graph  --decorate --all'
+alias gpush-f="git push --force-with-lease"
 
 # Ruby
 export BUNDLER_EDITOR='code'
