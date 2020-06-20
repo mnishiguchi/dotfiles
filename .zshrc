@@ -334,10 +334,16 @@ alias pdev-restart="touch tmp/restart.txt"
 # `ssh-add` adds private keys to the ssh agent, there is an issue with this not happening by default on start / reboot.
 ssh-add -K 2>/dev/null
 
-# Yarn
+# NPM/Yarn
 alias ya='yarn add '
 alias yr='yarn remove '
 alias yu='yarn upgrade '
+
+# https://trilon.io/blog/how-to-delete-all-nodemodules-recursively
+# Find all the "node_modules" directories in the current directory.
+alias fd-node-modules='find . -name "node_modules" -type d -prune -print | xargs du -chs'
+# Delete all the "node_modules" directories in the current directory.
+alias rm-node-modules='find . -name "node_modules" -type d -prune -print -exec rm -rf "{}" \;'
 
 # AWS
 alias aws-config='code ~/.aws'
