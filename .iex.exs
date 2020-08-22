@@ -12,10 +12,6 @@ IO.puts(
     "Using " <> __ENV__.file() <> IO.ANSI.reset()
 )
 
-# Get queue length for the IEx process
-# This is fun to see while playing with nodes
-queue_length = fn -> self() |> Process.info() |> Keyword.get(:message_queue_len) end
-
 # Configuring IEx
 IEx.configure(
   inspect: [limit: 5_000],
@@ -28,7 +24,7 @@ IEx.configure(
   default_prompt:
     [
       :light_magenta,
-      "%node(#{queue_length.()}) %prefix>",
+      "%prefix>",
       :reset
     ]
     |> IO.ANSI.format()
@@ -47,7 +43,7 @@ phoenix_app =
 
 # Check if phoenix app is found
 case phoenix_app do
-  nil ->
+  _ ->
     nil
 
   {app, _pid} ->
@@ -69,7 +65,7 @@ case phoenix_app do
 
     # Check if Ecto app exists or running
     case exists do
-      false ->
+      _ ->
         nil
 
       true ->
