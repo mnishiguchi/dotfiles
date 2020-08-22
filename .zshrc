@@ -369,6 +369,9 @@ eval "$(starship init zsh)"
 # https://github.com/anyenv/anyenv
 eval "$(anyenv init -)"
 
+# https://direnv.net/docs/hook.html
+eval "$(direnv hook zsh)"
+
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
