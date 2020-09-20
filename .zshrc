@@ -335,7 +335,7 @@ alias pdev-restart="touch tmp/restart.txt"
 ssh-add -K 2>/dev/null
 
 # NPM/Yarn
-alias ya='yarn add '
+alias ya='yarn add --dev '
 alias yr='yarn remove '
 alias yu='yarn upgrade '
 
