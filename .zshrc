@@ -335,7 +335,8 @@ alias pdev-restart="touch tmp/restart.txt"
 ssh-add -K 2>/dev/null
 
 # NPM/Yarn
-alias ya='yarn add --dev '
+alias ya='yarn add '
+alias yad='yarn add --dev '
 alias yr='yarn remove '
 alias yu='yarn upgrade '
 
@@ -354,9 +355,6 @@ alias dc='docker-compose'
 alias dcr='docker-compose run'
 alias dcx='docker-compose exec'
 alias dcl='docker-compose logs'
-
-# VS Code
-alias vscode-settings='code ~/Library/"Application Support"/Code/User/settings.json'
 
 # My memo
 # Cd to home so that I can use global ruby.
