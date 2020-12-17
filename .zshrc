@@ -136,7 +136,6 @@ precmd() {
 # 2. MAKE TERMINAL BETTER
 # ------------------------------------------------------------------------------
 
-alias cat='bat'                              # https://github.com/sharkdp/bat
 alias which='type -a'                        # Find executables
 alias path='echo -e ${PATH//:/\\n}'          # Echo all executable Paths
 trash() { command mv "$@" ~/.Trash; }        # Moves a file to the MacOS trash
@@ -383,4 +382,10 @@ if [ -f '/Users/mnishiguchi/google-cloud-sdk/completion.zsh.inc' ]; then . '/Use
 # https://kubernetes.io/docs/tasks/tools/install-kubectl/
 alias k=kubectl
 source <(kubectl completion zsh)
-complete -F __start_kubectl k
+complete -F __start_kubectl ks
+
+# https://github.com/jonmosco/kube-ps1#from-source
+source ~/src/kube-ps1/kube-ps1.sh
+
+# Run a static HTTP server serving the current directory
+alias serve="ruby -run -ehttpd"
