@@ -109,7 +109,6 @@ export LANG=en_US.UTF-8
 # ------------------------------------------------------------------------------
 
 PATH="/usr/local/heroku/bin:$PATH"
-PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
 PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 PATH=$PATH:/usr/local/opt/rabbitmq/sbin
 PATH=$PATH:$HOME/src/flutter/bin
@@ -293,6 +292,10 @@ alias gl='git log --oneline --graph --decorate'
 alias gla='git log --oneline --graph  --decorate --all'
 alias gpush-f="git push --force-with-lease"
 
+# Elixir
+# https://gigalixir.readthedocs.io/en/latest/getting-started-guide.html
+alias gx="gigalixir"
+
 # Ruby
 export BUNDLER_EDITOR='code'
 alias be="bundle exec"
@@ -363,8 +366,10 @@ alias inknotes='cd ~ > /dev/null ; mdless ~/inknotes.md ; cd - > /dev/null'
 # https://starship.rs/
 eval "$(starship init zsh)"
 
-# https://github.com/anyenv/anyenv
-eval "$(anyenv init -)"
+# rbenv etc
+eval "$(rbenv init -)"
+eval "$(pyenv init --path)" # https://github.com/pyenv/pyenv/issues/1906
+eval "$(nodenv init -)"
 
 # https://direnv.net/docs/hook.html
 eval "$(direnv hook zsh)"
@@ -389,3 +394,20 @@ source ~/src/kube-ps1/kube-ps1.sh
 
 # Run a static HTTP server serving the current directory
 alias serve="ruby -run -ehttpd"
+
+export PATH="$PATH:$HOME/src/k8s_tools/bin"
+
+# This will set the LANG variable for your environment
+export LANG=en_US.UTF-8
+
+# https://www.cogini.com/blog/using-asdf-with-elixir-and-phoenix/s
+. $(brew --prefix asdf)/asdf.sh
+. $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+export GUILE_LOAD_PATH="/usr/local/share/guile/site/3.0"
+export GUILE_LOAD_COMPILED_PATH="/usr/local/lib/guile/3.0/site-ccache"
+export GUILE_SYSTEM_EXTENSIONS_PATH="/usr/local/lib/guile/3.0/extensions"
+
+# https://hexdocs.pm/iex/IEx.html
+export ERL_AFLAGS="-kernel shell_history enabled"
+
+source /Users/mnishiguchi/.config/broot/launcher/bash/br
