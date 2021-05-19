@@ -7,7 +7,6 @@
 export PATH="/usr/local/heroku/bin:$PATH"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH=$PATH:$HOME/src/flutter/bin
-export PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
 export PATH=$PATH:/usr/local/opt/rabbitmq/sbin
 
 STRAP_BIN_DIR=~/src/strap/bin
@@ -271,3 +270,9 @@ eval "$(starship init bash)"
 eval "$(anyenv init -)"
 # This will set the LANG variable for your environment
 export LANG=en_US.UTF-8
+
+. $(brew --prefix asdf)/asdf.sh
+
+. $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+
+source /Users/mnishiguchi/.config/broot/launcher/bash/br

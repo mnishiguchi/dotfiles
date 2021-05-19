@@ -13,6 +13,7 @@ IO.puts(
 )
 
 # Configuring IEx
+# https://hexdocs.pm/iex/IEx.html#configure/1
 IEx.configure(
   inspect: [limit: 5_000],
   history_size: 100,
