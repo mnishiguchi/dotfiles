@@ -145,13 +145,26 @@ alias blog='cd ~/src/mnishiguchi-jekyll && code .'
 alias desk='cd ~/Desktop'
 alias src='cd ~/src && ls'
 alias dot='code ~/dotfiles'
-alias reload='source ~/.zshrc'
+# alias reload='source ~/.zshrc'
+alias reload='exec zsh -l'
 alias timestamp='date "+%Y%m%d%H%M%S"'
 alias chrome='open -a "Google Chrome.app"'
 
 # Search a manpage arg1 for a term arg2 case insensitive
 mans() { man $1 | grep -iC2 --color=always $2 | less; }
 man-preview() { man -t "$@" | open -f -a Preview }
+
+# Ctrl + R
+# https://github.com/peco/peco
+# https://qiita.com/shepabashi/items/f2bc2be37a31df49bca5
+function peco-history-selection() {
+    BUFFER=`history -n 1 | tail -r  | awk '!a[$0]++' | peco`
+    CURSOR=$#BUFFER
+    zle reset-prompt
+}
+
+zle -N peco-history-selection
+bindkey '^R' peco-history-selection
 
 # ------------------------------------------------------------------------------
 # 3. FILE AND FOLDER MANAGEMENT
