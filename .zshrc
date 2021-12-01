@@ -219,7 +219,6 @@ extract() {
 # 4. SEARCHING
 # ------------------------------------------------------------------------------
 
-alias qfind="find . -name "              # Quickly search for file
 ff() { /usr/bin/find . -name "$@"; }     # Find file under the current directory
 ffs() { /usr/bin/find . -name "$@"'*'; } # Find file whose name starts with a given string
 ffe() { /usr/bin/find . -name '*'"$@"; } # Find file whose name ends with a given string
@@ -247,8 +246,9 @@ my-ps() { ps $@ -u $USER -o pid,%cpu,%mem,start,time,bsdtime,command; }
 # 6. NETWORKING
 # ------------------------------------------------------------------------------
 
-alias my-ip='curl icanhazip.com'                                  # Public facing IP Address
-alias flushDNS='dscacheutil -flushcache'                         # Flush out the DNS Cache
+alias my-ip='curl icanhazip.com'                                 # Public facing IP Address
+alias show-open-sockets='lsof -i'                                # Show all open TCP/IP sockets
+alias flush-dns='dscacheutil -flushcache'                        # Flush out the DNS Cache
 alias ip-info0='ipconfig getpacket en0'                          # Get info on connections for en0
 alias ip-info1='ipconfig getpacket en1'                          # Get info on connections for en1
 alias show-listening-connections='sudo lsof -i | grep LISTEN'    # All listening connections
@@ -281,7 +281,7 @@ alias show-files='defaults write com.apple.finder AppleShowAllFiles YES; killall
 alias hide-files='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app; echo Dot files hidden'
 
 # Clean up LaunchServices to remove duplicates in the "Open With" menu
-alias cleanup-LaunchServices="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
+alias cleanup-launch-services="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
 
 # ------------------------------------------------------------------------------
 # 8. SOFTWARE ENGINEERING
@@ -302,6 +302,7 @@ alias gdca='git diff --cached'
 alias grm='git rm --cached -r'
 alias gl='git log --oneline --graph --decorate'
 alias gla='git log --oneline --graph  --decorate --all'
+alias gpush="git push"
 alias gpush!="git push --force-with-lease"
 
 # Elixir
@@ -323,7 +324,6 @@ alias be="bundle exec"
 alias bi="bundle install"
 alias bu="bundle update"
 alias cap="be cap"
-alias fman="be foreman start -f"
 alias dbreset="be rake db:drop && be rake db:create && be rake db:migrate && be rake db:seed"
 alias devlog='tail -f log/development.log'
 alias testlog='tail -f log/test.log'
@@ -414,7 +414,8 @@ complete -F __start_kubectl k
 source ~/src/kube-ps1/kube-ps1.sh
 
 # Run a static HTTP server serving the current directory
-alias serve="ruby -run -ehttpd"
+# alias serve="ruby -run -ehttpd"
+alias serve="python -m http.server -d "
 
 export PATH="$PATH:$HOME/src/k8s_tools/bin"
 
