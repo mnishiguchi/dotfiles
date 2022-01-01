@@ -145,7 +145,6 @@ alias blog='cd ~/src/mnishiguchi-jekyll && code .'
 alias desk='cd ~/Desktop'
 alias src='cd ~/src && ls'
 alias dot='code ~/dotfiles'
-# alias reload='source ~/.zshrc'
 alias reload='exec zsh -l'
 alias timestamp='date "+%Y%m%d%H%M%S"'
 alias chrome='open -a "Google Chrome.app"'
@@ -422,12 +421,12 @@ export PATH="$PATH:$HOME/src/k8s_tools/bin"
 # This will set the LANG variable for your environment
 export LANG=en_US.UTF-8
 
-# https://www.cogini.com/blog/using-asdf-with-elixir-and-phoenix/s
+# asdf
 . $(brew --prefix asdf)/asdf.sh
 . $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
-export GUILE_LOAD_PATH="/usr/local/share/guile/site/3.0"
-export GUILE_LOAD_COMPILED_PATH="/usr/local/lib/guile/3.0/site-ccache"
-export GUILE_SYSTEM_EXTENSIONS_PATH="/usr/local/lib/guile/3.0/extensions"
+# https://github.com/asdf-vm/asdf-erlang#osx
+# https://github.com/Homebrew/discussions/discussions/2187
+export KERL_CONFIGURE_OPTIONS="--without-javac --with-ssl=$(brew --prefix openssl@1.1)"
 
 # https://hexdocs.pm/iex/IEx.html
 export ERL_AFLAGS="-kernel shell_history enabled"
