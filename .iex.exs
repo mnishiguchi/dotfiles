@@ -5,7 +5,11 @@
 
 # https://hexdocs.pm/iex/IEx.html#configure/1
 IEx.configure(
-  inspect: [limit: 5_000],
+  # https://hexdocs.pm/elixir/Inspect.Opts.html
+  inspect: [
+    limit: 1_000,
+    charlists: :as_lists,
+  ],
   history_size: 100,
   default_prompt:
     [:light_magenta, "%prefix>"]
