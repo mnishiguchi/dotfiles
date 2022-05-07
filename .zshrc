@@ -139,15 +139,13 @@ alias which='type -a'                        # Find executables
 alias path='echo -e ${PATH//:/\\n}'          # Echo all executable Paths
 trash() { command mv "$@" ~/.Trash; }        # Moves a file to the MacOS trash
 preview() { qlmanage -p "$*" >&/dev/null; }  # Opens any file in MacOS Quicklook Preview
-alias DT='tee ~/Desktop/terminal-output.txt' # Pipe content to file on MacOS Desktop
+alias tee2desk='tee ~/Desktop/terminal-output.txt' # Pipe content to file on MacOS Desktop
 
-alias blog='cd ~/src/mnishiguchi-jekyll && code .'
 alias desk='cd ~/Desktop'
 alias src='cd ~/src && ls'
 alias dotfiles='code ~/dotfiles'
 alias reload='exec zsh -l'
 alias timestamp='date "+%Y%m%d%H%M%S"'
-alias chrome='open -a "Google Chrome.app"'
 
 # Search a manpage arg1 for a term arg2 case insensitive
 mans() { man $1 | grep -iC2 --color=always $2 | less; }
@@ -223,16 +221,13 @@ ff() { /usr/bin/find . -name "$@"; }     # Find file under the current directory
 ffs() { /usr/bin/find . -name "$@"'*'; } # Find file whose name starts with a given string
 ffe() { /usr/bin/find . -name '*'"$@"; } # Find file whose name ends with a given string
 
-# Search for a file using MacOS Spotlight's metadata
-spotlight() { mdfind "kMDItemDisplayName == '$@'wc"; }
-
 # ------------------------------------------------------------------------------
 # 5. PROCESS MANAGEMENT
 # ------------------------------------------------------------------------------
 
 # Find out the pid of a specified process
 # - Note that the command name can be specified via a regex
-# - E.g. findPid '/d$/' finds pids of all processes with names ending in 'd'
+# - E.g. find-pid '/d$/' finds pids of all processes with names ending in 'd'
 # - Without the 'sudo' it will only find processes of the current user
 find-pid() { lsof -t -c "$@"; }
 
@@ -265,7 +260,7 @@ host-info() {
   echo -e "\n${RED}Current date :$NC " ; date
   echo -e "\n${RED}Machine stats :$NC " ; uptime
   echo -e "\n${RED}Current network location :$NC " ; scselect
-  echo -e "\n${RED}Public facing IP Address :$NC " ; myip
+  echo -e "\n${RED}Public facing IP Address :$NC " ; curl icanhazip.com
   echo
 }
 
@@ -287,10 +282,9 @@ alias cleanup-launch-services="/System/Library/Frameworks/CoreServices.framework
 # 8. SOFTWARE ENGINEERING
 # ------------------------------------------------------------------------------
 
-# Git
-alias g='git'
-alias ga='git add'
-alias gaa='git add -A; git status'
+## Git
+
+alias ga='git add -A; git status'
 alias gc='git commit -v'
 alias gc!='gc -v --am'
 alias gco='git checkout'
@@ -305,32 +299,18 @@ alias gla='git log --oneline --graph  --decorate --all'
 alias gpush="git push"
 alias gpush!="git push --force-with-lease"
 
-# Elixir
+## Elixir
+
+# https://hexdocs.pm/iex/IEx.html
+export ERL_AFLAGS="-kernel shell_history enabled"
+
 # https://gigalixir.readthedocs.io/en/latest/getting-started-guide.html
 alias gx="gigalixir"
 
-# https://twitter.com/en30Y/status/1424475315217174533?s=03s
-exdoc() {
-  if [ -z $1 ]; then
-    echo "Plese specify module name etc"
-  else
-    mix run --no-mix-exs --eval 'require IEx.Helpers; IEx.Helpers.h('"$1"')'
-  fi
-}
+## Ruby
 
-# Ruby
 export BUNDLER_EDITOR='code'
 alias be="bundle exec"
-alias bi="bundle install"
-alias bu="bundle update"
-alias cap="be cap"
-alias dbreset="be rake db:drop && be rake db:create && be rake db:migrate && be rake db:seed"
-alias devlog='tail -f log/development.log'
-alias testlog='tail -f log/test.log'
-alias pryr='be pry -r ./config/environment'
-alias rcop='rubocop'
-alias rcop-fix='rubocop -a'
-alias rcop-todo='rubocop --auto-gen-config'
 
 # Install bundler with specific version
 install-bundler() {
@@ -343,25 +323,15 @@ install-bundler() {
   fi
 }
 
-# Jekyll
+## Jekyll
+
 alias jek="be jekyll serve -w"
 
-# Python
+## Python
+
 alias pr="pipenv run"
 
-# Puma-dev
-alias pdev-log="tail -f ~/Library/Logs/puma-dev.log"
-alias pdev-restart="touch tmp/restart.txt"
-
-# SSH
-# `ssh-add` adds private keys to the ssh agent, there is an issue with this not happening by default on start / reboot.
-ssh-add -K 2>/dev/null
-
-# NPM/Yarn
-alias ya='yarn add '
-alias yad='yarn add --dev '
-alias yr='yarn remove '
-alias yu='yarn upgrade '
+## NodeJS
 
 # https://trilon.io/blog/how-to-delete-all-nodemodules-recursively
 # Find all the "node_modules" directories in the current directory.
@@ -369,42 +339,26 @@ alias fd-node-modules='find . -name "node_modules" -type d -prune -print | xargs
 # Delete all the "node_modules" directories in the current directory.
 alias rm-node-modules='find . -name "node_modules" -type d -prune -print -exec rm -rf "{}" \;'
 
-# AWS
-alias aws-config='code ~/.aws'
+## Docker
 
-# Docker
-alias dk='docker'
 alias dc='docker-compose'
-alias dcr='docker-compose run'
-alias dcx='docker-compose exec'
-alias dcl='docker-compose logs'
-
-# My memo
-# Cd to home so that I can use global ruby.
-# The dev-null redirection is for skipping std ouput of my custom cd definition.
-alias inknotes='cd ~ > /dev/null ; mdless ~/inknotes.md ; cd - > /dev/null'
 
 # https://starship.rs/
 eval "$(starship init zsh)"
 
-# rbenv etc
+## rbenv etc
+
 eval "$(rbenv init -)"
 eval "$(pyenv init --path)" # https://github.com/pyenv/pyenv/issues/1906
 eval "$(nodenv init -)"
 
+## direnv
+
 # https://direnv.net/docs/hook.html
 eval "$(direnv hook zsh)"
 
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+## k8s
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/mnishiguchi/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/mnishiguchi/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/mnishiguchi/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/mnishiguchi/google-cloud-sdk/completion.zsh.inc'; fi
-
-# k8s
 # https://kubernetes.io/docs/tasks/tools/install-kubectl/
 alias k=kubectl
 source <(kubectl completion zsh)
@@ -413,16 +367,10 @@ complete -F __start_kubectl k
 # https://github.com/jonmosco/kube-ps1#from-source
 source ~/src/kube-ps1/kube-ps1.sh
 
-# Run a static HTTP server serving the current directory
-# alias serve="ruby -run -ehttpd"
-alias serve="python -m http.server -d "
-
 export PATH="$PATH:$HOME/src/k8s_tools/bin"
 
-# This will set the LANG variable for your environment
-export LANG=en_US.UTF-8
+## asdf
 
-# asdf
 unset ASDF_DIR
 . $HOME/.asdf/asdf.sh
 # append completions to fpath
@@ -434,10 +382,18 @@ autoload -Uz compinit && compinit
 # https://github.com/Homebrew/discussions/discussions/2187
 export KERL_CONFIGURE_OPTIONS="--without-javac --with-ssl=$(brew --prefix openssl@1.1)"
 
-# https://hexdocs.pm/iex/IEx.html
-export ERL_AFLAGS="-kernel shell_history enabled"
+## broot
 
 source /Users/mnishiguchi/.config/broot/launcher/bash/br
+
+## zsh-users https://github.com/zsh-users
+
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Run a static HTTP server serving the current directory
+# alias serve="ruby -run -ehttpd"
+alias serve="python -m http.server -d "
 
 # Generated by Strap - PATH
 export PATH=/usr/local/opt/mysql-client@5.7/bin:$PATH
