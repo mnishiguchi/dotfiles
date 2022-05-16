@@ -380,7 +380,8 @@ autoload -Uz compinit && compinit
 
 # https://github.com/asdf-vm/asdf-erlang#osx
 # https://github.com/Homebrew/discussions/discussions/2187
-export KERL_CONFIGURE_OPTIONS="--without-javac --with-ssl=$(brew --prefix openssl@1.1)"
+# https://elixirforum.com/t/asdf-erlang-24-2-2-installation-failure/47445/11?u=mnishiguchi
+export KERL_CONFIGURE_OPTIONS="--without-wx --without-javac --with-ssl=$(brew --prefix openssl@1.1)"
 
 ## broot
 
