@@ -9,7 +9,7 @@ export ZSH="/Users/mnishiguchi/.oh-my-zsh"
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 # https://github.com/denysdovhan/spaceship-prompt#oh-my-zsh
-ZSH_THEME="spaceship"
+# ZSH_THEME="spaceship"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -22,7 +22,7 @@ ZSH_THEME="spaceship"
 
 # Uncomment the following line to use hyphen-insensitive completion.
 # Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+HYPHEN_INSENSITIVE="true"
 
 # Uncomment the following line to disable bi-weekly auto-update checks.
 # DISABLE_AUTO_UPDATE="true"
@@ -108,9 +108,13 @@ export LANG=en_US.UTF-8
 # 1. ENVIRONMENT CONFIGURATION
 # ------------------------------------------------------------------------------
 
-PATH="/usr/local/heroku/bin:$PATH"
-PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-PATH=$PATH:/usr/local/opt/rabbitmq/sbin
+# On Apple silicon, Homebrew installs files into the /opt/homebrew/ folder, which is not part of the default shell $PATH.
+PATH=/opt/homebrew/bin:$PATH
+
+# https://www.rabbitmq.com/install-homebrew.html
+PATH=$PATH:/opt/homebrew/opt/rabbitmq/sbin
+
+# https://docs.flutter.dev/get-started/install/macos#update-your-path
 PATH=$PATH:$HOME/src/flutter/bin
 
 # Remove duplicate path entries: https://unix.stackexchange.com/a/149054
@@ -135,11 +139,9 @@ precmd() {
 # 2. MAKE TERMINAL BETTER
 # ------------------------------------------------------------------------------
 
-alias which='type -a'                        # Find executables
-alias path='echo -e ${PATH//:/\\n}'          # Echo all executable Paths
-trash() { command mv "$@" ~/.Trash; }        # Moves a file to the MacOS trash
-preview() { qlmanage -p "$*" >&/dev/null; }  # Opens any file in MacOS Quicklook Preview
-alias tee2desk='tee ~/Desktop/terminal-output.txt' # Pipe content to file on MacOS Desktop
+alias which='type -a'                              # Find executables
+alias path='echo -e ${PATH//:/\\n}'                # Echo all executable paths
+alias t2desk='tee ~/Desktop/terminal-output.txt' # Pipe content to file on MacOS Desktop
 
 alias desk='cd ~/Desktop'
 alias src='cd ~/src && ls'
@@ -147,49 +149,15 @@ alias dotfiles='code ~/dotfiles'
 alias reload='exec zsh -l'
 alias timestamp='date "+%Y%m%d%H%M%S"'
 
-# Search a manpage arg1 for a term arg2 case insensitive
-mans() { man $1 | grep -iC2 --color=always $2 | less; }
-man-preview() { man -t "$@" | open -f -a Preview }
-
-# Ctrl + R
-# https://github.com/peco/peco
-# https://qiita.com/shepabashi/items/f2bc2be37a31df49bca5
-function peco-history-selection() {
-    BUFFER=`history -n 1 | tail -r  | awk '!a[$0]++' | peco`
-    CURSOR=$#BUFFER
-    zle reset-prompt
-}
-
-zle -N peco-history-selection
-bindkey '^R' peco-history-selection
-
 # ------------------------------------------------------------------------------
 # 3. FILE AND FOLDER MANAGEMENT
 # ------------------------------------------------------------------------------
 
-zipf() { zip -r "$1".zip "$1"; }       # To create a ZIP archive of a folder
-alias numFiles='echo $(ls -1 | wc -l)' # Count of non-hidden files in current dir
-alias make1mb='mkfile 1m ./1MB.dat'    # Creates a file of 1mb size (all zeros)
-alias make5mb='mkfile 5m ./5MB.dat'    # Creates a file of 5mb size (all zeros)
-alias make10mb='mkfile 10m ./10MB.dat' # Creates a file of 10mb size (all zeros)
+# Create a zip archive of a folder
+mkzip() { zip -r "$1".zip "$1"; }
 
-# 'Cd's to frontmost window of MacOS Finder
-cdf() {
-  currFolderPath=$(
-    /usr/bin/osascript <<EOT
-        tell application "Finder"
-            try
-        set currFolder to (folder of the front window as alias)
-            on error
-        set currFolder to (path to desktop folder as alias)
-            end try
-            POSIX path of currFolder
-        end tell
-EOT
-  )
-  echo "cd to \"$currFolderPath\""
-  cd "$currFolderPath"
-}
+# Create a tar gzip archive of a folder
+mktargz() { tar czvf "$1".tar.gz "$1"; }
 
 # Extract most known archives with one command
 extract() {
@@ -229,7 +197,7 @@ ffe() { /usr/bin/find . -name '*'"$@"; } # Find file whose name ends with a give
 # - Note that the command name can be specified via a regex
 # - E.g. find-pid '/d$/' finds pids of all processes with names ending in 'd'
 # - Without the 'sudo' it will only find processes of the current user
-find-pid() { lsof -t -c "$@"; }
+fd-pids() { lsof -t -c "$@"; }
 
 alias mem='top -R -F -s 10 -o rsize'
 alias cpu='top -R -F -s 10 -o cpu'
@@ -242,7 +210,6 @@ my-ps() { ps $@ -u $USER -o pid,%cpu,%mem,start,time,bsdtime,command; }
 # ------------------------------------------------------------------------------
 
 alias my-ip='curl icanhazip.com'                                 # Public facing IP Address
-alias show-open-sockets='lsof -i'                                # Show all open TCP/IP sockets
 alias flush-dns='dscacheutil -flushcache'                        # Flush out the DNS Cache
 alias ip-info0='ipconfig getpacket en0'                          # Get info on connections for en0
 alias ip-info1='ipconfig getpacket en1'                          # Get info on connections for en1
@@ -276,7 +243,7 @@ alias show-files='defaults write com.apple.finder AppleShowAllFiles YES; killall
 alias hide-files='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app; echo Dot files hidden'
 
 # Clean up LaunchServices to remove duplicates in the "Open With" menu
-alias cleanup-launch-services="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
+alias clean-launch-services="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
 
 # ------------------------------------------------------------------------------
 # 8. SOFTWARE ENGINEERING
@@ -303,9 +270,6 @@ alias gpush!="git push --force-with-lease"
 
 # https://hexdocs.pm/iex/IEx.html
 export ERL_AFLAGS="-kernel shell_history enabled"
-
-# https://gigalixir.readthedocs.io/en/latest/getting-started-guide.html
-alias gx="gigalixir"
 
 ## Ruby
 
@@ -338,13 +302,6 @@ alias pr="pipenv run"
 alias fd-node-modules='find . -name "node_modules" -type d -prune -print | xargs du -chs'
 # Delete all the "node_modules" directories in the current directory.
 alias rm-node-modules='find . -name "node_modules" -type d -prune -print -exec rm -rf "{}" \;'
-
-## Docker
-
-alias dc='docker-compose'
-
-# https://starship.rs/
-eval "$(starship init zsh)"
 
 ## rbenv etc
 
@@ -383,14 +340,13 @@ autoload -Uz compinit && compinit
 # https://elixirforum.com/t/asdf-erlang-24-2-2-installation-failure/47445/11?u=mnishiguchi
 export KERL_CONFIGURE_OPTIONS="--without-wx --without-javac --with-ssl=$(brew --prefix openssl@1.1)"
 
-## broot
-
-source /Users/mnishiguchi/.config/broot/launcher/bash/br
-
 ## zsh-users https://github.com/zsh-users
 
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+source ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+# starship prompt https://starship.rs/
+eval "$(starship init zsh)"
 
 # Generated by Strap - PATH
 export PATH=/usr/local/opt/mysql-client@5.7/bin:$PATH
