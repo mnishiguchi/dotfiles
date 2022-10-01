@@ -1,5 +1,5 @@
 # iex.exs currently used
-[:blue_background, :bright, :white, "Using config file: ", __ENV__.file]
+[:blue_background, :bright, :white, "Using ", __ENV__.file]
 |> IO.ANSI.format()
 |> IO.puts()
 

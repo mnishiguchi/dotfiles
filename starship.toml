@@ -12,5 +12,14 @@ symbol = "🅶 "
 [package]
 disabled = true
 
+[directory]
+truncate_to_repo = false
+
+[elixir]
+format = 'via [$version \(OTP $otp_version\) ]($style) '
+
+[nodejs]
+format = "via [$version]($style) "
+
 [ruby]
-symbol = "🔺 "
+format = "via [$version]($style) "
