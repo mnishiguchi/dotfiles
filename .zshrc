@@ -324,8 +324,6 @@ complete -F __start_kubectl k
 # https://github.com/jonmosco/kube-ps1#from-source
 source ~/src/kube-ps1/kube-ps1.sh
 
-export PATH="$PATH:$HOME/src/k8s_tools/bin"
-
 ## asdf
 
 unset ASDF_DIR
