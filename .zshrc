@@ -69,7 +69,21 @@ DISABLE_AUTO_TITLE="true"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-# plugins=(git)
+plugins=(
+  asdf
+  bundler
+  colored-man-pages
+  emoji
+  git
+  gitfast
+  gitignore
+  iterm2
+  kubectl
+  kube-ps1
+  mix
+  rbenv
+  z
+)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -144,8 +158,8 @@ alias path='echo -e ${PATH//:/\\n}'                # Echo all executable paths
 alias t2desk='tee ~/Desktop/terminal-output.txt' # Pipe content to file on MacOS Desktop
 
 alias desk='cd ~/Desktop'
-alias src='cd ~/src && ls'
-alias dotfiles='code ~/dotfiles'
+alias src='cd ~/src'
+alias dotfiles='cd ~/dotfiles'
 alias reload='exec zsh -l'
 alias timestamp='date "+%Y%m%d%H%M%S"'
 
@@ -251,20 +265,8 @@ alias clean-launch-services="/System/Library/Frameworks/CoreServices.framework/F
 
 ## Git
 
-alias ga='git add -A; git status'
-alias gc='git commit -v'
-alias gc!='gc -v --am'
-alias gco='git checkout'
-alias gco!='git checkout -f'
-alias gf='git fetch'
-alias gb='git branch'
-alias gd='git diff'
-alias gdca='git diff --cached'
+# Use aliases from https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git
 alias grm='git rm --cached -r'
-alias gl='git log --oneline --graph --decorate'
-alias gla='git log --oneline --graph  --decorate --all'
-alias gpush="git push"
-alias gpush!="git push --force-with-lease"
 
 ## Elixir
 
@@ -272,9 +274,6 @@ alias gpush!="git push --force-with-lease"
 export ERL_AFLAGS="-kernel shell_history enabled"
 
 ## Ruby
-
-export BUNDLER_EDITOR='code'
-alias be="bundle exec"
 
 # Install bundler with specific version
 install-bundler() {
@@ -286,14 +285,6 @@ install-bundler() {
     gem uninstall -xI bundler && gem install bundler --version "$1"
   fi
 }
-
-## Jekyll
-
-alias jek="be jekyll serve -w"
-
-## Python
-
-alias pr="pipenv run"
 
 ## NodeJS
 
@@ -313,30 +304,6 @@ eval "$(nodenv init -)"
 
 # https://direnv.net/docs/hook.html
 eval "$(direnv hook zsh)"
-
-## k8s
-
-# https://kubernetes.io/docs/tasks/tools/install-kubectl/
-alias k=kubectl
-source <(kubectl completion zsh)
-complete -F __start_kubectl k
-
-# https://github.com/jonmosco/kube-ps1#from-source
-source ~/src/kube-ps1/kube-ps1.sh
-
-## asdf
-
-unset ASDF_DIR
-. $HOME/.asdf/asdf.sh
-# append completions to fpath
-fpath=(${ASDF_DIR}/completions $fpath)
-# initialise completions with ZSH's compinit
-autoload -Uz compinit && compinit
-
-# https://github.com/asdf-vm/asdf-erlang#osx
-# https://github.com/Homebrew/discussions/discussions/2187
-# https://elixirforum.com/t/asdf-erlang-24-2-2-installation-failure/47445/11?u=mnishiguchi
-export KERL_CONFIGURE_OPTIONS="--without-wx --without-javac --with-ssl=$(brew --prefix openssl@1.1)"
 
 ## zsh-users https://github.com/zsh-users
 
