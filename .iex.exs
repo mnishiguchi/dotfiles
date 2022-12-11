@@ -8,7 +8,7 @@ IEx.configure(
   # https://hexdocs.pm/elixir/Inspect.Opts.html
   inspect: [
     limit: 1_000,
-    charlists: :as_lists,
+    charlists: :as_lists
   ],
   history_size: 100,
   default_prompt:

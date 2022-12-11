@@ -31,7 +31,7 @@ HYPHEN_INSENSITIVE="true"
 # DISABLE_UPDATE_PROMPT="true"
 
 # Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
+export UPDATE_ZSH_DAYS=13
 
 # Uncomment the following line if pasting URLs and other text is messed up.
 # DISABLE_MAGIC_FUNCTIONS=true
@@ -43,7 +43,7 @@ HYPHEN_INSENSITIVE="true"
 DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
+ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # COMPLETION_WAITING_DOTS="true"
@@ -59,7 +59,7 @@ DISABLE_AUTO_TITLE="true"
 # "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 # or set a custom format using the strftime function format specifications,
 # see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
+HIST_STAMPS="yyyy-mm-dd"
 
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
@@ -272,6 +272,7 @@ alias grm='git rm --cached -r'
 
 # https://hexdocs.pm/iex/IEx.html
 export ERL_AFLAGS="-kernel shell_history enabled"
+export ELIXIR_EDITOR="code --goto"
 
 ## Ruby
 
@@ -304,6 +305,14 @@ eval "$(nodenv init -)"
 
 # https://direnv.net/docs/hook.html
 eval "$(direnv hook zsh)"
+
+## zsh history
+
+# The maximum number of events stored in the zsh history file
+export SAVEHIST=10000
+
+# Delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt HIST_IGNORE_ALL_DUPS
 
 ## zsh-users https://github.com/zsh-users
 
