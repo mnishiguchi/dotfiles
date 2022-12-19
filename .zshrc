@@ -298,7 +298,7 @@ alias rm-node-modules='find . -name "node_modules" -type d -prune -print -exec r
 ## rbenv etc
 
 eval "$(rbenv init -)"
-eval "$(pyenv init --path)" # https://github.com/pyenv/pyenv/issues/1906
+eval "$(pyenv init -)"
 eval "$(nodenv init -)"
 
 ## direnv
