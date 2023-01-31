@@ -274,6 +274,8 @@ alias grm='git rm --cached -r'
 export ERL_AFLAGS="-kernel shell_history enabled"
 export ELIXIR_EDITOR="code --goto"
 
+alias hexdocs="mix hex.docs online "
+
 ## Ruby
 
 # Install bundler with specific version
