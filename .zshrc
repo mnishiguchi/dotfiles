@@ -165,3 +165,7 @@ alias 2desk="tee $TERMINAL_OUTPUT_FILE | less"
 precmd() {
   echo -ne "\e]1;${PWD##*/}\a"
 }
+
+# Add newline to the prompt
+NEWLINE=$'\n'
+PROMPT="$PROMPT${NEWLINE}"
