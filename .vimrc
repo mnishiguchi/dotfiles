@@ -1,29 +1,53 @@
-execute pathogen#infect()
-
-set nocompatible
+" ## basic setup
+"
+syntax enable
 filetype plugin on
 
-" Finding files
+" ## line numbers
+"
+set number
+set relativenumber
+set laststatus=2
 
-set path+=**  " search subfolders
-set wildmenu  " show all patching files on tab completion
-
-" Indenting
-
-set shiftwidth=2
+" ## indent
+"
 set autoindent
 set smartindent
 
-" Spaces & Tabs
+" ## tabs
+"
+set expandtab
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
 
-set expandtab      " tabs are spaces
-set tabstop=2      " number of visual spaces per TAB
-set softtabstop=2  " number of spaces in tab when editing
-set smarttab
+" ## finding files
+"
+" - :find - find a file by substring
+" - * - make it fuzzy
+" - :ls - list all open files
+" - :b - fuzzy search files in the buffer
+"
+set path+=**
+set wildmenu
 
-" UI
+" ## tag-jumping using ctags program
+"
+" - ^] - jump to the tag under cursor
+" - g^] - for ambiguous tags
+" - ^t - jump back up the tag stack
+"
+command! MakeTags !ctags -R .
 
-syntax on       " stntax highlighting
-set number      " show line numbers
-set cursorline  " highlight current line
-set showmatch   " highlight matching [{()}]
+" ## keep cursor centered
+"
+:nnoremap j jzz
+:nnoremap k kzz
+:nnoremap n nzzzv
+:nnoremap N Nzzzv
+:nnoremap <C-d> <C-d>zz
+:nnoremap <C-u> <C-u>zz
+
+" ## etc
+"
+set diffopt+=vertical " show diffs side by side
