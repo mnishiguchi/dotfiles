@@ -168,4 +168,4 @@ precmd() {
 
 # Add newline to the prompt
 NEWLINE=$'\n'
-PROMPT="$PROMPT${NEWLINE}"
+PROMPT="$PROMPT${NEWLINE}$ "
