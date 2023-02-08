@@ -1,1 +1,7 @@
+*.DS_Store
+*.envrc
+.elixir_ls
+.vscode
+.tool-versions
 /tmp/
+tags
