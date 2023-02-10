@@ -147,10 +147,13 @@ nnoremap tj :<C-u>tag<CR>
 nnoremap tk :<C-u>pop<CR>
 nnoremap tl :<C-u>tags<CR>
 
-"keep cursor centered
+" keep cursor centered
 nnoremap j jzz
 nnoremap k kzz
 nnoremap n nzzzv
 nnoremap N Nzzzv
 nnoremap <C-d> <C-d>zz
 nnoremap <C-u> <C-u>zz
+
+" toggle sidebar
+nnoremap <leader>n :NERDTreeToggle<CR>
