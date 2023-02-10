@@ -2,6 +2,5 @@
 *.envrc
 .elixir_ls
 .vscode
-.tool-versions
 /tmp/
 tags
