@@ -84,9 +84,6 @@ filetype plugin indent on    " required
 set swapfile
 set dir=/tmp
 
-" strip trailing whitespace on save
-autocmd BufWritePre * :%s/\s\+$//e
-
 " line numbers
 set number
 set relativenumber
@@ -122,6 +119,9 @@ colorscheme molokai
 
 augroup random
   autocmd!
+
+  " strip trailing whitespace on save
+  autocmd BufWritePre * :%s/\s\+$//e
 
   " set some file types
   autocmd BufRead,BufNewFile mix.lock set filetype=elixir
