@@ -108,7 +108,7 @@ set diffopt=filler,vertical
 " enable recursive search
 set path+=**
 set wildmenu
-set wildmode=longest:list,full
+set wildmode=full
 
 " don't wrap long lines
 set nowrap           " do not automatically wrap on load
