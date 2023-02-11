@@ -85,10 +85,6 @@ filetype plugin indent on    # required
 # non-Plugin stuff
 ##############################################################################
 
-# write swp files to /tmp instead of current directory
-set swapfile
-set dir=/tmp
-
 # line numbers
 set number
 set relativenumber
