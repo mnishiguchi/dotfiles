@@ -164,6 +164,12 @@ nnoremap <Space>n :NERDTreeToggle<CR>
 # search files with fzf
 nnoremap <Space>f :Files<CR>
 
+# move between buffers
+nnoremap <silent> [b :bprevious<CR>
+nnoremap <silent> ]b :bnext<CR>
+nnoremap <silent> [B :bfirst<CR>
+nnoremap <silent> ]B :blast<CR>
+
 # bind :Q to :q
 command! Q q
 command! Qall qall
@@ -171,3 +177,4 @@ command! QA qall
 command! E e
 command! W w
 command! Wq wq
+
