@@ -1,6 +1,0 @@
-*.DS_Store
-*.envrc
-.elixir_ls
-.vscode
-/tmp/
-tags

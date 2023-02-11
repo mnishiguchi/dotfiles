@@ -43,7 +43,7 @@ export UPDATE_ZSH_DAYS=13
 DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
+# ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # COMPLETION_WAITING_DOTS="true"
@@ -147,12 +147,12 @@ install-bundler() {
 
 ## *env etc
 
-command -v rbenv >/dev/null 2>&1 && eval "$(rbenv init -)" || true
-command -v pyenv >/dev/null 2>&1 && eval "$(pyenv init -)" || true
-command -v nodenv >/dev/null 2>&1 && eval "$(nodenv init -)" || true
+command -v rbenv &>/dev/null && eval "$(rbenv init -)" || true
+command -v pyenv &>/dev/null && eval "$(pyenv init -)" || true
+command -v nodenv &>/dev/null && eval "$(nodenv init -)" || true
 
 # https://direnv.net/docs/hook.html
-command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)" || true
+command -v direnv &>/dev/null && eval "$(direnv hook zsh)" || true
 
 ## etc
 
@@ -169,3 +169,9 @@ precmd() {
 # Add newline to the prompt
 NEWLINE=$'\n'
 PROMPT="$PROMPT${NEWLINE}$ "
+
+# Use ripgrep instead of grep for fzf
+# https://dev.to/iggredible/how-to-search-faster-in-vim-with-fzf-vim-36ko
+if command -v rg &>/dev/null; then
+  export FZF_DEFAULT_COMMAND='rg --files'
+fi

@@ -1,0 +1,58 @@
+# https://gist.github.com/jacobtomlinson/aace65a6920e44348d501da5e13a5a17
+
+# compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.pyc
+*.pyo
+
+# packages
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.msi
+
+# logs and databases
+*.log
+*.sqlite
+
+# OS generated files
+.DS_Store
+
+# temporary files
+*.bak
+*.swp
+*.swo
+*~
+*#
+tmp/
+
+# IDE files
+.vscode
+.idea
+.iml
+*.sublime-workspace
+
+# direnv
+*.envrc
+
+# elixir
+.elixir_ls
+
+# vs code
+.vscode/
+
+# ctags
+tags
+
+# node
+npm-debug.log
