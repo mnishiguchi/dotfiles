@@ -161,3 +161,11 @@ nnoremap <Space>n :NERDTreeToggle<CR>
 
 " search files with fzf
 nnoremap <Space>f :Files<CR>
+
+" bind :Q to :q
+command! Q q
+command! Qall qall
+command! QA qall
+command! E e
+command! W w
+command! Wq wq
