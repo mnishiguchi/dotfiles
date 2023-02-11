@@ -96,9 +96,7 @@ set cursorline
 
 " use two space tabs
 set expandtab
-set tabstop=2
-set shiftwidth=2
-set softtabstop=2
+set tabstop=2 shiftwidth=2 softtabstop=2
 
 " indent
 set autoindent
