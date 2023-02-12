@@ -127,19 +127,44 @@ augroup random
   autocmd BufRead,BufNewFile {Gemfile,Rakefile,Vagrantfile,Thorfile,Procfile,Guardfile,config.ru,*.rake} set filetype=ruby
 augroup END
 
+# use space as mapleader
+map <Space> <Leader>
+
 # open vim help easily
 nnoremap <C-h> :<C-u>help<Space>
 
 # edit vimrc quickly
-nnoremap <Space>. :<C-u>edit $MYVIMRC<CR>
-nnoremap <Space>s. :<C-u>source $MYVIMRC<CR>
+nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
+nnoremap <Leader>s. :<C-u>source $MYVIMRC<CR>
 
 # check marks and registers easily
-nnoremap <Space>m :<C-u>marks<CR>
-nnoremap <Space>r :<C-u>registers<CR>
+nnoremap <Leader>m :<C-u>marks<CR>
+nnoremap <Leader>r :<C-u>registers<CR>
+
+# toggle sidebar
+nnoremap <Leader>n :NERDTreeToggle<CR>
+
+# search files with fzf
+nnoremap <Leader>f :Files<CR>
 
 # make tags for tag-jumping
-nnoremap <leader>ct :!ctags -R .<cr>
+nnoremap <Leader>ct :!ctags -R .<CR>
+
+# keep cursor centered
+nnoremap j jzz
+nnoremap k kzz
+nnoremap n nzzzv
+nnoremap N Nzzzv
+nnoremap <C-d> <C-d>zz
+nnoremap <C-u> <C-u>zz
+
+# toggle sidebar
+nnoremap <Leader>n :NERDTreeToggle<CR>
+
+# search files with fzf
+nnoremap <Leader>f :Files<CR>
+
+# jump to tags easily
 nnoremap t  <Nop>
 nnoremap tt <C-]>
 nnoremap tj :<C-u>tag<CR>
@@ -153,12 +178,6 @@ nnoremap n nzzzv
 nnoremap N Nzzzv
 nnoremap <C-d> <C-d>zz
 nnoremap <C-u> <C-u>zz
-
-# toggle sidebar
-nnoremap <Space>n :NERDTreeToggle<CR>
-
-# search files with fzf
-nnoremap <Space>f :Files<CR>
 
 # move between buffers
 nnoremap <silent> [b :bprevious<CR>
