@@ -175,3 +175,6 @@ PROMPT="$PROMPT${NEWLINE}$ "
 if command -v rg &>/dev/null; then
   export FZF_DEFAULT_COMMAND='rg --files'
 fi
+
+# https://github.com/jesseduffield/lazygit
+alias lg='lazygit'

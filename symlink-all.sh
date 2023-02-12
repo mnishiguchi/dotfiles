@@ -8,9 +8,23 @@ SCRIPTPATH="$(
 echo "symlinking dotfiles from \"$SCRIPTPATH\" to \"$HOME\""
 
 # be sure to use absolute path when linking files
-ln -sf $SCRIPTPATH/editorconfig $HOME/.editorconfig
-ln -sf $SCRIPTPATH/gitignore_global $HOME/.gitignore
-ln -sf $SCRIPTPATH/iex.exs $HOME/.iex.exs
-ln -sf $SCRIPTPATH/tmux.conf $HOME/.tmux.conf
-ln -sf $SCRIPTPATH/vimrc $HOME/.vimrc
-ln -sf $SCRIPTPATH/zshrc $HOME/.zshrc
+DOTFILE="$SCRIPTPATH/nvim"
+[ -d "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/nvim"
+
+DOTFILE="$SCRIPTPATH/editorconfig"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.editorconfig"
+
+DOTFILE="$SCRIPTPATH/gitignore_global"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.gitignore"
+
+DOTFILE="$SCRIPTPATH/iex.ex"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.iex.exs"
+
+DOTFILE="$SCRIPTPATH/tmux.conf"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.tmux.conf"
+
+DOTFILE="$SCRIPTPATH/vimrc"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.vimrc"
+
+DOTFILE="$SCRIPTPATH/zshrc"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.zshrc"

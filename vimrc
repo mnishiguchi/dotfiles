@@ -15,56 +15,30 @@ vundle#begin()
 
 # let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
-# The following are examples of different formats supported.
-# Keep Plugin commands between vundle#begin/end.
-# plugin on GitHub repo
-Plugin 'tpope/vim-fugitive'
-# plugin from http://vim-scripts.org/vim/scripts.html
-# Plugin 'L9'
-# Git plugin not hosted on GitHub
-# Plugin 'git://git.wincent.com/command-t.git'
-# git repos on your local machine (i.e. when working on your own plugin)
-# Plugin 'file:///home/gmarik/path/to/plugin'
-# The sparkup vim script is in a subdirectory of this repo called vim.
-# Pass the path to set the runtimepath properly.
-Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-# Install L9 and avoid a Naming conflict if you've already installed a
-# different version somewhere else.
-# Plugin 'ascenator/L9', {'name': 'newL9'}
 
-Plugin 'scrooloose/nerdtree'
 # Get rid of objects in C projects
 var NERDTreeIgnore = ['\~$', '.o$', 'bower_components', 'node_modules', '__pycache__']
 var NERDTreeShowHidden = 1
 
-Plugin 'elixir-editors/vim-elixir'
-
-Plugin 'vim-ruby/vim-ruby'
-
-Plugin 'tpope/vim-rails'
-
 Plugin 'airblade/vim-gitgutter'
-
-Plugin 'pangloss/vim-javascript'
-
-Plugin 'tomasr/molokai'
-
-Plugin 'tpope/vim-repeat'
-
-Plugin 'tpope/vim-endwise'
-
-Plugin 'tpope/vim-commentary'
-
 Plugin 'ap/vim-css-color'
-
-Plugin 'tpope/vim-surround'
-
-Plugin 'vim-airline/vim-airline'
-
-Plugin 'vim-airline/vim-airline-themes'
-
-Plugin 'junegunn/fzf'
+Plugin 'elixir-editors/vim-elixir'
 Plugin 'junegunn/fzf.vim'
+Plugin 'junegunn/fzf'
+Plugin 'lukas-reineke/indent-blankline.nvim'
+Plugin 'pangloss/vim-javascript'
+Plugin 'scrooloose/nerdtree'
+Plugin 'tomasr/molokai'
+Plugin 'tpope/vim-commentary'
+Plugin 'tpope/vim-endwise'
+Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-rails'
+Plugin 'tpope/vim-repeat'
+Plugin 'tpope/vim-surround'
+Plugin 'tpope/vim-unimpaired'
+Plugin 'vim-airline/vim-airline-themes'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-ruby/vim-ruby'
 
 # All of your Plugins must be added before the following line
 vundle#end()                 # required
@@ -82,17 +56,24 @@ filetype plugin indent on    # required
 # Put your non-Plugin stuff after this line
 
 ##############################################################################
-# non-Plugin stuff
+# options
 ##############################################################################
 
+# theme
+syntax enable
+colorscheme molokai
+
 # line numbers
-set number
-set relativenumber
+set number relativenumber
 
-# highlight current line
+# cursor line
 set cursorline
+set cursorcolumn
+set colorcolumn=80
+set scrolloff=8
+set signcolumn=yes
 
-# use two space tabs
+# tabs
 set expandtab
 set tabstop=2 shiftwidth=2 softtabstop=2
 
@@ -100,21 +81,75 @@ set tabstop=2 shiftwidth=2 softtabstop=2
 set autoindent
 set smartindent
 
-# show diffs side by side
-set diffopt=filler,vertical
+# diffs
+set diffopt=filler,vertical # side by side
 
-# enable recursive search
+# command completion
 set path+=**
 set wildmenu
 set wildmode=full
 
-# don't wrap long lines
+# word wrap
 set nowrap           # do not automatically wrap on load
 set formatoptions-=t # do not automatically wrap text when typing
 
-# set theme
-syntax enable
-colorscheme molokai
+# search highlight
+set nohlsearch
+set incsearch
+
+# others
+set termguicolors # highlight groups
+set isfname+=@-@ # all alphas
+
+##############################################################################
+# key mapping
+##############################################################################
+
+# use space as mapleader
+map <Space> <Leader>
+
+# edit vimrc quickly
+nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
+nnoremap <Leader>s. :<C-u>source $MYVIMRC<CR>
+
+# show the file explore
+nnoremap <Leader>pv :NERDTreeToggle<CR>
+
+# search files with fzf
+nnoremap <Leader>pf :Files<CR>
+
+# make tags for tag-jumping
+nnoremap <Leader>ct :!ctags -R .<CR>
+nnoremap t  <Nop>
+nnoremap tt <C-]>
+
+# keep the cursor centered while moving up and down
+nnoremap j jzz
+nnoremap k kzz
+nnoremap <C-d> <C-d>zz
+nnoremap <C-u> <C-u>zz
+
+# keep the cursor centered while searching
+nnoremap n nzzzv
+nnoremap N Nzzzv
+
+# check marks and registers easily
+nnoremap <Leader>m :<C-u>marks<CR>
+nnoremap <Leader>r :<C-u>registers<CR>
+nnoremap <Leader>t :<C-u>tags<CR>
+
+# bind :Q to :q
+command! Q q
+command! QA qall
+command! Qa qall
+command! W w
+command! WQ wq
+command! Wq wq
+command! E e
+
+##############################################################################
+# autocommands
+##############################################################################
 
 augroup random
   autocmd!
@@ -126,70 +161,3 @@ augroup random
   autocmd BufRead,BufNewFile mix.lock set filetype=elixir
   autocmd BufRead,BufNewFile {Gemfile,Rakefile,Vagrantfile,Thorfile,Procfile,Guardfile,config.ru,*.rake} set filetype=ruby
 augroup END
-
-# use space as mapleader
-map <Space> <Leader>
-
-# open vim help easily
-nnoremap <C-h> :<C-u>help<Space>
-
-# edit vimrc quickly
-nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
-nnoremap <Leader>s. :<C-u>source $MYVIMRC<CR>
-
-# check marks and registers easily
-nnoremap <Leader>m :<C-u>marks<CR>
-nnoremap <Leader>r :<C-u>registers<CR>
-
-# toggle sidebar
-nnoremap <Leader>n :NERDTreeToggle<CR>
-
-# search files with fzf
-nnoremap <Leader>f :Files<CR>
-
-# make tags for tag-jumping
-nnoremap <Leader>ct :!ctags -R .<CR>
-
-# keep cursor centered
-nnoremap j jzz
-nnoremap k kzz
-nnoremap n nzzzv
-nnoremap N Nzzzv
-nnoremap <C-d> <C-d>zz
-nnoremap <C-u> <C-u>zz
-
-# toggle sidebar
-nnoremap <Leader>n :NERDTreeToggle<CR>
-
-# search files with fzf
-nnoremap <Leader>f :Files<CR>
-
-# jump to tags easily
-nnoremap t  <Nop>
-nnoremap tt <C-]>
-nnoremap tj :<C-u>tag<CR>
-nnoremap tk :<C-u>pop<CR>
-nnoremap tl :<C-u>tags<CR>
-
-# keep cursor centered
-nnoremap j jzz
-nnoremap k kzz
-nnoremap n nzzzv
-nnoremap N Nzzzv
-nnoremap <C-d> <C-d>zz
-nnoremap <C-u> <C-u>zz
-
-# move between buffers
-nnoremap <silent> [b :bprevious<CR>
-nnoremap <silent> ]b :bnext<CR>
-nnoremap <silent> [B :bfirst<CR>
-nnoremap <silent> ]B :blast<CR>
-
-# bind :Q to :q
-command! Q q
-command! Qall qall
-command! QA qall
-command! E e
-command! W w
-command! Wq wq
-
