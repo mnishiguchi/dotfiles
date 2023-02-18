@@ -178,3 +178,6 @@ fi
 
 # https://github.com/jesseduffield/lazygit
 alias lg='lazygit'
+
+alias v='vim'
+alias nv='nvim'
