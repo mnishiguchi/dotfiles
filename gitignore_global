@@ -47,6 +47,7 @@ tmp/
 
 # elixir
 .elixir_ls
+.mix*
 
 # vs code
 .vscode/
