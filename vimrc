@@ -16,10 +16,6 @@ vundle#begin()
 # let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 
-# Get rid of objects in C projects
-var NERDTreeIgnore = ['\~$', '.o$', 'bower_components', 'node_modules', '__pycache__']
-var NERDTreeShowHidden = 1
-
 Plugin 'airblade/vim-gitgutter'
 Plugin 'ap/vim-css-color'
 Plugin 'elixir-editors/vim-elixir'
@@ -27,7 +23,6 @@ Plugin 'junegunn/fzf.vim'
 Plugin 'junegunn/fzf'
 Plugin 'lukas-reineke/indent-blankline.nvim'
 Plugin 'pangloss/vim-javascript'
-Plugin 'scrooloose/nerdtree'
 Plugin 'tomasr/molokai'
 Plugin 'tpope/vim-commentary'
 Plugin 'tpope/vim-endwise'
@@ -113,7 +108,7 @@ nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
 nnoremap <Leader>s. :<C-u>source $MYVIMRC<CR>
 
 # show the file explore
-nnoremap <Leader>pv :NERDTreeToggle<CR>
+nnoremap <Leader>pv :Explore<CR>
 
 # search files with fzf
 nnoremap <Leader>pf :Files<CR>
