@@ -71,5 +71,7 @@ return require('packer').startup(function(use)
     }
   }
 
+  use {'akinsho/toggleterm.nvim', tag = '*'}
+
   use 'marko-cerovac/material.nvim'
 end)
