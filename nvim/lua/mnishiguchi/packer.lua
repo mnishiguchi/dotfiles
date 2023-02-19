@@ -27,6 +27,7 @@ return require('packer').startup(function(use)
   use 'ThePrimeagen/harpoon'
   use 'tpope/vim-commentary'
   use 'tpope/vim-endwise'
+  use 'tpope/vim-fugitive'
   use 'tpope/vim-rails'
   use 'tpope/vim-repeat'
   use 'tpope/vim-rhubarb'
@@ -39,8 +40,6 @@ return require('packer').startup(function(use)
     branch = '0.1.x',
     requires = { {'nvim-lua/plenary.nvim'} }
   }
-
-  use { 'TimUntersberger/neogit', requires = 'nvim-lua/plenary.nvim' }
 
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
 

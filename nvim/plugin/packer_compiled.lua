@@ -149,11 +149,6 @@ _G.packer_plugins = {
     path = "/Users/mnishiguchi/.local/share/nvim/site/pack/packer/start/material.nvim",
     url = "https://github.com/marko-cerovac/material.nvim"
   },
-  neogit = {
-    loaded = true,
-    path = "/Users/mnishiguchi/.local/share/nvim/site/pack/packer/start/neogit",
-    url = "https://github.com/TimUntersberger/neogit"
-  },
   ["nvim-cmp"] = {
     loaded = true,
     path = "/Users/mnishiguchi/.local/share/nvim/site/pack/packer/start/nvim-cmp",
@@ -209,6 +204,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/mnishiguchi/.local/share/nvim/site/pack/packer/start/vim-endwise",
     url = "https://github.com/tpope/vim-endwise"
+  },
+  ["vim-fugitive"] = {
+    loaded = true,
+    path = "/Users/mnishiguchi/.local/share/nvim/site/pack/packer/start/vim-fugitive",
+    url = "https://github.com/tpope/vim-fugitive"
   },
   ["vim-rails"] = {
     loaded = true,
