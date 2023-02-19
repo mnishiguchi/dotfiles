@@ -181,3 +181,5 @@ alias lg='lazygit'
 
 alias v='vim'
 alias nv='nvim'
+
+alias serve='python3 -m http.server --directory '
