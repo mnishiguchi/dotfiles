@@ -27,6 +27,7 @@ return require('packer').startup(function(use)
   use 'ThePrimeagen/harpoon'
   use 'tpope/vim-commentary'
   use 'tpope/vim-endwise'
+  use 'tpope/vim-eunuch'
   use 'tpope/vim-fugitive'
   use 'tpope/vim-rails'
   use 'tpope/vim-repeat'
