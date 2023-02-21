@@ -73,5 +73,10 @@ return require('packer').startup(function(use)
 
   use {'akinsho/toggleterm.nvim', tag = '*'}
 
+  use {
+    "folke/todo-comments.nvim",
+    requires = "nvim-lua/plenary.nvim"
+  }
+
   use 'marko-cerovac/material.nvim'
 end)
