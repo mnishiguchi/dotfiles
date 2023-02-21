@@ -220,11 +220,6 @@ _G.packer_plugins = {
     path = "/Users/mnishiguchi/.local/share/nvim/site/pack/packer/start/vim-fugitive",
     url = "https://github.com/tpope/vim-fugitive"
   },
-  ["vim-rails"] = {
-    loaded = true,
-    path = "/Users/mnishiguchi/.local/share/nvim/site/pack/packer/start/vim-rails",
-    url = "https://github.com/tpope/vim-rails"
-  },
   ["vim-repeat"] = {
     loaded = true,
     path = "/Users/mnishiguchi/.local/share/nvim/site/pack/packer/start/vim-repeat",

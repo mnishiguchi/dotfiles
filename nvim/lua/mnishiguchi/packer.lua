@@ -29,7 +29,6 @@ return require('packer').startup(function(use)
   use 'tpope/vim-endwise'
   use 'tpope/vim-eunuch'
   use 'tpope/vim-fugitive'
-  use 'tpope/vim-rails'
   use 'tpope/vim-repeat'
   use 'tpope/vim-rhubarb'
   use 'tpope/vim-sleuth'
