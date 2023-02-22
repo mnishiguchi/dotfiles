@@ -104,6 +104,8 @@ set isfname+=@-@ # all alphas
 
 # use space as mapleader
 map <Space> <Leader>
+nnoremap <Leader> <Nop>
+xnoremap <Leader> <Nop>
 
 # edit vimrc quickly
 nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>

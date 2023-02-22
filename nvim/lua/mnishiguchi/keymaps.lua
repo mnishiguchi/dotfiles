@@ -5,6 +5,8 @@
 
 -- use space as mapleader
 vim.g.mapleader = " "
+vim.keymap.set("n", "<leader>", "<Nop>")
+vim.keymap.set("x", "<leader>", "<Nop>")
 
 -- edit vimrc quickly
 vim.keymap.set("n", "<leader>.", ":<C-u>find $MYVIMRC<CR>:<C-u>Explore<CR>")
