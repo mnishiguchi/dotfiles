@@ -137,6 +137,9 @@ nnoremap <Leader>m :<C-u>marks<CR>
 nnoremap <Leader>r :<C-u>registers<CR>
 nnoremap <Leader>t :<C-u>tags<CR>
 
+# close buffers
+nnoremap <Leader>q :bdelete!<CR>
+
 # bind :Q to :q
 command! Q q
 command! QA qall

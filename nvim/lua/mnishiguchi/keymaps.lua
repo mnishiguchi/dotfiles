@@ -60,6 +60,9 @@ vim.keymap.set("n", "<leader>m", ":<C-u>marks<CR>")
 vim.keymap.set("n", "<leader>r", ":<C-u>registers<CR>")
 vim.keymap.set("n", "<leader>t", ":<C-u>tags<CR>")
 
+-- close buffers
+vim.keymap.set("n", "<leader>q", ":<C-u>bdelete!<CR>")
+
 -- bind :Q to :q
 vim.api.nvim_create_user_command("Q", "q", {})
 vim.api.nvim_create_user_command("QA", "qall", {})
