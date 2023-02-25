@@ -1,54 +1,43 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Plugins
-" See https://github.com/VundleVim/Vundle.vim
+" See https://github.com/tani/vim-jetpack
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+packadd vim-jetpack
 
-set nocompatible              " be iMproved, required
-filetype off                  " required
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
+call jetpack#begin()
+Jetpack 'tani/vim-jetpack', {'opt': 1}
+Jetpack 'airblade/vim-gitgutter'
+Jetpack 'ap/vim-css-color'
+Jetpack 'elixir-editors/vim-elixir'
+Jetpack 'junegunn/fzf.vim'
+Jetpack 'junegunn/fzf', { 'do': {-> fzf#install()} }
+Jetpack 'pangloss/vim-javascript'
+Jetpack 'tomasr/molokai'
+Jetpack 'tpope/vim-commentary'
+Jetpack 'tpope/vim-endwise'
+Jetpack 'tpope/vim-eunuch'
+Jetpack 'tpope/vim-fugitive'
+Jetpack 'tpope/vim-rails'
+Jetpack 'tpope/vim-repeat'
+Jetpack 'tpope/vim-rhubarb'
+Jetpack 'tpope/vim-sleuth'
+Jetpack 'tpope/vim-surround'
+Jetpack 'tpope/vim-unimpaired'
+Jetpack 'vim-airline/vim-airline-themes'
+Jetpack 'vim-airline/vim-airline'
+Jetpack 'vim-ruby/vim-ruby'
+call jetpack#end()
 
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-
-Plugin 'airblade/vim-gitgutter'
-Plugin 'ap/vim-css-color'
-Plugin 'elixir-editors/vim-elixir'
-Plugin 'junegunn/fzf.vim'
-Plugin 'junegunn/fzf'
-Plugin 'pangloss/vim-javascript'
-Plugin 'tomasr/molokai'
-Plugin 'tpope/vim-commentary'
-Plugin 'tpope/vim-endwise'
-Plugin 'tpope/vim-eunuch'
-Plugin 'tpope/vim-fugitive'
-Plugin 'tpope/vim-rails'
-Plugin 'tpope/vim-repeat'
-Plugin 'tpope/vim-rhubarb'
-Plugin 'tpope/vim-sleuth'
-Plugin 'tpope/vim-surround'
-Plugin 'tpope/vim-unimpaired'
-Plugin 'vim-airline/vim-airline-themes'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-ruby/vim-ruby'
-
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
+" ## Commands
 "
-" Brief help
-" :PluginList       - lists configured plugins
-" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
+" * `:JetpackSync`
+"   * install, update, and bundle all plugins
+"   * must be run after a change of your configuration
 "
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
+" * `:Jetpack repo [, options]`
+"   * a command version of `jetpack#add()`
+"   * useful for the vim-plug style declaration of plugins in vimrc
+"
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " options
