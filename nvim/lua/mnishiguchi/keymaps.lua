@@ -3,10 +3,9 @@
 -- see https://neovim.io/doc/user/map.html
 -------------------------------------------------------------------------------
 
--- use space as mapleader
-vim.g.mapleader = " "
-vim.keymap.set("n", "<leader>", "<Nop>")
-vim.keymap.set("x", "<leader>", "<Nop>")
+-- Keymaps for better default experience
+-- See `:help vim.keymap.set()`
+vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
 -- edit vimrc quickly
 vim.keymap.set("n", "<leader>.", ":<C-u>find $MYVIMRC<CR>:<C-u>Explore<CR>")

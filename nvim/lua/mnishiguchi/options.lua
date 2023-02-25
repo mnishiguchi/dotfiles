@@ -10,9 +10,8 @@ vim.opt.relativenumber = true
 -- cursor line
 vim.opt.cursorline = true
 vim.opt.cursorcolumn = true
-vim.opt.colorcolumn = "80"
+vim.opt.colorcolumn = '80'
 vim.opt.scrolloff = 8
-vim.opt.signcolumn = "yes"
 
 -- tabs
 vim.opt.tabstop = 2
@@ -25,21 +24,52 @@ vim.opt.autoindent = true
 vim.opt.smartindent = true
 
 -- diffs
-vim.opt.diffopt = "filler,vertical" -- side by side
+vim.opt.diffopt = 'filler,vertical' -- side by side
 
 -- command completion
-vim.opt.path:append("**")
+vim.opt.path:append('**')
 vim.opt.wildmenu = true
-vim.opt.wildmode = "full"
+vim.opt.wildmode = 'full'
 
 -- word wrap
 vim.opt.wrap = false              -- do not automatically wrap on load
-vim.opt.formatoptions:remove("t") -- do not automatically wrap text when typing
+vim.opt.formatoptions:remove('t') -- do not automatically wrap text when typing
 
 -- search highlight
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
--- others
+-- Enable mouse mode
+vim.opt.mouse = 'a'
+
+-- Sync clipboard between OS and Neovim
+--  Remove this option if you want your OS clipboard to remain independent
+--  See `:help 'clipboard'`
+-- vim.opt.clipboard = 'unnamedplus'
+
+-- Enable break indent
+vim.opt.breakindent = true
+
+-- Save undo history
+vim.opt.undofile = true
+
+-- Case insensitive searching UNLESS /C or capital in search
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+
+-- Keep signcolumn on by default
+vim.opt.signcolumn = 'yes'
+
+-- Decrease update time
+vim.opt.updatetime = 250
+vim.opt.timeout = true
+vim.opt.timeoutlen = 300
+
+-- Set completeopt to have a better completion experience
+vim.opt.completeopt = 'menuone,noselect'
+
+-- NOTE: You should make sure your terminal supports this
 vim.opt.termguicolors = true -- enable highlight groups
-vim.opt.isfname:append("@-@") -- all alphas
+
+-- Support all alphas in filenames
+vim.opt.isfname:append('@-@')
