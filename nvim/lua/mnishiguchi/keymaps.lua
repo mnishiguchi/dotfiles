@@ -31,6 +31,9 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
+-- disable <leader>p in normal mode to avoid unexpected pasting
+vim.keymap.set("n", "<leader>p", "<Nop>")
+
 -- put the yanked text onto the visually selected text
 vim.keymap.set("x", "<leader>p", "\"_dP")
 

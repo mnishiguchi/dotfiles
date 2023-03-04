@@ -104,6 +104,9 @@ nnoremap <Leader>pv :Explore<CR>
 " search files with fzf
 nnoremap <Leader>pf :Files<CR>
 
+" disable <leader>p to avoid unexpected pasting
+nnoremap <Leader>p <Nop>
+
 " make tags for tag-jumping
 nnoremap <Leader>ct :!ctags -R .<CR>
 nnoremap t  <Nop>
