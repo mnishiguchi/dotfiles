@@ -117,6 +117,8 @@ nnoremap j jzz
 nnoremap k kzz
 nnoremap <C-d> <C-d>zz
 nnoremap <C-u> <C-u>zz
+nnoremap <Up> <Up>zz
+nnoremap <Down> <Down>zz
 
 " keep the cursor centered while searching
 nnoremap n nzzzv

@@ -26,6 +26,8 @@ vim.keymap.set("n", "j", "jzz")
 vim.keymap.set("n", "k", "kzz")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
+vim.keymap.set("n", "<Up>", "<Up>zz")
+vim.keymap.set("n", "<Down>", "<Down>zz")
 
 -- keep the cursor centered while searching
 vim.keymap.set("n", "n", "nzzzv")
