@@ -58,6 +58,8 @@ require('lazy').setup({
   'ThePrimeagen/harpoon',
   -- Toggle a terminal
   'akinsho/toggleterm.nvim',
+  -- Automatically save changes
+  'pocco81/auto-save.nvim',
 
   -- A starting point to setup some LSP related features
   {
