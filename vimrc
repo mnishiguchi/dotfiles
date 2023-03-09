@@ -115,6 +115,8 @@ nnoremap tt <C-]>
 " keep the cursor centered while moving up and down
 nnoremap j jzz
 nnoremap k kzz
+nnoremap { {zz
+nnoremap } }zz
 nnoremap <C-d> <C-d>zz
 nnoremap <C-u> <C-u>zz
 nnoremap <Up> <Up>zz

@@ -24,6 +24,8 @@ vim.keymap.set("n", "J", "mzJ`z")
 -- keep the cursor centered while moving up and down
 vim.keymap.set("n", "j", "jzz")
 vim.keymap.set("n", "k", "kzz")
+vim.keymap.set("n", "{", "{zz")
+vim.keymap.set("n", "}", "}zz")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<Up>", "<Up>zz")
