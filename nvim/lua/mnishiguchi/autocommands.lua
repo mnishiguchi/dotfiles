@@ -21,3 +21,10 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank()
   end,
 })
+
+-- Open quick fix window on grep
+vim.api.nvim_create_autocmd('QuickFixCmdPost', {
+  group = random_group,
+  pattern = '*grep*',
+  command = [[cwindow]],
+})

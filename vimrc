@@ -153,6 +153,9 @@ augroup random
   " strip trailing whitespace on save
   autocmd BufWritePre * :%s/\s\+$//e
 
+  " open quick fix window on grep
+  autocmd QuickFixCmdPost *grep* cwindow
+
   " set some file types
   autocmd BufRead,BufNewFile mix.lock set filetype=elixir
   autocmd BufRead,BufNewFile {Gemfile,Rakefile,Vagrantfile,Thorfile,Procfile,Guardfile,config.ru,*.rake} set filetype=ruby
