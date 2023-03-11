@@ -44,6 +44,16 @@ vim.keymap.set('n', '<leader>b',
   { desc = 'find existing [b]uffers' }
 )
 
+vim.keymap.set('n', '<leader>gb',
+  require('telescope.builtin').git_branches,
+  { desc = 'list all branches' }
+)
+
+vim.keymap.set('n', '<leader>gc',
+  require('telescope.builtin').git_commits,
+  { desc = 'list all commits' }
+)
+
 vim.keymap.set('n', '<leader>/',
   function()
     -- You can pass additional configuration to telescope to change theme, layout, etc.
