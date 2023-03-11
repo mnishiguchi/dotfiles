@@ -60,6 +60,8 @@ require('lazy').setup({
   'akinsho/toggleterm.nvim',
   -- Automatically save changes
   'pocco81/auto-save.nvim',
+  -- Replace text with the contents of a register with [count]["x]gr{motion}
+  'vim-scripts/ReplaceWithRegister',
 
   -- A starting point to setup some LSP related features
   {
