@@ -58,8 +58,6 @@ require('lazy').setup({
   'ThePrimeagen/harpoon',
   -- Toggle a terminal
   'akinsho/toggleterm.nvim',
-  -- Automatically save changes
-  'pocco81/auto-save.nvim',
   -- Replace text with the contents of a register with [count]["x]gr{motion}
   'vim-scripts/ReplaceWithRegister',
 
