@@ -2,8 +2,7 @@
 -- plugins that I use
 -------------------------------------------------------------------------------
 
--- Install package manager
--- * https://github.com/folke/lazy.nvim
+-- Install package manager https://github.com/folke/lazy.nvim
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system {
@@ -44,6 +43,8 @@ require('lazy').setup({
   'tpope/vim-speeddating',
   -- Enable repeating supported plugin maps with `.`
   'tpope/vim-repeat',
+  -- Convert text case under the cursor with crp, crs, cru etc
+  'tpope/vim-abolish',
   -- Show pending keybinds
   'folke/which-key.nvim',
   -- Visualize the undo history
