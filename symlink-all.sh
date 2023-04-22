@@ -8,7 +8,7 @@ SCRIPTPATH="$(
 echo "symlinking dotfiles from \"$SCRIPTPATH\" to \"$HOME\""
 
 # be sure to use absolute path when linking files
-DOTFILE="$SCRIPTPATH/nvim"
+DOTFILE="$SCRIPTPATH/neovim"
 [ -d "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/nvim"
 
 DOTFILE="$SCRIPTPATH/editorconfig"
