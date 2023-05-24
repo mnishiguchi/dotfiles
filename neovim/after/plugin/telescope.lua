@@ -36,9 +36,7 @@ vim.keymap.set('n', '<leader>t', builtin.tags, { desc = '[t]ags' })
 
 vim.keymap.set('n', '<leader>gb', builtin.git_branches, { desc = '[g]it [b]ranches' })
 
-vim.keymap.set('n', '<leader>glp', builtin.git_commits, { desc = '[g]it commit [l]og of the [p]roject' })
-
-vim.keymap.set('n', '<leader>glb', builtin.git_bcommits, { desc = '[g]it commit [l]og of the [b]uffer' })
+vim.keymap.set('n', '<leader>gl', builtin.git_bcommits, { desc = '[g]it commit [l]og of the current buffer' })
 
 vim.keymap.set('n', '<leader>ps',
   function()
