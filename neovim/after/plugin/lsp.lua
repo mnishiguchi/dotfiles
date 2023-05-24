@@ -1,5 +1,3 @@
-local lsp = require('lsp-zero')
-
-lsp.preset('recommended')
+local lsp = require('lsp-zero').preset({})
 
 pcall(lsp.setup)

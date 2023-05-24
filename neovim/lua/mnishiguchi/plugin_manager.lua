@@ -65,11 +65,16 @@ require('lazy').setup({
   -- A starting point to setup some LSP related features
   {
     'VonHeikemen/lsp-zero.nvim',
-    branch = 'v1.x',
+    branch = 'v2.x',
     dependencies = {
       -- LSP Support
       {'neovim/nvim-lspconfig'},             -- Required
-      {'williamboman/mason.nvim'},           -- Optional
+      {                                      -- Optional
+        'williamboman/mason.nvim',
+        build = function()
+          pcall(vim.cmd, 'MasonUpdate')
+        end,
+      },
       {'williamboman/mason-lspconfig.nvim'}, -- Optional
 
       -- Autocompletion
