@@ -7,12 +7,6 @@
 vim.opt.number = true
 vim.opt.relativenumber = true
 
--- cursor line
-vim.opt.cursorline = true
-vim.opt.cursorcolumn = true
-vim.opt.colorcolumn = '80'
-vim.opt.scrolloff = 8
-
 -- tabs
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
@@ -22,6 +16,31 @@ vim.opt.expandtab = true
 -- indent
 vim.opt.autoindent = true
 vim.opt.smartindent = true
+vim.opt.breakindent = true
+
+-- line wrapping
+vim.opt.wrap = false              -- no automatic wrap on load
+vim.opt.formatoptions:remove('t') -- no automatic wrap text when typing
+
+-- search
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.hlsearch = false
+vim.opt.incsearch = true
+
+-- appearance
+vim.opt.termguicolors = true
+vim.opt.background = 'dark'
+vim.opt.signcolumn = 'yes'
+vim.opt.cursorline = true
+vim.opt.colorcolumn = '80'
+vim.opt.scrolloff = 8
+
+-- clipboard
+vim.opt.clipboard = 'unnamedplus' -- sync clipboard between OS and Neovim
+
+-- backspace
+vim.optbackspace = 'intent,eol,start'
 
 -- diffs
 vim.opt.diffopt = 'filler,vertical' -- side by side
@@ -31,43 +50,15 @@ vim.opt.path:append('**')
 vim.opt.wildmenu = true
 vim.opt.wildmode = 'full'
 
--- word wrap
-vim.opt.wrap = false              -- do not automatically wrap on load
-vim.opt.formatoptions:remove('t') -- do not automatically wrap text when typing
-
--- search highlight
-vim.opt.hlsearch = false
-vim.opt.incsearch = true
-
--- Enable mouse mode
-vim.opt.mouse = 'a'
-
--- Sync clipboard between OS and Neovim
-vim.opt.clipboard = 'unnamedplus'
-
--- Enable break indent
-vim.opt.breakindent = true
-
--- Save undo history
-vim.opt.undofile = true
-
--- Case insensitive searching UNLESS /C or capital in search
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
-
--- Keep signcolumn on by default
-vim.opt.signcolumn = 'yes'
-
--- Decrease update time
-vim.opt.updatetime = 250
-vim.opt.timeout = true
-vim.opt.timeoutlen = 300
-
--- Set completeopt to have a better completion experience
+-- insert-mode completion
 vim.opt.completeopt = 'menuone,noselect'
 
--- NOTE: You should make sure your terminal supports this
-vim.opt.termguicolors = true -- enable highlight groups
+-- mouse mode
+vim.opt.mouse = 'a'
 
--- Support all alphas in filenames
-vim.opt.isfname:append('@-@')
+-- undo history
+vim.opt.undofile = true
+
+-- etc
+vim.opt.isfname:append('@-@') -- support all alphas in filenames
+vim.opt.iskeyword:append("-") -- make "-" part of word
