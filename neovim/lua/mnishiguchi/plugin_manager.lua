@@ -61,6 +61,8 @@ require('lazy').setup({
   'akinsho/toggleterm.nvim',
   -- Replace text with the contents of a register with [count]["x]gr{motion}
   'vim-scripts/ReplaceWithRegister',
+  -- Multiple cursors with Ctrl-n and Ctrl-Up/Down
+  'mg979/vim-visual-multi',
 
   -- A starting point to setup some LSP related features
   {
