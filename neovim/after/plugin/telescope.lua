@@ -16,6 +16,12 @@ pcall(require('telescope').load_extension, 'fzf')
 
 vim.keymap.set('n', '<leader>km', builtin.keymaps, { desc = '[k]ey[m]aps' })
 vim.keymap.set('n', '<leader>ps', builtin.live_grep, { desc = '[p]roject [s]earch' })
+vim.keymap.set('n', '<leader>pss',
+  function()
+    builtin.grep_string({ search = vim.fn.input('Grep > ') })
+  end,
+  { desc = '[p]roject: [s]tring [s]earch (aka grep)' }
+)
 vim.keymap.set('n', '<leader>pf', builtin.find_files, { desc = '[p]roject: [f]iles' })
 vim.keymap.set('n', '<leader>pg', builtin.git_files, { desc = '[p]roject: [g]it files' })
 vim.keymap.set('n', '<C-p>', builtin.git_files, { desc = '[p]roject: git files' })
