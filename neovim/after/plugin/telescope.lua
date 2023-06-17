@@ -1,19 +1,5 @@
 local builtin = require('telescope.builtin')
 
-require('telescope').setup {
-  defaults = {
-    mappings = {
-      i = {
-        ['<C-u>'] = false,
-        ['<C-d>'] = false,
-      },
-    },
-  },
-}
-
--- Enable telescope fzf native, if installed
-pcall(require('telescope').load_extension, 'fzf')
-
 vim.keymap.set('n', '<leader>km', builtin.keymaps, { desc = '[k]ey[m]aps' })
 vim.keymap.set('n', '<leader>ps', builtin.live_grep, { desc = '[p]roject [s]earch' })
 vim.keymap.set('n', '<leader>pss',
