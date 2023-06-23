@@ -35,6 +35,7 @@ vim.opt.signcolumn = 'yes'
 vim.opt.cursorline = true
 vim.opt.colorcolumn = '80'
 vim.opt.scrolloff = 8
+vim.opt.winbar = "%=%m %f"
 
 -- clipboard
 vim.opt.clipboard = 'unnamedplus' -- sync clipboard between OS and Neovim
