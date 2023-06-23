@@ -149,7 +149,12 @@ require('lazy').setup({
     'VonHeikemen/lsp-zero.nvim',
     branch = 'v2.x',
     config = function()
-      local lsp = require('lsp-zero').preset({})
+      local lsp = require('lsp-zero').preset({
+        -- https://github.com/VonHeikemen/lsp-zero.nvim/blob/v2.x/doc/md/autocomplete.md#recommended-sources
+        manage_nvim_cmp = {
+          set_sources = 'recommended'
+        }
+      })
 
       -- https://github.com/williamboman/mason-lspconfig.nvim
       lsp.ensure_installed({'elixirls', 'lua_ls', 'solargraph'})
@@ -170,6 +175,9 @@ require('lazy').setup({
       -- Autocompletion
       'hrsh7th/nvim-cmp',     -- Required
       'hrsh7th/cmp-nvim-lsp', -- Required
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-path',
+      'saadparwaiz1/cmp_luasnip',
       {                       -- Required
         "L3MON4D3/LuaSnip",
         dependencies = {
