@@ -48,8 +48,6 @@ require('lazy').setup({
   'tpope/vim-eunuch',
   -- Comment out the target of a motion with gc
   'tpope/vim-commentary',
-  -- Delete, change and add surroundings with ds, cs and ys
-  'tpope/vim-surround',
   -- Pairs of handy bracket mappings
   'tpope/vim-unimpaired',
   -- Enable repeating supported plugin maps with `.`
@@ -113,6 +111,18 @@ require('lazy').setup({
       size = 80,
       direction = 'vertical'
     }
+  },
+
+  -- Delete, change and add surroundings with ys{motion}{char}, ds{char}, and cs{target}{replacement}
+  {
+    "kylechui/nvim-surround",
+    version = "*", -- Use for stability; omit to use `main` branch for the latest features
+    event = "VeryLazy",
+    config = function()
+      require("nvim-surround").setup({
+        -- Configuration here, or leave empty to use defaults
+      })
+    end
   },
 
   -- Manage project marks
