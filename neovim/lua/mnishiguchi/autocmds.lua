@@ -1,21 +1,22 @@
 -------------------------------------------------------------------------------
 -- autocommands
+--
 -- see https://neovim.io/doc/user/autocmd.html
 -------------------------------------------------------------------------------
 
-local random_group = vim.api.nvim_create_augroup('random', {})
+local random_group = vim.api.nvim_create_augroup("random", {})
 
 -- Strip trailing whitespace on write
-vim.api.nvim_create_autocmd('BufWritePre', {
+vim.api.nvim_create_autocmd("BufWritePre", {
   group = random_group,
-  pattern = '*',
+  pattern = "*",
   command = [[%s/\s\+$//e]],
 })
 
 -- Highlight on yank
-vim.api.nvim_create_autocmd('TextYankPost', {
+vim.api.nvim_create_autocmd("TextYankPost", {
   group = random_group,
-  pattern = '*',
+  pattern = "*",
   callback = function()
     -- See `:help vim.highlight.on_yank()`
     vim.highlight.on_yank()
@@ -23,8 +24,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- Open quick fix window on grep
-vim.api.nvim_create_autocmd('QuickFixCmdPost', {
+vim.api.nvim_create_autocmd("QuickFixCmdPost", {
   group = random_group,
-  pattern = '*grep*',
+  pattern = "*grep*",
   command = [[cwindow]],
 })
