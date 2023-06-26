@@ -28,3 +28,7 @@ DOTFILE="$SCRIPTPATH/vimrc"
 
 DOTFILE="$SCRIPTPATH/zshrc"
 [ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.zshrc"
+
+DOTFILE="$SCRIPTPATH/solargraph_config.yml"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/solargraph/config.yml"
+
