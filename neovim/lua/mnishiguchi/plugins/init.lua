@@ -32,6 +32,7 @@ local plugins = {
   "mbbill/undotree",                                  -- Visualize the undo history
   "vim-scripts/ReplaceWithRegister",                  -- Replace text with the contents of a register with [count]["x]gr{motion}
   "mg979/vim-visual-multi",                           -- Multiple cursors with Ctrl-n and Ctrl-Up/Down
+  "mhinz/vim-startify",                               -- Start screen
   require("mnishiguchi.plugins.lualine"),             -- Set lualine as statusline
   require("mnishiguchi.plugins.gitsigns"),            -- Adds git releated signs to the gutter, as well as utilities for managing changes
   require("mnishiguchi.plugins.toggleterm"),          -- Toggle a terminal
