@@ -37,13 +37,8 @@ return {
       -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/formatting
       sources = {
         null_ls.builtins.code_actions.shellcheck,
-        null_ls.builtins.diagnostics.credo,
-        null_ls.builtins.formatting.jq,
         null_ls.builtins.formatting.mix,
-        null_ls.builtins.formatting.prettier,
-        null_ls.builtins.formatting.shfmt,
         null_ls.builtins.formatting.stylua,
-        null_ls.builtins.formatting.zigfmt,
       },
       -- on_attach = on_attach,
     })
