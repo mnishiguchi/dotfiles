@@ -15,21 +15,21 @@ return {
       })
     end
 
-    local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+    -- local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 
-    local on_attach = function(client, bufnr)
-      -- Formatting on save
-      -- https://github.com/jose-elias-alvarez/null-ls.nvim/wiki/Formatting-on-save
-      if client.supports_method("textDocument/formatting") then
-        vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+    -- local on_attach = function(client, bufnr)
+    --   -- Formatting on save
+    --   -- https://github.com/jose-elias-alvarez/null-ls.nvim/wiki/Formatting-on-save
+    --   if client.supports_method("textDocument/formatting") then
+    --     vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
 
-        vim.api.nvim_create_autocmd("BufWritePre", {
-          group = augroup,
-          buffer = bufnr,
-          callback = lsp_formatting,
-        })
-      end
-    end
+    --     vim.api.nvim_create_autocmd("BufWritePre", {
+    --       group = augroup,
+    --       buffer = bufnr,
+    --       callback = lsp_formatting,
+    --     })
+    --   end
+    -- end
 
     null_ls.setup({
       debug = false,
@@ -45,15 +45,15 @@ return {
         null_ls.builtins.formatting.stylua,
         null_ls.builtins.formatting.zigfmt,
       },
-      on_attach = on_attach,
+      -- on_attach = on_attach,
     })
 
     -- Define commands
     vim.api.nvim_create_user_command("Format", lsp_formatting, {})
 
-    vim.api.nvim_create_user_command("FormatDisableOnSave", function()
-      vim.api.nvim_clear_autocmds({ group = augroup })
-    end, {})
+    -- vim.api.nvim_create_user_command("FormatDisableOnSave", function()
+    --   vim.api.nvim_clear_autocmds({ group = augroup })
+    -- end, {})
 
     -- Define keymapping
     vim.keymap.set("n", "<leader>lf", ":Format<CR>", { desc = "[l]sp [f]ormat" })
