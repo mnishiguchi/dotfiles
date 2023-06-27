@@ -74,14 +74,8 @@ command("Wq", "wq", {})
 keymap("n", "<leader>+", "<C-a>") -- increment
 keymap("n", "<leader>-", "<C-x>") -- decrement
 
--- window management
-keymap("n", "<leader>wo", "<C-w>v")
-keymap("n", "<leader>wv", "<C-w>v")        -- split window vertically
-keymap("n", "<leader>wh", "<C-w>s")        -- split window horizontally
-keymap("n", "<leader>w=", "<C-w>=")        -- make split windows equal width & height
-keymap("n", "<leader>wx", ":close<CR>")    -- close current split window
-
+-- tabs
 keymap("n", "<leader>to", ":tabnew<CR>")   -- open new tab
 keymap("n", "<leader>tx", ":tabclose<CR>") -- close current tab
-keymap("n", "<leader>t]", ":tabn<CR>")     --  go to next tab
-keymap("n", "<leader>t[", ":tabp<CR>")     --  go to previous tab
+keymap("n", "<leader>t]", ":tabn<CR>")     -- go to next tab
+keymap("n", "<leader>t[", ":tabp<CR>")     -- go to previous tab
