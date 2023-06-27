@@ -9,6 +9,6 @@ vim.keymap.set('n', '<leader>a', mark.add_file, {desc = '[a]dd file to the proje
 vim.keymap.set('n', '<C-e>', ui.toggle_quick_menu, {desc = 'list the project harpoon marks'})
 
 -- revisit a marked project file
-vim.keymap.set('n', '<C-h>', function() ui.nav_file(1) end, {desc = 'jump to the 1st harpoon mark'})
-vim.keymap.set('n', '<C-t>', function() ui.nav_file(2) end, {desc = 'jump to the 2nd harpoon mark'})
-vim.keymap.set('n', '<C-n>', function() ui.nav_file(3) end, {desc = 'jump to the 3rd harpoon mark'})
+vim.keymap.set('n', '<C-h>', function() ui.nav_file(1) end, {desc = 'jump to 1st harpoon mark'})
+vim.keymap.set('n', '<C-t>', function() ui.nav_file(2) end, {desc = 'jump to 2nd harpoon mark'})
+vim.keymap.set('n', '<C-n>', function() ui.nav_file(3) end, {desc = 'jump to 3rd harpoon mark'})

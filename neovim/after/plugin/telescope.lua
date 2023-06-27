@@ -12,7 +12,7 @@ vim.keymap.set("n", "<leader>m", builtin.marks, { desc = "[m]arks" })
 vim.keymap.set("n", "<leader>r", builtin.registers, { desc = "[r]egisters" })
 vim.keymap.set("n", "<leader>t", builtin.tags, { desc = "[t]ags" })
 vim.keymap.set("n", "<leader>gb", builtin.git_branches, { desc = "[g]it [b]ranches" })
-vim.keymap.set("n", "<leader>gl", builtin.git_bcommits, { desc = "[g]it commit [l]og of the current buffer" })
+vim.keymap.set("n", "<leader>gl", builtin.git_bcommits, { desc = "[g]it commit [l]og of current buffer" })
 vim.keymap.set("n", "<leader>?", builtin.oldfiles, { desc = "[?] recently opened files" })
 vim.keymap.set("n", "<leader>/", function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
