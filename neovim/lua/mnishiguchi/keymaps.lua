@@ -14,7 +14,6 @@ keymap("n", "<leader>.", ":<C-u>find $MYVIMRC<CR>:<C-u>Explore<CR>", { desc = "o
 
 -- show the file explore
 keymap("n", "<leader>e", vim.cmd.Explore, { desc = ":Explore" })
-keymap("n", "<leader>pv", vim.cmd.Explore, { desc = "[p]roject: [v]iew files" })
 
 -- move the highlighted lines around in visual mode
 keymap("v", "J", ":move '>+1<CR>gv=gv", { desc = "move highlighted lines down" })
@@ -23,8 +22,8 @@ keymap("v", "H", "<gv", { desc = "move highlighted lines left" })
 keymap("v", "L", ">gv", { desc = "move highlighted lines right" })
 
 -- Stay in indent mode
-keymap("v", "<", "<gv")
-keymap("v", ">", ">gv")
+keymap("v", "<", "<gv", { desc = "move highlighted lines left" })
+keymap("v", ">", ">gv", { desc = "move highlighted lines right" })
 
 -- keep the cursor in the same place while joining lines
 keymap("n", "J", "mzJ`z")
@@ -48,9 +47,9 @@ keymap({ "n", "v" }, "<leader>p", "<Nop>", { desc = "no op" })
 keymap("v", "p", '"_dP', { desc = "[p]aste the yanked onto the visually selected" })
 
 -- delete without overwriting the unnamed register
-keymap("n", "<leader>d", '"_d', { desc = "[d]elete without overwriting unnamed register" })
-keymap("v", "<leader>d", '"_d', { desc = "[d]elete without overwriting unnamed register" })
-keymap("n", "x", '"_x', { desc = "delete a character without overwriting unnamed register" })
+keymap("n", "<leader>d", '"_d', { desc = "[d]elete without writing unnamed register" })
+keymap("v", "<leader>d", '"_d', { desc = "[d]elete without writing unnamed register" })
+keymap("n", "x", '"_x', { desc = "delete without writing unnamed register" })
 
 -- find and replace what the cursor is currently is on
 keymap("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/cgI<Left><Left><Left><Left>]], {
