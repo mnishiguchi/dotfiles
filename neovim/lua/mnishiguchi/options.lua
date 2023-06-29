@@ -14,7 +14,7 @@ vim.opt.smartindent = true
 vim.opt.breakindent = true
 
 -- line wrapping
-vim.opt.wrap = false              -- no automatic wrap on load
+vim.opt.wrap = false -- no automatic wrap on load
 vim.opt.formatoptions:remove("t") -- no automatic wrap text when typing
 
 -- search

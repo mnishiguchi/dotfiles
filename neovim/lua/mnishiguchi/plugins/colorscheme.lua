@@ -7,11 +7,11 @@ return {
   end,
   config = function()
     require("material").setup({
-      -- plugins that you use to highlight them
       plugins = {
         "gitsigns",
         "indent-blankline",
         "nvim-cmp",
+        "nvim-web-devicons",
         "telescope",
         "which-key",
       },
