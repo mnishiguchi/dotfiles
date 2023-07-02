@@ -132,6 +132,9 @@ export ELIXIR_EDITOR="code --goto"
 
 alias hexdocs="mix hex.docs online "
 
+# https://github.com/asdf-vm/asdf-erlang/blob/master/README.md#setting-the-environment-variable-in-bash
+export KERL_BUILD_DOCS="yes"
+
 ## Ruby
 
 # Install bundler with specific version
