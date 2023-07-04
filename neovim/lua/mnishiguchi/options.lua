@@ -32,7 +32,6 @@ vim.opt.colorcolumn = "80"
 vim.opt.scrolloff = 8
 vim.opt.winbar = "%=%m %f"
 vim.g.netrw_banner = 0
-vim.g.netrw_liststyle = 3
 
 -- clipboard
 vim.opt.clipboard = "unnamedplus" -- sync clipboard between OS and Neovim
