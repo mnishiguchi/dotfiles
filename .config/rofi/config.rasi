@@ -1,0 +1,10 @@
+// https://github.com/davatorium/rofi/blob/next/doc
+configuration {
+  modi: [ window, drun, run, combi ];
+  combi-modes: [ window, drun, run ];
+  show-icons: true;
+}
+
+/* Insert theme modifications after this */
+
+@theme "/usr/share/rofi/themes/Monokai.rasi"

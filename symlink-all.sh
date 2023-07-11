@@ -32,3 +32,5 @@ DOTFILE="$SCRIPTPATH/zshrc"
 DOTFILE="$SCRIPTPATH/solargraph_config.yml"
 [ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/solargraph/config.yml"
 
+DOTFILE="$SCRIPTPATH/.config/rofi/config.rasi"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/rofi/config.rasi"
