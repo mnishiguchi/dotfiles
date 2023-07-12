@@ -124,6 +124,9 @@ PATH=/opt/homebrew/bin:$PATH
 # https://www.rabbitmq.com/install-homebrew.html
 PATH=$PATH:/opt/homebrew/opt/rabbitmq/sbin
 
+# for my custom scripts
+PATH=$HOME/.local/bin:$PATH
+
 ## Elixir
 
 # https://hexdocs.pm/iex/IEx.html
