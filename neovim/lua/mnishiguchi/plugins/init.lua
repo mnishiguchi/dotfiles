@@ -26,6 +26,7 @@ local plugins = {
   "tpope/vim-rhubarb",                                -- GBrowse
   "tpope/vim-eunuch",                                 -- File utilities, like Delete, Move, Rename, Copy, Duplicate, etc
   "tpope/vim-commentary",                             -- Comment out the target of a motion with gc
+  "tpope/vim-endwise",                                -- Add end after if, do, def etc
   "tpope/vim-unimpaired",                             -- Pairs of handy bracket mappings
   "tpope/vim-repeat",                                 -- Enable repeating supported plugin maps with `.`
   "tpope/vim-abolish",                                -- Convert text case under the cursor with crp, crs, cru etc
