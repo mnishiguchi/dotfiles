@@ -45,7 +45,6 @@ local plugins = {
   require("mnishiguchi.plugins.nvim-treesitter"),     -- Highlight, edit, and navigate code
   require("mnishiguchi.plugins.which-key"),           -- Show pending keybinds
   require("mnishiguchi.plugins.todo-comments"),       -- Highlight, list and search todo comments
-  require("mnishiguchi.plugins.null-ls"),             -- Inject LSP diagnostics, code actions, and more
 }
 
 M.setup = function()
