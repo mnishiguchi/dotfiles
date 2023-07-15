@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# Prints a list of github repo names that exist in local Code directory.
+grep "github.com" $(find "$HOME/Code" -maxdepth 4 -type f -name config) |
+  sed -n -e 's/^.*\.com.//p' |
+  sed -E 's/.git//g' |
+  grep -E '.*\/.*' |
+  sort | uniq

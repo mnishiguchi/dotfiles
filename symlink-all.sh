@@ -55,3 +55,5 @@ symlink_file "$SCRIPTPATH/rofi/bin/rofi-power-menu" "$HOME/.local/bin/rofi-power
 symlink_file "$SCRIPTPATH/rofi/bin/rofi-power-modi" "$HOME/.local/bin/rofi-power-modi"
 symlink_file "$SCRIPTPATH/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
 symlink_file "$SCRIPTPATH/rofi/config/snippets.txt" "$HOME/.config/rofi/snippets.txt"
+symlink_file "$SCRIPTPATH/rofi/bin/gh-repos" "$HOME/.local/bin/gh-repos"
+symlink_file "$SCRIPTPATH/rofi/bin/rofi-gh-repos-modi" "$HOME/.local/bin/rofi-gh-repos-modi"

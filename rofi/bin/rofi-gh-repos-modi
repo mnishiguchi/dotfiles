@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# A rofi modi that lists locally used Github repos. The selected repo will be
+# opened in a browser based on the user preference.
+#
+# The gh-repos excutable is used for printing the list of local Github repos.
+#
+# See rofi manpage: https://github.com/davatorium/rofi/blob/next/doc/rofi-script.5.markdown
+#
+# ## Examples
+#
+#     ROFI_RETV=0 rofi-gh-repos-modi
+#     ROFI_RETV=1 rofi-gh-repos-modi mnishiguchi/dotfiles
+#
+
+cache_dir="$HOME/.cache/mnishiguchi/rofi-gh-repos"
+cache_basename="items.txt"
+mkdir -p "$cache_dir"
+cache_file="$cache_dir/$cache_basename"
+
+function print_items {
+  # Prepare menu items if not yet
+  if [ ! -f "$cache_file" ]; then
+    gh-repos >"$cache_file"
+  fi
+
+  # Print menu items
+  while read -r line; do
+    printf "%s\n" "$line"
+  done <"$cache_file"
+}
+
+function open_browser {
+  if command -v xdg-open >/dev/null; then
+    xdg-open "$1" >/dev/null 2>&1 &
+  else
+    echo "xdg-open command does not exist"
+  fi
+}
+
+# Do something for the chosen item
+if [[ -z "$1" ]]; then
+  print_items
+else
+  open_browser "https://github.com/$1"
+fi
