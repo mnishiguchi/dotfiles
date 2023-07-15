@@ -63,6 +63,10 @@ keymap("n", "tt", "<C-]>")
 -- close buffers
 keymap("n", "<leader>q", ":<C-u>bdelete!<CR>", { desc = "[q]uit current buffer" })
 
+-- Copy the link to the line of a Git repository to the clipboard
+keymap("n", "<leader>v", ":.GBrowse!<CR>")
+keymap("x", "<leader>v", ":GBrowse!<CR>")
+
 -- bind :Q to :q
 command("Q", "q", {})
 command("W", "w", {})
