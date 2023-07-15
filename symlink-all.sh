@@ -1,48 +1,56 @@
-#!/bin/sh
+#!/usr/bin/env bash
 set -e
 
+# where this script is located
 SCRIPTPATH="$(
   cd -- "$(dirname "$0")" >/dev/null 2>&1
   pwd -P
 )"
-echo "symlinking dotfiles from \"$SCRIPTPATH\" to \"$HOME\""
 
-# be sure to use absolute path when linking files
-DOTFILE="$SCRIPTPATH/neovim"
-[ -d "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/nvim"
+printf "==> Symlinking dotfiles from %s\n" "$SCRIPTPATH"
 
-DOTFILE="$SCRIPTPATH/editorconfig"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.editorconfig"
+# Symlinks a file if the file exists.
+#
+# Usage:
+#
+#   symlink_file file1 file2
+#
+function symlink_file {
+  if [ -f "$1" ] ; then
+    ln -sf "$1" "$2"
+    printf "✓ %s -> %s\n" "$1" "$2"
+  else
+    printf "✗ source file does not exist: %s\n" "$1"
+  fi
+}
 
-DOTFILE="$SCRIPTPATH/gitignore_global"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.gitignore"
+# Symlinks a directory if the directory exists.
+#
+# Usage:
+#
+#   symlink_dir dir1 dir2
+#
+function symlink_dir {
+  if [ -d "$1" ] ; then
+    mkdir -p $(dirname "$2")
+    ln -sf "$1" "$2"
+    printf "✓ %s -> %s\n" "$1" "$2"
+  else
+    printf "✗ source directory does not exist: %s\n" "$1"
+  fi
+}
 
-DOTFILE="$SCRIPTPATH/iex.ex"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.iex.exs"
-
-DOTFILE="$SCRIPTPATH/tmux.conf"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.tmux.conf"
-
-DOTFILE="$SCRIPTPATH/vimrc"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.vimrc"
-
-DOTFILE="$SCRIPTPATH/zshrc"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.zshrc"
-
-DOTFILE="$SCRIPTPATH/solargraph_config.yml"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/solargraph/config.yml"
-
-DOTFILE="$SCRIPTPATH/rofi/config/config.rasi"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/rofi/config.rasi"
-
-DOTFILE="$SCRIPTPATH/rofi/config/power-theme.rasi"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/rofi/power-theme.rasi"
-
-DOTFILE="$SCRIPTPATH/rofi/bin/rofi-power-menu"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.local/bin/rofi-power-menu"
-
-DOTFILE="$SCRIPTPATH/rofi/bin/rofi-snippets-modi"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.local/bin/rofi-snippets-modi"
-
-DOTFILE="$SCRIPTPATH/rofi/config/snippets.txt"
-[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/rofi/snippets.txt"
+# always use absolute path when linking files
+symlink_dir "$SCRIPTPATH/nvim" "$HOME/.config/nvim"
+symlink_file "$SCRIPTPATH/editorconfig" "$HOME/.editorconfig"
+symlink_file "$SCRIPTPATH/gitignore_global" "$HOME/.gitignore"
+symlink_file "$SCRIPTPATH/iex.exs" "$HOME/.iex.exs"
+symlink_file "$SCRIPTPATH/tmux.conf" "$HOME/.tmux.conf"
+symlink_file "$SCRIPTPATH/vimrc" "$HOME/.vimrc"
+symlink_file "$SCRIPTPATH/zshrc" "$HOME/.zshrc"
+symlink_file "$SCRIPTPATH/solargraph_config.yml" "$HOME/.config/solargraph/config.yml"
+symlink_file "$SCRIPTPATH/rofi/config/config.rasi" "$HOME/.config/rofi/config.rasi"
+symlink_file "$SCRIPTPATH/rofi/config/power-theme.rasi" "$HOME/.config/rofi/power-theme.rasi"
+symlink_file "$SCRIPTPATH/rofi/bin/rofi-power-menu" "$HOME/.local/bin/rofi-power-menu"
+symlink_file "$SCRIPTPATH/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
+symlink_file "$SCRIPTPATH/rofi/config/snippets.txt" "$HOME/.config/rofi/snippets.txt"
