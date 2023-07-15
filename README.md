@@ -1,14 +1,13 @@
 # dotfiles
 
+My collection of dotfiles.
+
 ## Get started
 
 ```
-# Go to user home dir
-cd
+git clone git@github.com:mnishiguchi/dotfiles.git my_dotfiles
 
-# Clone this project
-git clone git@github.com:mnishiguchi/dotfiles.git
+cd my_dotfiles
 
-# Link dotfiles by running the symlink-all script
-sh ~/dotfiles/symlink-all.sh
+./symlink-all.sh
 ```
