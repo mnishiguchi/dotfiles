@@ -32,5 +32,17 @@ DOTFILE="$SCRIPTPATH/zshrc"
 DOTFILE="$SCRIPTPATH/solargraph_config.yml"
 [ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/solargraph/config.yml"
 
-DOTFILE="$SCRIPTPATH/.config/rofi/config.rasi"
+DOTFILE="$SCRIPTPATH/rofi/config/config.rasi"
 [ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/rofi/config.rasi"
+
+DOTFILE="$SCRIPTPATH/rofi/config/power-theme.rasi"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/rofi/power-theme.rasi"
+
+DOTFILE="$SCRIPTPATH/rofi/bin/rofi-power-menu"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.local/bin/rofi-power-menu"
+
+DOTFILE="$SCRIPTPATH/rofi/bin/rofi-snippets-modi"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.local/bin/rofi-snippets-modi"
+
+DOTFILE="$SCRIPTPATH/rofi/config/snippets.txt"
+[ -f "$DOTFILE" ] && ln -sf "$DOTFILE" "$HOME/.config/rofi/snippets.txt"

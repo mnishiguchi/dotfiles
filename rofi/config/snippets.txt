@@ -1,0 +1,2 @@
+cmd timestamp!date +"%Y-%m-%d %H:%M"
+cmd unix time!date +%s
