@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# Defines the power modi.
+#
+# Usage
+#
+#   rofi -modi "Power:path/to/rofi-power-modi" -show Power
+#
+
+# Print menu items.
+printf "%s\n" "Sleep" "Restart" "Shut Down" "Lock Screen" "Log Out"
+
+# Do something for the chosen item.
+case "$1" in
+  "Sleep") systemctl suspend ;;
+  "Restart") systemctl reboot ;;
+  "Shut Down") systemctl poweroff ;;
+  "Lock Screen") loginctl lock-session "${XDG_SESSION_ID-}" ;;
+  "Log Out") loginctl terminate-session "${XDG_SESSION_ID-}" ;;
+  *) exit 0 ;;
+esac

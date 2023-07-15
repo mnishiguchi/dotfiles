@@ -1,17 +1,11 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Launches the power menu.
-# Adopted from https://github.com/ericmurphyxyz/dotfiles
+#
+# Usage
+#
+#   path/to/rofi-power-menu
+#
 
-items=$(printf "%s\n" "Sleep" "Restart" "Shut Down" "Lock Screen" "Log Out")
+rofi -modi "Power:rofi-power-modi" -show Power -theme-str '@import "power-theme.rasi"'
 
-chosen=$(printf "%s" "$items" | rofi -dmenu -i -theme-str '@import "power-theme.rasi"')
-
-case "$chosen" in
-  "Sleep") systemctl suspend ;;
-  "Restart") systemctl reboot ;;
-  "Shut Down") systemctl poweroff ;;
-  "Lock Screen") loginctl lock-session "${XDG_SESSION_ID-}" ;;
-  "Log Out") loginctl terminate-session "${XDG_SESSION_ID-}" ;;
-  *) exit 1 ;;
-esac

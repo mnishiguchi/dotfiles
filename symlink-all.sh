@@ -52,5 +52,6 @@ symlink_file "$SCRIPTPATH/solargraph_config.yml" "$HOME/.config/solargraph/confi
 symlink_file "$SCRIPTPATH/rofi/config/config.rasi" "$HOME/.config/rofi/config.rasi"
 symlink_file "$SCRIPTPATH/rofi/config/power-theme.rasi" "$HOME/.config/rofi/power-theme.rasi"
 symlink_file "$SCRIPTPATH/rofi/bin/rofi-power-menu" "$HOME/.local/bin/rofi-power-menu"
+symlink_file "$SCRIPTPATH/rofi/bin/rofi-power-modi" "$HOME/.local/bin/rofi-power-modi"
 symlink_file "$SCRIPTPATH/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
 symlink_file "$SCRIPTPATH/rofi/config/snippets.txt" "$HOME/.config/rofi/snippets.txt"
