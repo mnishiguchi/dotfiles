@@ -28,19 +28,28 @@ function print_items {
   while read -r line; do
     printf "%s\n" "$line"
   done <"$cache_file"
+
+  # Additional items
+  printf "%s\n" "Clear cache"
 }
 
 function open_browser {
   if command -v xdg-open >/dev/null; then
     xdg-open "$1" >/dev/null 2>&1 &
   else
-    echo "xdg-open command does not exist"
+    printf "%s\n" "xdg-open command does not exist"
   fi
 }
 
-# Do something for the chosen item
-if [[ -z "$1" ]]; then
+if [ "$1" = "Clear cache" ]; then
+  rm -rf "$cache_file"
+  exit 0
+fi
+
+if [ -z "$1" ]; then
+  # No argv means it is the initial call
   print_items
 else
+  # Handle the chosen item
   open_browser "https://github.com/$1"
 fi
