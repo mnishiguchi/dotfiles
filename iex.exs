@@ -26,10 +26,10 @@ IEx.configure(
     # limit: :infinity,
     pretty: true,
     # printable_limit: :infinity
-    width: 80,
+    width: 80
   ],
   history_size: 50,
-  width: 80,
+  width: 80
 )
 
 import_if_available(Plug.Conn)

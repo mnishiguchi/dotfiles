@@ -8,4 +8,3 @@
 #
 
 rofi -modi "Power:rofi-power-modi" -show Power -theme-str '@import "power-theme.rasi"'
-

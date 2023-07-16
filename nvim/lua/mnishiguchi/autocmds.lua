@@ -31,7 +31,7 @@ vim.api.nvim_create_autocmd("QuickFixCmdPost", {
 })
 
 -- Treat Rofi files as SCSS
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   group = random_group,
   pattern = "*.rasi",
   command = [[set filetype=scss]],

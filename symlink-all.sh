@@ -16,7 +16,7 @@ printf "==> Symlinking dotfiles from %s\n" "$SCRIPTPATH"
 #   symlink_file file1 file2
 #
 function symlink_file {
-  if [ -f "$1" ] ; then
+  if [ -f "$1" ]; then
     ln -sf "$1" "$2"
     printf "✓ %s -> %s\n" "$1" "$2"
   else
@@ -31,7 +31,7 @@ function symlink_file {
 #   symlink_dir dir1 dir2
 #
 function symlink_dir {
-  if [ -d "$1" ] ; then
+  if [ -d "$1" ]; then
     mkdir -p $(dirname "$2")
     ln -sf "$1" "$2"
     printf "✓ %s -> %s\n" "$1" "$2"

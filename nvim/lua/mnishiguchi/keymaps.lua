@@ -82,3 +82,11 @@ keymap("n", "<leader>to", ":tabnew<CR>")   -- open new tab
 keymap("n", "<leader>tx", ":tabclose<CR>") -- close current tab
 keymap("n", "<leader>t]", ":tabn<CR>")     -- go to next tab
 keymap("n", "<leader>t[", ":tabp<CR>")     -- go to previous tab
+
+-- format current buffer
+command("Format", function()
+  pcall(vim.lsp.buf.format)
+end, {})
+
+keymap("n", "<leader>lf", ":Format<CR>")
+keymap("n", "<leader>lff", ":Neoformat<CR>")

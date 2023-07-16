@@ -14,6 +14,7 @@ Jetpack 'junegunn/fzf', { 'do': {-> fzf#install()} }
 Jetpack 'junegunn/fzf.vim'
 Jetpack 'mhinz/vim-startify'
 Jetpack 'pangloss/vim-javascript'
+Jetpack 'sbdchd/neoformat',
 Jetpack 'tomasr/molokai'
 Jetpack 'tpope/vim-abolish'
 Jetpack 'tpope/vim-commentary'
