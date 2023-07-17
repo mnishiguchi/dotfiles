@@ -143,6 +143,10 @@ nnoremap <Leader>q :bdelete!<CR>
 nnoremap <leader>v :.GBrowse!<CR>
 xnoremap <leader>v :GBrowse!<CR>
 
+" Press jk fast to exit insert mode
+inoremap jk <ESC>
+inoremap kj <ESC>
+
 " bind :Q to :q
 command! Q q
 command! QA qall
