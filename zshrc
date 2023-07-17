@@ -71,20 +71,9 @@ HIST_STAMPS="yyyy-mm-dd"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   asdf
-  bundler
   colored-man-pages
   common-aliases
   direnv
-  docker
-  git
-  gitfast
-  iterm2
-  kube-ps1
-  kubectl
-  mix
-  mix-fast
-  pyenv
-  rbenv
   z
 )
 
@@ -127,6 +116,32 @@ PATH=$PATH:/opt/homebrew/opt/rabbitmq/sbin
 # for my custom scripts
 PATH=$HOME/.local/bin:$PATH
 
+## Git
+
+# https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git
+alias ga='git add'
+alias gaa='git add --all'
+alias gb='git branch'
+alias gba='git branch --all'
+alias gc='git commit --verbose'
+alias gc!='git commit --verbose --amend'
+alias gcn!='git commit --verbose --no-edit --amend'
+alias gco='git checkout'
+alias gcp='git cherry-pick'
+alias gcpa='git cherry-pick --abort'
+alias gcpc='git cherry-pick --continue'
+alias gd='git diff'
+alias gdca='git diff --cached'
+alias gf='git fetch'
+alias glog='git log --oneline --decorate --graph'
+alias gloga='git log --oneline --decorate --graph --all'
+alias gp='git push'
+alias gpf='git push --force-with-lease --force-if-includes'
+alias gpf!='git push --force'
+alias grb='git rebase'
+alias grba='git rebase --abort'
+alias grbc='git rebase --continue'
+
 ## Elixir
 
 # https://hexdocs.pm/iex/IEx.html
@@ -139,6 +154,8 @@ alias hexdocs="mix hex.docs online "
 export KERL_BUILD_DOCS="yes"
 
 ## Ruby
+
+alias be="bundle exec"
 
 # Install bundler with specific version
 install-bundler() {
@@ -182,11 +199,7 @@ if command -v rg &>/dev/null; then
   export FZF_DEFAULT_COMMAND='rg --files'
 fi
 
-# https://github.com/jesseduffield/lazygit
-alias lg='lazygit'
-
-alias v='vim'
 alias nv='nvim'
 
-alias serve='python3 -m http.server --directory '
+command -v npx &>/dev/null && alias serve='npx serve '
 
