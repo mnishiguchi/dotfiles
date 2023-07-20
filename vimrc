@@ -89,6 +89,9 @@ set path+=**
 set wildmenu
 set wildmode=full
 
+" backup
+set nobackup noswapfile nowritebackup
+
 " others
 set isfname+=@-@ " all alphas
 set iskeyword+=- "make "-" part of word
