@@ -170,12 +170,27 @@ install-bundler() {
 
 ## *env etc
 
-command -v rbenv &>/dev/null && eval "$(rbenv init -)" || true
-command -v pyenv &>/dev/null && eval "$(pyenv init -)" || true
-command -v nodenv &>/dev/null && eval "$(nodenv init -)" || true
+# catches any errors while the function is running
+function pcall {
+  if ! "$@"; then
+    return 0
+  fi
+}
+
+# checks if the command exists
+function exists {
+  if [[ ! "$(command -v $@)" ]]; then
+    echo "$@ not installed" 1>&2
+    return 1
+  fi
+}
+
+pcall eval "$(rbenv init -)"
+pcall eval "$(pyenv init -)"
+pcall eval "$(nodenv init -)"
 
 # https://direnv.net/docs/hook.html
-command -v direnv &>/dev/null && eval "$(direnv hook zsh)" || true
+pcall eval "$(direnv hook zsh)"
 
 ## etc
 
@@ -195,12 +210,13 @@ PROMPT="$PROMPT${NEWLINE}$ "
 
 # Use ripgrep instead of grep for fzf
 # https://dev.to/iggredible/how-to-search-faster-in-vim-with-fzf-vim-36ko
-if command -v rg &>/dev/null; then
+if exists rg; then
   export FZF_DEFAULT_COMMAND='rg --files'
 fi
 
 alias nv='nvim'
 
-command -v npx &>/dev/null && alias serve='npx serve ' || true
+exists npx && alias serve='npx serve '
 
-command -v neofetch &>/dev/null && neofetch || true
+# Do this at the very end so that we can tell all above is executed
+pcall neofetch
