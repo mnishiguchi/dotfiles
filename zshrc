@@ -201,5 +201,6 @@ fi
 
 alias nv='nvim'
 
-command -v npx &>/dev/null && alias serve='npx serve '
+command -v npx &>/dev/null && alias serve='npx serve ' || true
 
+command -v neofetch &>/dev/null && neofetch || true
