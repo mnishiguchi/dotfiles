@@ -7,4 +7,4 @@
 #   path/to/rofi-power-menu
 #
 
-rofi -modi "Power:rofi-power-modi" -show Power -theme-str '@import "power-theme.rasi"'
+rofi -modi "Power:rofi-power-modi" -show Power -theme-str '@import "power-theme.rasi"' -matching fuzzy
