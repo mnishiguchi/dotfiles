@@ -146,8 +146,9 @@ alias grbc='git rebase --continue'
 
 # https://hexdocs.pm/iex/IEx.html
 export ERL_AFLAGS="-kernel shell_history enabled"
+# https://hexdocs.pm/iex/IEx.Helpers.html#open/1
 export ELIXIR_EDITOR="code --goto"
-
+# https://hexdocs.pm/hex/Mix.Tasks.Hex.Docs.html
 alias hexdocs="mix hex.docs online "
 
 # https://github.com/asdf-vm/asdf-erlang/blob/master/README.md#setting-the-environment-variable-in-bash
