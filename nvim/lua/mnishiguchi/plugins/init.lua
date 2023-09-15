@@ -36,6 +36,7 @@ local plugins = {
   "tpope/vim-unimpaired",                              -- Pairs of handy bracket mappings
   "vim-scripts/ReplaceWithRegister",                   -- Replace text with the contents of a register with [count]["x]gr{motion}
   "kevinhwang91/nvim-bqf",                             -- Better quickfix window
+  require("mnishiguchi.plugins.git-blame"),            -- Git Blame
   require("mnishiguchi.plugins.gitsigns"),             -- Adds git releated signs to the gutter, as well as utilities for managing changes
   require("mnishiguchi.plugins.harpoon"),              -- Manage project marks
   require("mnishiguchi.plugins.indent-blankline"),     -- Add indentation guides on blank lines
