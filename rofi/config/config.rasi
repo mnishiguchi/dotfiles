@@ -5,7 +5,7 @@
 configuration {
   display-drun: "Application:";
   display-window: "Window:";
-  display-combi: "Search:";
+  display-combi: "Search";
   drun-display-format: "{name}";
   modi: [ window, drun, run, combi ];
   combi-modes: [ window, drun, run ];
@@ -16,4 +16,4 @@ configuration {
 // https://github.com/davatorium/rofi/blob/next/doc/rofi-theme.5.markdown
 // https://github.com/davatorium/rofi/blob/next/doc/default_theme.rasi
 
-@theme "/usr/share/rofi/themes/DarkBlue.rasi"
+@theme "/usr/share/rofi/themes/dmenu.rasi"
