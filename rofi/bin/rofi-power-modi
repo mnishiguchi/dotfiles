@@ -16,10 +16,10 @@ case "$1" in
   systemctl suspend
   ;;
 "Restart")
-  systemctl reboot
+  reboot
   ;;
 "Shut Down")
-  systemctl poweroff
+  poweroff
   ;;
 "Lock Screen")
   loginctl lock-session "${XDG_SESSION_ID-}"
