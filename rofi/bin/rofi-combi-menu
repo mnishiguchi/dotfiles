@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Launches the combi menu.
+#
+# Usage
+#
+#   path/to/rofi-combi-menu
+#
+
+# Use a full path instead of relying on PATH search
+SNIP_MODI="$HOME/.local/bin/rofi-snippets-modi"
+GH_MODI="$HOME/.local/bin/rofi-gh-repos-modi"
+GREENCLIP_MODI="$HOME/.local/bin/greenclip print"
+
+rofi \
+  -modi "combi,drun,Snip:$SNIP_MODI,Gh:$GH_MODI,run,Clip:$GREENCLIP_MODI" \
+  -show 'combi' \
+  -combi-modi 'drun,Snip,Gh,Clip'

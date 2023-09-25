@@ -7,4 +7,11 @@
 #   path/to/rofi-power-menu
 #
 
-rofi -modi "Power:rofi-power-modi" -show Power -theme-str '@import "power-theme.rasi"' -matching fuzzy
+# Use a full path instead of relying on PATH search
+POWER_MODI="$HOME/.local/bin/rofi-power-modi"
+
+rofi \
+  -modi "Power:$POWER_MODI" \
+  -show Power \
+  -theme-str '@import "power-theme.rasi"' \
+  -matching fuzzy
