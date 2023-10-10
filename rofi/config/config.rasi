@@ -3,9 +3,9 @@
 // https://github.com/davatorium/rofi/blob/next/doc/default_configuration.rasi
 
 configuration {
-  display-drun: "Application:";
-  display-window: "Window:";
-  display-combi: "Search:";
+  display-drun: "Application";
+  display-window: "Window";
+  display-combi: "Search";
   drun-display-format: "{name}";
   modi: [ window, drun, run, combi ];
   combi-modes: [ window, drun, run ];
