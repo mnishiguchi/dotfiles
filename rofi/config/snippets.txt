@@ -2,3 +2,15 @@ cmd timestamp!date +"%Y-%m-%d %H:%M"
 cmd unix time!date +%s
 git empty commit!git commit --allow-empty -m "empty commit"
 default readme!echo 'Nothing interesting here yet. Try again later.' > README.md
+pacman install!sudo pacman -S
+pacman uninstall!sudo pacman -Rns
+pacman update!sudo pacman -Syu
+pacman autoremove!sudo pacman -Rs $(pacman -Qdtq)
+pacman search!pacman -Q
+pacman export!pacman -Q | awk '{print $1}' > "$HOME/Desktop/arch-packages-$(date +'%Y-%m-%d-%H%M').txt"
+yay install!yay -S
+yay uninstall!yay -Rns
+yay update!sudo yay -Syu
+yay autoremove!yay -Yc
+yay search!yay -Q
+yay export!yay -Q | awk '{print $1}' > "$HOME/Desktop/aur-packages-$(date +'%Y-%m-%d-%H%M').txt"
