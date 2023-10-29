@@ -1,63 +1,74 @@
 -- A starting point to setup some LSP related features
 return {
   "VonHeikemen/lsp-zero.nvim",
-  branch = "v2.x",
+  branch = "v3.x",
   config = function()
-    local function setup_lsp()
-      local lsp = require("lsp-zero").preset({})
-      lsp.on_attach(function(client, bufnr)
-        lsp.default_keymaps({ buffer = bufnr })
-      end)
-      require("lspconfig").lua_ls.setup(lsp.nvim_lua_ls())
-      -- https://github.com/williamboman/mason-lspconfig.nvim
-      lsp.ensure_installed({ "lua_ls" })
+    local lsp_zero = require("lsp-zero")
 
-      lsp.setup()
+    -- see :help lsp-zero-keybindings for available actions
+    local function setup_keybindings()
+      lsp_zero.on_attach(function(client, bufnr)
+        lsp_zero.default_keymaps({
+          buffer = bufnr,
+          preserve_mappings = false -- force lsp-zero's bindings
+        })
+      end)
     end
 
-    -- https://github.com/VonHeikemen/lsp-zero.nvim/blob/v2.x/doc/md/autocomplete.md#add-an-external-collection-of-snippets
-    local function setup_autocompletion()
-      local cmp = require("cmp")
-      local cmp_action = require("lsp-zero").cmp_action()
+    local function setup_lsp_servers()
+      require("mason").setup({})
 
-      require("luasnip.loaders.from_vscode").lazy_load()
-
-      cmp.setup({
-        sources = {
-          { name = "nvim_lsp" },
-          { name = "path" },
-          { name = "luasnip", keyword_length = 2 },
-          { name = "buffer",  keyword_length = 5 },
-        },
-        mapping = {
-          ["<C-f>"] = cmp_action.luasnip_jump_forward(),
-          ["<C-b>"] = cmp_action.luasnip_jump_backward(),
+      require("mason-lspconfig").setup({
+        -- list the language servers you want to to be installed automatically
+        ensure_installed = {},
+        handlers = {
+          lsp_zero.default_setup,
+          lua_ls = function()
+            local lua_opts = lsp_zero.nvim_lua_ls()
+            require('lspconfig').lua_ls.setup(lua_opts)
+          end,
+          tsserver = lsp_zero.noop,
         },
       })
     end
 
-    setup_lsp()
+    local function setup_autocompletion()
+      local cmp = require("cmp")
+
+      cmp.setup({
+        sources = cmp.config.sources({
+          { name = "nvim_lsp" },
+          { name = "path" },
+          { name = "luasnip", keyword_length = 2 },
+          { name = "buffer",  keyword_length = 5 },
+        }, {
+        }),
+        mapping = cmp.mapping.preset.insert({
+          ["<CR>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+        })
+      })
+    end
+
+    setup_keybindings()
+    setup_lsp_servers()
     setup_autocompletion()
   end,
   dependencies = {
-    -- LSP Support
-    { "neovim/nvim-lspconfig" }, -- Required
-    { "williamboman/mason-lspconfig.nvim" },
-    {
-      "williamboman/mason.nvim",
-      build = function()
-        pcall(vim.cmd, "MasonUpdate")
-      end,
-    },
+    -- LSP support
+    "neovim/nvim-lspconfig",
+    "williamboman/mason-lspconfig.nvim",
+    "williamboman/mason.nvim",
 
     -- Autocompletion
-    "hrsh7th/nvim-cmp",   -- Required
-    "hrsh7th/cmp-nvim-lsp", -- Required
+    -- https://github.com/hrsh7th/nvim-cmp
+    "hrsh7th/nvim-cmp",
+    "hrsh7th/cmp-nvim-lsp",
     "hrsh7th/cmp-buffer",
     "hrsh7th/cmp-path",
     "saadparwaiz1/cmp_luasnip",
 
     -- Snippet engine
+    -- https://github.com/L3MON4D3/LuaSnip
     {
       "L3MON4D3/LuaSnip",
       dependencies = {
@@ -66,6 +77,12 @@ return {
           "rafamadriz/friendly-snippets",
           init = function()
             require("luasnip.loaders.from_vscode").lazy_load()
+
+            -- add html snippets to other languages
+            require("luasnip").filetype_extend("elixir", { "html" })
+            require("luasnip").filetype_extend("erb", { "html" })
+            require("luasnip").filetype_extend("heex", { "html" })
+            require("luasnip").filetype_extend("leex", { "html" })
           end,
         },
       },
