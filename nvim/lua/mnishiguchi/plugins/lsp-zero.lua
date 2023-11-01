@@ -7,7 +7,7 @@ return {
 
     -- see :help lsp-zero-keybindings for available actions
     local function setup_keybindings()
-      lsp_zero.on_attach(function(client, bufnr)
+      lsp_zero.on_attach(function(_, bufnr)
         lsp_zero.default_keymaps({
           buffer = bufnr,
           preserve_mappings = false -- force lsp-zero's bindings
@@ -72,20 +72,19 @@ return {
     {
       "L3MON4D3/LuaSnip",
       dependencies = {
-        {
-          -- https://github.com/rafamadriz/friendly-snippets
-          "rafamadriz/friendly-snippets",
-          init = function()
-            require("luasnip.loaders.from_vscode").lazy_load()
-
-            -- add html snippets to other languages
-            require("luasnip").filetype_extend("elixir", { "html" })
-            require("luasnip").filetype_extend("erb", { "html" })
-            require("luasnip").filetype_extend("heex", { "html" })
-            require("luasnip").filetype_extend("leex", { "html" })
-          end,
-        },
+        "rafamadriz/friendly-snippets",
       },
+      config = function(_, opts)
+        if opts then require("luasnip").config.setup(opts) end
+
+        require("luasnip.loaders.from_vscode").lazy_load()
+
+        -- add html snippets to other languages
+        require("luasnip").filetype_extend("elixir", { "html" })
+        require("luasnip").filetype_extend("erb", { "html" })
+        require("luasnip").filetype_extend("heex", { "html" })
+        require("luasnip").filetype_extend("leex", { "html" })
+      end,
     },
   },
 }
