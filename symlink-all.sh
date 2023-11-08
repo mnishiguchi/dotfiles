@@ -17,7 +17,7 @@ printf "==> Symlinking dotfiles from %s\n" "$SCRIPTPATH"
 #
 function symlink_file {
   if [ -f "$1" ]; then
-    mkdir -p $(dirname "$2")
+    mkdir -p "$(dirname "$2")"
     ln -sf "$1" "$2"
     printf "✓ %s -> %s\n" "$1" "$2"
   else
@@ -33,7 +33,7 @@ function symlink_file {
 #
 function symlink_dir {
   if [ -d "$1" ]; then
-    mkdir -p $(dirname "$2")
+    mkdir -p "$(dirname "$2")"
     ln -sf "$1" "$2"
     printf "✓ %s -> %s\n" "$1" "$2"
   else
@@ -43,6 +43,7 @@ function symlink_dir {
 
 # always use absolute path when linking files
 symlink_dir "$SCRIPTPATH/nvim" "$HOME/.config/nvim"
+symlink_file "$SCRIPTPATH/default-mix-commands" "$HOME/.default-mix-commands"
 symlink_file "$SCRIPTPATH/editorconfig" "$HOME/.editorconfig"
 symlink_file "$SCRIPTPATH/gitignore_global" "$HOME/.gitignore"
 symlink_file "$SCRIPTPATH/iex.exs" "$HOME/.iex.exs"
