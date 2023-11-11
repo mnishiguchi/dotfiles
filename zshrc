@@ -110,11 +110,10 @@ fi
 # On Apple silicon, Homebrew installs files into the /opt/homebrew/ folder, which is not part of the default shell $PATH.
 PATH=/opt/homebrew/bin:$PATH
 
-# https://www.rabbitmq.com/install-homebrew.html
-PATH=$PATH:/opt/homebrew/opt/rabbitmq/sbin
-
-# for my custom scripts
-PATH=$HOME/.local/bin:$PATH
+# include user's private bin if it exists
+if [ -d "$HOME/.local/bin" ]; then
+  PATH="$HOME/.local/bin:$PATH"
+fi
 
 ## Git
 
@@ -169,7 +168,7 @@ install-bundler() {
   fi
 }
 
-## *env etc
+## etc
 
 # catches any errors while the function is running
 function pcall {
@@ -186,22 +185,13 @@ function exists {
   fi
 }
 
-pcall eval "$(rbenv init -)"
-pcall eval "$(pyenv init -)"
-pcall eval "$(nodenv init -)"
-
-# https://direnv.net/docs/hook.html
-pcall eval "$(direnv hook zsh)"
-
-## etc
-
 alias timestamp='date "+%Y%m%d%H%M%S"'
 
 TERMINAL_OUTPUT_FILE="~/Desktop/terminal-output.txt"
-alias 2desk="tee $TERMINAL_OUTPUT_FILE | less"
+alias 2desk="tee $TERMINAL_OUTPUT_FILE"
 
 # Show current dir in an iterm tab: https://gist.github.com/phette23/5270658#gistcomment-3020766
-precmd() {
+function precmd {
   echo -ne "\e]1;${PWD##*/}\a"
 }
 
@@ -214,8 +204,6 @@ PROMPT="$PROMPT${NEWLINE}$ "
 if exists rg; then
   export FZF_DEFAULT_COMMAND='rg --files'
 fi
-
-alias nv='nvim'
 
 exists npx && alias serve='npx serve '
 
