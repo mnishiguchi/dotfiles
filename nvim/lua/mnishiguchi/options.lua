@@ -1,6 +1,5 @@
 -- line numbers
 vim.opt.number = true
-vim.opt.relativenumber = true
 
 -- tabs
 vim.opt.tabstop = 2
@@ -55,11 +54,6 @@ vim.opt.mouse = "a"
 
 -- undo history
 vim.opt.undofile = true
-
--- backup
-vim.opt.backup = false
-vim.opt.swapfile = false
-vim.opt.writebackup = false
 
 -- etc
 vim.opt.isfname:append("@-@") -- support all alphas in filenames

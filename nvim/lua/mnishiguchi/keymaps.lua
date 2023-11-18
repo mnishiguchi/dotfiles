@@ -9,9 +9,6 @@ keymap({ "n", "v" }, "<Space>", "<Nop>", { desc = "no op" })
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- edit vimrc quickly
-keymap("n", "<leader>.", ":<C-u>find $MYVIMRC<CR>:<C-u>Explore<CR>", { desc = "open MYVIMRC" })
-
 -- show the file explore
 keymap("n", "<leader>e", vim.cmd.Explore, { desc = ":Explore" })
 
@@ -72,6 +69,8 @@ command("Q", "q", {})
 command("W", "w", {})
 command("WQ", "wq", {})
 command("Wq", "wq", {})
+command("QA", "qa", {})
+command("Qa", "qa", {})
 
 -- increment/decrement numbers
 keymap("n", "<leader>+", "<C-a>") -- increment

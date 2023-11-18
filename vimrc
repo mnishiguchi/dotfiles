@@ -52,7 +52,7 @@ syntax enable
 colorscheme molokai
 
 " line numbers
-set number relativenumber
+set number
 
 " tabs
 set expandtab
@@ -75,7 +75,6 @@ set incsearch
 " appearance
 set termguicolors " highlight groups
 set cursorline
-set cursorcolumn
 set colorcolumn=80
 set scrolloff=8
 set signcolumn=yes
@@ -89,9 +88,6 @@ set path+=**
 set wildmenu
 set wildmode=full
 
-" backup
-set nobackup noswapfile nowritebackup
-
 " others
 set isfname+=@-@ " all alphas
 set iskeyword+=- "make "-" part of word
@@ -104,10 +100,6 @@ set iskeyword+=- "make "-" part of word
 map <Space> <Leader>
 nnoremap <Leader> <Nop>
 xnoremap <Leader> <Nop>
-
-" edit vimrc quickly
-nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
-nnoremap <Leader>s. :<C-u>source $MYVIMRC<CR>
 
 " show the file explore
 nnoremap <Leader>e :Explore<CR>
