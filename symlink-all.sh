@@ -44,6 +44,7 @@ function symlink_dir {
 # always use absolute path when linking files
 symlink_dir "$SCRIPTPATH/nvim" "$HOME/.config/nvim"
 symlink_file "$SCRIPTPATH/default-mix-commands" "$HOME/.default-mix-commands"
+symlink_file "$SCRIPTPATH/direnv/direnv.toml" "$HOME/.config/direnv/direnv.toml"
 symlink_file "$SCRIPTPATH/editorconfig" "$HOME/.editorconfig"
 symlink_file "$SCRIPTPATH/gitignore_global" "$HOME/.gitignore"
 symlink_file "$SCRIPTPATH/iex.exs" "$HOME/.iex.exs"
