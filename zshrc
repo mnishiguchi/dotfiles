@@ -207,5 +207,8 @@ fi
 
 exists npx && alias serve='npx serve '
 
+# Opens memolist index page in the right directory for grepping
+alias memolist="cd $HOME/.memolist/memo && nvim ."
+
 # Do this at the very end so that we can tell all above is executed
 pcall neofetch
