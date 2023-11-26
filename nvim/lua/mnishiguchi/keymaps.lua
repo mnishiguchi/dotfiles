@@ -76,12 +76,6 @@ command("Qa", "qa", {})
 keymap("n", "<leader>+", "<C-a>") -- increment
 keymap("n", "<leader>_", "<C-x>") -- decrement
 
--- tabs
-keymap("n", "<leader>to", ":tabnew<CR>") -- open new tab
-keymap("n", "<leader>tx", ":tabclose<CR>") -- close current tab
-keymap("n", "<leader>t]", ":tabn<CR>") -- go to next tab
-keymap("n", "<leader>t[", ":tabp<CR>") -- go to previous tab
-
 -- Press jk fast to exit insert mode
 keymap("i", "jk", "<ESC>")
 keymap("i", "kj", "<ESC>")
