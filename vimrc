@@ -151,6 +151,10 @@ command! WQ wq
 command! Wq wq
 command! E e
 
+" increment/decrement numbers
+nnoremap <leader>+ <C-a>
+nnoremap <leader>_ <C-x>
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " autocommands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

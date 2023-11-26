@@ -74,7 +74,7 @@ command("Qa", "qa", {})
 
 -- increment/decrement numbers
 keymap("n", "<leader>+", "<C-a>") -- increment
-keymap("n", "<leader>-", "<C-x>") -- decrement
+keymap("n", "<leader>_", "<C-x>") -- decrement
 
 -- tabs
 keymap("n", "<leader>to", ":tabnew<CR>") -- open new tab
