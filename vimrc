@@ -1,11 +1,22 @@
+set encoding=utf-8
+set nocompatible
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Plugins
 " See https://github.com/tani/vim-jetpack
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-packadd vim-jetpack
 
+" install vim-jetpack automatically on startup
+let s:jetpack_file = '~/.vim/pack/jetpack/opt/vim-jetpack/plugin/jetpack.vim'
+let s:jetpack_url = 'https://raw.githubusercontent.com/tani/vim-jetpack/master/plugin/jetpack.vim'
+if !filereadable(s:jetpack_file)
+  call system(printf('curl -fsSLo %s --create-dirs %s', s:jetpack_file, s:jetpack_url))
+endif
+
+packadd vim-jetpack
 call jetpack#begin()
-Jetpack 'tani/vim-jetpack', {'opt': 1}
+
+Jetpack 'tani/vim-jetpack', {'opt': 1} "bootstrap
 
 Jetpack 'airblade/vim-gitgutter'
 Jetpack 'ap/vim-css-color'
@@ -30,7 +41,16 @@ Jetpack 'tpope/vim-unimpaired'
 Jetpack 'vim-airline/vim-airline'
 Jetpack 'vim-airline/vim-airline-themes'
 Jetpack 'vim-ruby/vim-ruby'
+
 call jetpack#end()
+
+" install plugins automatically
+for name in jetpack#names()
+  if !jetpack#tap(name)
+    call jetpack#sync()
+    break
+  endif
+endfor
 
 " ## Commands
 "
