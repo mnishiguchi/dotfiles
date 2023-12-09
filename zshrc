@@ -105,12 +105,14 @@ fi
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-## paths
+## Paths
 
 # On Apple silicon, Homebrew installs files into the /opt/homebrew/ folder, which is not part of the default shell $PATH.
-PATH=/opt/homebrew/bin:$PATH
+if [ -d "/opt/homebrew/bin:$PATH" ]; then
+  PATH="/opt/homebrew/bin:$PATH"
+fi
 
-# include user's private bin if it exists
+# Include user's private bin if it exists
 if [ -d "$HOME/.local/bin" ]; then
   PATH="$HOME/.local/bin:$PATH"
 fi
@@ -126,9 +128,6 @@ alias gc='git commit --verbose'
 alias gc!='git commit --verbose --amend'
 alias gcn!='git commit --verbose --no-edit --amend'
 alias gco='git checkout'
-alias gcp='git cherry-pick'
-alias gcpa='git cherry-pick --abort'
-alias gcpc='git cherry-pick --continue'
 alias gd='git diff'
 alias gdca='git diff --cached'
 alias gf='git fetch'
@@ -137,9 +136,6 @@ alias gloga='git log --oneline --decorate --graph --all'
 alias gp='git push'
 alias gpf='git push --force-with-lease --force-if-includes'
 alias gpf!='git push --force'
-alias grb='git rebase'
-alias grba='git rebase --abort'
-alias grbc='git rebase --continue'
 
 ## Elixir
 
@@ -149,7 +145,6 @@ export ERL_AFLAGS="-kernel shell_history enabled"
 export ELIXIR_EDITOR="code --goto"
 # https://hexdocs.pm/hex/Mix.Tasks.Hex.Docs.html
 alias hexdocs="mix hex.docs online "
-
 # https://github.com/asdf-vm/asdf-erlang/blob/master/README.md#setting-the-environment-variable-in-bash
 export KERL_BUILD_DOCS="yes"
 
@@ -170,15 +165,15 @@ install-bundler() {
 
 ## etc
 
-# catches any errors while the function is running
-function pcall {
+# Catches any errors while the function is running
+pcall() {
   if ! "$@"; then
     return 0
   fi
 }
 
-# checks if the command exists
-function exists {
+# Checks if the command exists
+exists() {
   if [[ ! "$(command -v $@)" ]]; then
     echo "$@ not installed" 1>&2
     return 1
@@ -190,8 +185,9 @@ alias timestamp='date "+%Y%m%d%H%M%S"'
 TERMINAL_OUTPUT_FILE="~/Desktop/terminal-output.txt"
 alias 2desk="tee $TERMINAL_OUTPUT_FILE"
 
-# Show current dir in an iterm tab: https://gist.github.com/phette23/5270658#gistcomment-3020766
-function precmd {
+# Show current dir in an iterm tab
+# https://gist.github.com/phette23/5270658#gistcomment-3020766
+precmd() {
   echo -ne "\e]1;${PWD##*/}\a"
 }
 
@@ -201,10 +197,9 @@ PROMPT="$PROMPT${NEWLINE}$ "
 
 # Use ripgrep instead of grep for fzf
 # https://dev.to/iggredible/how-to-search-faster-in-vim-with-fzf-vim-36ko
-if exists rg; then
-  export FZF_DEFAULT_COMMAND='rg --files'
-fi
+exists rg && export FZF_DEFAULT_COMMAND='rg --files'
 
+# Run a simple web server
 exists npx && alias serve='npx serve '
 
 # Opens memolist index page in the right directory for grepping
