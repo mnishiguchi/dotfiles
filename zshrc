@@ -165,17 +165,17 @@ install-bundler() {
 
 ## etc
 
-# Catches any errors while the function is running
+# Ignores any errors when the command is run
 pcall() {
   if ! "$@"; then
     return 0
   fi
 }
 
-# Checks if the command exists
+# Ensures the command exists
 exists() {
-  if [[ ! "$(command -v $@)" ]]; then
-    echo "$@ not installed" 1>&2
+  if [[ ! "$(command -v "$1")" ]]; then
+    echo "$1 not installed" 1>&2
     return 1
   fi
 }
