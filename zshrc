@@ -117,6 +117,43 @@ if [ -d "$HOME/.local/bin" ]; then
   PATH="$HOME/.local/bin:$PATH"
 fi
 
+## Files
+
+# create a zip archive of a directory
+mkzip() { zip -r "$1".zip "$1"; }
+
+# create a tar-gzip archive of a directory
+mktgz() { tar cvzf "$1".tgz "$1"; }
+
+# extract a compressed archive
+extract() {
+  if [ ! -f "$1" ]; then
+    echo "error: '$1' is not a valid file"
+    return 1
+  fi
+
+  case "$1" in
+  *.tar.bz2) tar xvjf "$1" ;;
+  *.tar.gz) tar xvzf "$1" ;;
+  *.bz2) bunzip2 "$1" ;;
+  *.rar) unrar x "$1" ;;
+  *.gz) gunzip "$1" ;;
+  *.tar) tar xvf "$1" ;;
+  *.tbz2) tar xvjf "$1" ;;
+  *.tgz) tar xvzf "$1" ;;
+  *.zip) unzip "$1" ;;
+  *.ZIP) unzip "$1" ;;
+  *.pax) cat "$1" | pax -r ;;
+  *.pax.Z) uncompress "$1" —stdout | pax -r ;;
+  *.Z) uncompress "$1" ;;
+  *.7z) 7z x "$1" ;;
+  *)
+    echo "error: '$1' cannot be extracted via extract()"
+    return 1
+    ;;
+  esac
+}
+
 ## Git
 
 # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git
