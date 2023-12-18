@@ -240,7 +240,7 @@ exists rg && export FZF_DEFAULT_COMMAND='rg --files'
 exists npx && alias serve='npx serve '
 
 # Opens memolist index page in the right directory for grepping
-alias memolist="cd $HOME/.memolist/memo && nvim ."
+alias memolist="(cd $HOME/Documents/memolist/memo && nvim .)"
 
 # Do this at the very end so that we can tell all above is executed
 pcall neofetch
