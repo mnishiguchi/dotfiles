@@ -242,5 +242,25 @@ exists npx && alias serve='npx serve '
 # Opens memolist index page in the right directory for grepping
 alias memolist="(cd $HOME/Documents/memolist/memo && nvim .)"
 
+# Turn on/off capslock
+capslock() {
+  if [ "$(uname)" = "Darwin" ]; then
+    echo "capslock() does not support 'Darwin'"
+    return 0
+  fi
+
+  if [ -z "$1" ]; then
+    # use capslock as capslock
+    setxkbmap -option
+  else
+    # use capslock as another ctrl
+    setxkbmap -option ctrl:nocaps
+  fi
+
+  setxkbmap -print -verbose 10
+}
+
+alias nocaps="capslock off"
+
 # Do this at the very end so that we can tell all above is executed
 pcall neofetch
