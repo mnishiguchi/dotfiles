@@ -124,11 +124,12 @@ mkzip() { zip -r "$1".zip "$1"; }
 
 # create a tar-gzip archive of a directory
 mktgz() { tar cvzf "$1".tgz "$1"; }
+mktargz() { tar cvzf "$1".tar.gz "$1"; }
 
 # extract a compressed archive
 extract() {
   if [ ! -f "$1" ]; then
-    echo "error: '$1' is not a valid file"
+    echo "error: invalid file '$1'"
     return 1
   fi
 
@@ -148,7 +149,57 @@ extract() {
   *.Z) uncompress "$1" ;;
   *.7z) 7z x "$1" ;;
   *)
-    echo "error: '$1' cannot be extracted via extract()"
+    echo "error: don't know how to extract '$1'"
+    return 1
+    ;;
+  esac
+}
+
+encrypt_gpg() {
+  if [ ! -f "$1" ] && [ ! -d "$1" ]; then
+    echo "error: invalid file or directory '$1'"
+    return 1
+  fi
+
+  if [ -f "$1" ]; then
+    source_file="$1"
+    gpg --symmetric --cipher-algo aes256 "$source_file"
+    return 0
+  fi
+
+  # for a directory, create an archive first
+  if [ -d "$1" ]; then
+    source_dir="$1"
+    archive="${source_dir}.tar.gz"
+    tar cvzf "$archive" "$source_dir"
+    gpg --symmetric --cipher-algo aes256 "$archive"
+    rm -rf "$archive"
+    return 0
+  fi
+
+  echo "error: don't know how to extract '$1'"
+  return 1
+}
+
+decrypt() {
+  if [ ! -f "$1" ]; then
+    echo "error: invalid file: '$1'"
+    return 1
+  fi
+
+  source="$1"
+
+  case "$source" in
+  *.tar.gz.gpg)
+    gpg --decrypt "$source" | tar xvzf -
+    ;;
+  *.gpg)
+    output="${source%.*}"
+    echo "output: $output"
+    gpg --output "$output" --decrypt "$source"
+    ;;
+  *)
+    echo "error: don't know how to extract '$source'"
     return 1
     ;;
   esac
