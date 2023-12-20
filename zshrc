@@ -155,30 +155,17 @@ extract() {
   esac
 }
 
-encrypt_gpg() {
+encrypt() {
   if [ ! -f "$1" ] && [ ! -d "$1" ]; then
     echo "error: invalid file or directory '$1'"
     return 1
   fi
 
-  if [ -f "$1" ]; then
-    source_file="$1"
-    gpg --symmetric --cipher-algo aes256 "$source_file"
-    return 0
-  fi
-
-  # for a directory, create an archive first
-  if [ -d "$1" ]; then
-    source_dir="$1"
-    archive="${source_dir}.tar.gz"
-    tar cvzf "$archive" "$source_dir"
-    gpg --symmetric --cipher-algo aes256 "$archive"
-    rm -rf "$archive"
-    return 0
-  fi
-
-  echo "error: don't know how to extract '$1'"
-  return 1
+  source="$1"
+  archive="${source}.tar.gz"
+  tar cvzf "$archive" "$source"
+  gpg --symmetric --cipher-algo aes256 "$archive"
+  rm -rf "$archive"
 }
 
 decrypt() {
@@ -194,9 +181,7 @@ decrypt() {
     gpg --decrypt "$source" | tar xvzf -
     ;;
   *.gpg)
-    output="${source%.*}"
-    echo "output: $output"
-    gpg --output "$output" --decrypt "$source"
+    gpg --output "${source%.*}" --decrypt "$source"
     ;;
   *)
     echo "error: don't know how to extract '$source'"
