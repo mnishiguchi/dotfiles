@@ -246,8 +246,8 @@ pcall() {
 }
 
 # Ensures the command exists
-exists() {
-  if [[ ! "$(command -v "$1")" ]]; then
+command-exists() {
+  if ! command -v "$1" >/dev/null; then
     echo "$1 not installed" 1>&2
     return 1
   fi
@@ -270,10 +270,10 @@ PROMPT="$PROMPT${NEWLINE}$ "
 
 # Use ripgrep instead of grep for fzf
 # https://dev.to/iggredible/how-to-search-faster-in-vim-with-fzf-vim-36ko
-exists rg && export FZF_DEFAULT_COMMAND='rg --files'
+command-exists rg && export FZF_DEFAULT_COMMAND='rg --files'
 
 # Run a simple web server
-exists npx && alias serve='npx serve '
+command-exists npx && alias serve='npx serve '
 
 # Opens memolist index page in the right directory for grepping
 alias memolist="(cd $HOME/Documents/memolist/memo && nvim .)"
