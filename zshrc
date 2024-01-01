@@ -105,6 +105,21 @@ fi
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# Ignores any errors when the command is run
+pcall() {
+  if ! "$@"; then
+    return 0
+  fi
+}
+
+# Ensures the command exists
+command-exists() {
+  if ! command -v "$1" >/dev/null; then
+    echo "$1 not installed" 1>&2
+    return 1
+  fi
+}
+
 ## Paths
 
 # On Apple silicon, Homebrew installs files into the /opt/homebrew/ folder, which is not part of the default shell $PATH.
@@ -210,12 +225,17 @@ alias gp='git push'
 alias gpf='git push --force-with-lease --force-if-includes'
 alias gpf!='git push --force'
 
-## Elixir
+## Erlang and Elixir
 
+# https://www.erlang.org/doc/man/erlc.html
+export ERLC_USE_SERVER=true
+# https://erlang.mk/guide/building.html
+export MAKEFLAGS="-j$(($(nproc) + 1))"
 # https://hexdocs.pm/iex/IEx.html
 export ERL_AFLAGS="-kernel shell_history enabled"
 # https://hexdocs.pm/iex/IEx.Helpers.html#open/1
-export ELIXIR_EDITOR="code --goto"
+command-exists code && export ELIXIR_EDITOR="code --goto"
+command-exists codium && export ELIXIR_EDITOR="codium --goto"
 # https://hexdocs.pm/hex/Mix.Tasks.Hex.Docs.html
 alias hexdocs="mix hex.docs online "
 # https://github.com/asdf-vm/asdf-erlang/blob/master/README.md#setting-the-environment-variable-in-bash
@@ -238,20 +258,6 @@ install-bundler() {
 
 ## etc
 
-# Ignores any errors when the command is run
-pcall() {
-  if ! "$@"; then
-    return 0
-  fi
-}
-
-# Ensures the command exists
-command-exists() {
-  if ! command -v "$1" >/dev/null; then
-    echo "$1 not installed" 1>&2
-    return 1
-  fi
-}
 
 alias timestamp='date "+%Y%m%d%H%M%S"'
 
