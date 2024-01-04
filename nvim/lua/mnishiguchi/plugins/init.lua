@@ -31,9 +31,7 @@ local plugins = {
   "tpope/vim-endwise",                                 -- Add end after if, do, def etc
   "tpope/vim-eunuch",                                  -- File utilities, like Delete, Move, Rename, Copy, Duplicate, etc
   "tpope/vim-fugitive",                                -- Git
-  "tpope/vim-repeat",                                  -- Enable repeating supported plugin maps with `.`
   "tpope/vim-rhubarb",                                 -- GBrowse
-  "tpope/vim-unimpaired",                              -- Pairs of handy bracket mappings
   "vim-scripts/ReplaceWithRegister",                   -- Replace text with the contents of a register with [count]["x]gr{motion}
   "kevinhwang91/nvim-bqf",                             -- Better quickfix window
   require("mnishiguchi.plugins.git-blame"),            -- Git Blame
