@@ -1,0 +1,26 @@
+
+
+# <type>(<scope>): <subject>
+#------- max 50 charcters wide ----------------->|
+
+
+#------- max 72 charcters wide --------------------------------------->|
+
+# ## Common commit types
+# - fix:      SemVer PATCH
+# - feat:     SemVer MINOR
+# - build:    Changes that affect the build system or external dependencies
+# - ci:       Changes to CI related files and scripts
+# - docs:     Documentation only changes
+# - perf:     Code changes to improve performance
+# - refactor: code changes that neither fix bugs nor add functionality
+# - test:     Add missing tests or modify existing tests
+#
+# ## BREAKING CHANGES
+# - SemVer MAJOR
+# - can be part of commits of any type
+
+# ## Resources
+# - https://www.conventionalcommits.org
+# - https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines
+# - https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional

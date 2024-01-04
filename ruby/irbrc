@@ -1,0 +1,12 @@
+# https://www.digitalocean.com/community/tutorials/how-to-use-irb-to-explore-ruby
+require 'irb/completion'
+
+CONFIG_DIR = File.join(Dir.home, '.config', 'irb')
+system("mkdir -p #{CONFIG_DIR}")
+
+HISTORY_FILE = File.join(CONFIG_DIR, 'irb_history')
+system("touch #{HISTORY_FILE}")
+
+IRB.conf[:SAVE_HISTORY] = 1000
+IRB.conf[:HISTORY_FILE] = HISTORY_FILE
+IRB.conf[:AUTO_INDENT] = true

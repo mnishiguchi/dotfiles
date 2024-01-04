@@ -1,0 +1,247 @@
+## ZSH configuration
+
+# https://github.com/ohmyzsh/ohmyzsh/blob/f4435a4522c1070b04d4e3a5b6b705bcebc309e5/lib/completion.zsh
+unsetopt menu_complete # do not autoselect the first completion entry
+unsetopt flowcontrol
+setopt auto_menu # show completion menu on successive tab press
+setopt complete_in_word
+setopt always_to_end
+
+# https://github.com/ohmyzsh/ohmyzsh/blob/f4435a4522c1070b04d4e3a5b6b705bcebc309e5/lib/history.zsh
+setopt extended_history       # record timestamp of command in HISTFILE
+setopt hist_expire_dups_first # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt hist_ignore_dups       # ignore duplicated commands history list
+setopt hist_ignore_space      # ignore commands that start with space
+setopt hist_verify            # show command with history expansion to user before running it
+setopt share_history          # share command history data
+
+autoload -U compinit
+compinit
+
+# https://github.com/ohmyzsh/ohmyzsh/blob/f4435a4522c1070b04d4e3a5b6b705bcebc309e5/lib/key-bindings.zsh#L109
+bindkey '^r' history-incremental-search-backward # [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
+
+## Helpers
+
+pcall() { "$@" || true; }
+command-exists() { command -v "$1" >/dev/null; }
+
+## Aliases
+
+[ -f "${XDG_CONFIG_HOME}/shell/aliases" ] && source "${XDG_CONFIG_HOME}/shell/aliases"
+
+alias zshrc="${EDITOR} ${ZDOTDIR}/.zshrc"
+alias zdot="cd ${ZDOTDIR} && ${EDITOR} ."
+
+## Oh my zsh
+
+# Uninstall oh-my-zsh
+# https://github.com/ohmyzsh/ohmyzsh#uninstalling-oh-my-zsh
+command-exists uninstall_oh_my_zsh && uninstall_oh_my_zsh
+
+## ZSH autosuggestions
+
+# https://github.com/zsh-users/zsh-autosuggestions
+autosuggestions_dir="$XDG_CONFIG_HOME/zsh/zsh-autosuggestions"
+
+if [ ! -d "$autosuggestions_dir" ]; then
+  git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git "$autosuggestions_dir"
+fi
+
+source "$autosuggestions_dir/zsh-autosuggestions.zsh"
+
+## ZSH syntax-highlighting
+
+# https://github.com/zsh-users/zsh-syntax-highlighting
+syntax_highlighting_dir="$XDG_CONFIG_HOME/zsh/zsh-syntax-highlighting"
+
+if [ ! -d "$syntax_highlighting_dir" ]; then
+  git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git "$syntax_highlighting_dir"
+fi
+
+source "$syntax_highlighting_dir/zsh-syntax-highlighting.zsh"
+
+## Prompt theme
+
+# https://github.com/spaceship-prompt/spaceship-prompt
+spaceship_dir="$XDG_CONFIG_HOME/spaceship-prompt"
+
+if [ ! -d "$spaceship_dir" ]; then
+  git clone --depth=1 https://github.com/spaceship-prompt/spaceship-prompt.git "$spaceship_dir"
+fi
+
+source "$spaceship_dir/spaceship.zsh"
+
+## z
+
+z_dir="$XDG_CONFIG_HOME/z"
+
+if [ ! -d "$z_dir" ]; then
+  git clone --depth=1 https://github.com/rupa/z.git "$z_dir"
+fi
+
+source "$z_dir/z.sh"
+
+## Homebrew (macOS)
+
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
+## ASDF
+
+ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
+
+# https://asdf-vm.com/guide/getting-started.html
+if [ -f "$ASDF_DIR/asdf.sh" ]; then
+  # Load command
+  source "$ASDF_DIR/asdf.sh"
+
+  # Load completions
+  if [ -f "${ASDF_DIR}/completions/_asdf" ]; then
+    # append completions to fpath
+    fpath=(${ASDF_DIR}/completions $fpath)
+    # initialise completions with ZSH's compinit
+    autoload -Uz compinit && compinit
+  fi
+fi
+
+## direnv
+
+# https://direnv.net/docs/hook.html
+command-exists direnv && eval "$(direnv hook zsh)"
+
+## Erlang and Elixir
+
+# https://www.erlang.org/doc/man/erlc.html
+export ERLC_USE_SERVER=true
+
+# https://erlang.mk/guide/building.html
+export MAKEFLAGS="-j$(($(nproc) + 1))"
+
+# https://hexdocs.pm/iex/IEx.html
+export ERL_AFLAGS="-kernel shell_history enabled"
+
+# https://hexdocs.pm/iex/IEx.Helpers.html#open/1
+command-exists code && export ELIXIR_EDITOR="code --goto"
+command-exists codium && export ELIXIR_EDITOR="codium --goto"
+
+# https://github.com/asdf-vm/asdf-erlang/blob/master/README.md#setting-the-environment-variable-in-bash
+export KERL_BUILD_DOCS="yes"
+
+## Ruby
+
+# Install bundler with specific version
+install-bundler() {
+  if [ -z $1 ]; then
+    echo "Installing default bundler..."
+    gem install bundler
+  else
+    echo "Installing bundler $1..."
+    gem uninstall -xI bundler && gem install bundler --version "$1"
+  fi
+}
+
+## Files
+
+mkreadme() {
+  [ -f README.md ] && {
+    echo "README.md already exists"
+    return 1
+  }
+  echo 'Nothing interesting here yet. Try again later.' >README.md
+}
+
+# create a zip archive of a directory
+mkzip() { zip -r "$1".zip "$1"; }
+
+# create a tar-gzip archive of a directory
+mktgz() { tar cvzf "$1".tgz "$1"; }
+mktargz() { tar cvzf "$1".tar.gz "$1"; }
+
+# extract a compressed archive
+extract() {
+  if [ ! -f "$1" ]; then
+    echo "error: invalid file '$1'"
+    return 1
+  fi
+
+  case "$1" in
+  *.tar.bz2) tar xvjf "$1" ;;
+  *.tar.gz) tar xvzf "$1" ;;
+  *.bz2) bunzip2 "$1" ;;
+  *.rar) unrar x "$1" ;;
+  *.gz) gunzip "$1" ;;
+  *.tar) tar xvf "$1" ;;
+  *.tbz2) tar xvjf "$1" ;;
+  *.tgz) tar xvzf "$1" ;;
+  *.zip) unzip "$1" ;;
+  *.ZIP) unzip "$1" ;;
+  *.pax) cat "$1" | pax -r ;;
+  *.pax.Z) uncompress "$1" —stdout | pax -r ;;
+  *.Z) uncompress "$1" ;;
+  *.7z) 7z x "$1" ;;
+  *)
+    echo "error: don't know how to extract '$1'"
+    return 1
+    ;;
+  esac
+}
+
+encrypt() {
+  if [ ! -f "$1" ] && [ ! -d "$1" ]; then
+    echo "error: invalid file or directory '$1'"
+    return 1
+  fi
+
+  source="$1"
+  archive="${source}.tar.gz"
+  tar cvzf "$archive" "$source"
+  gpg --symmetric --cipher-algo aes256 "$archive"
+  rm -rf "$archive"
+}
+
+decrypt() {
+  if [ ! -f "$1" ]; then
+    echo "error: invalid file: '$1'"
+    return 1
+  fi
+
+  source="$1"
+
+  case "$source" in
+  *.tar.gz.gpg)
+    gpg --decrypt "$source" | tar xvzf -
+    ;;
+  *.gpg)
+    gpg --output "${source%.*}" --decrypt "$source"
+    ;;
+  *)
+    echo "error: don't know how to extract '$source'"
+    return 1
+    ;;
+  esac
+}
+
+## etc
+
+# Turn on/off capslock
+capslock() {
+  if [ "$(uname)" = "Darwin" ]; then
+    echo "capslock() does not support 'Darwin'"
+    return 1
+  fi
+
+  if [ -z "$1" ]; then
+    # use capslock as capslock
+    setxkbmap -option
+  else
+    # use capslock as another ctrl
+    setxkbmap -option ctrl:nocaps
+  fi
+
+  setxkbmap -print -verbose 10
+}
+
+alias nocaps="capslock off"
+
+# Do this at the very end so that we can tell all above is executed
+pcall neofetch
