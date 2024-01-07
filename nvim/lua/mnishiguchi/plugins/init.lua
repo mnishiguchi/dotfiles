@@ -47,6 +47,7 @@ local plugins = {
   require("mnishiguchi.plugins.telescope-fzf-native"), -- Fuzzy Finder Algorithm which requires local dependencies to be built.
   require("mnishiguchi.plugins.todo-comments"),        -- Highlight, list and search todo comments
   require("mnishiguchi.plugins.toggleterm"),           -- Toggle a terminal
+  require("mnishiguchi.plugins.vimwiki"),
   require("mnishiguchi.plugins.which-key"),            -- Show pending keybinds
 }
 

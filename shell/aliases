@@ -62,8 +62,9 @@ alias be="bundle exec"
 alias timestamp='date "+%Y%m%d%H%M%S"'
 
 # for project directories, cd first so that grepping works
-alias dotfiles="(cd ${DOTFILES} && ${EDITOR} .)"
-alias memolist="(cd ${MEMOLIST_MEMO} && ${EDITOR} .)"
+alias dotfiles="cd ${DOTFILES} && ${EDITOR} ."
+alias memolist="cd ${MEMOLIST_MEMO} && ${EDITOR} ."
+alias vimwiki="${EDITOR} ${VIMWIKI_INDEX}"
 
 alias 2desk="tee ${HOME}/Desktop/terminal-output-$(timestamp).txt"
 
