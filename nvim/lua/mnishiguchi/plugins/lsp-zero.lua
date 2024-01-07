@@ -20,7 +20,29 @@ return {
 
       require("mason-lspconfig").setup({
         -- list the language servers you want to to be installed automatically
-        ensure_installed = {},
+        -- https://github.com/williamboman/mason-lspconfig.nvim#available-lsp-servers
+        ensure_installed = {
+          "cssls",
+          "dockerls",
+          "eslint",
+          "elixirls",
+          "emmet_ls",
+          "erlangls",
+          "html",
+          "jsonls",
+          "tsserver",
+          "lua_ls",
+          "marksman",
+          "pyright",
+          "ruby_ls",
+          "rust_analyzer",
+          "sqlls",
+          "taplo",
+          "tailwindcss",
+          "yamlls",
+          "zls",
+        },
+
         handlers = {
           lsp_zero.default_setup,
           lua_ls = function()
