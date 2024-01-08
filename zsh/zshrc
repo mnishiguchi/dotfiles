@@ -8,7 +8,7 @@ setopt complete_in_word
 setopt always_to_end
 
 # https://github.com/ohmyzsh/ohmyzsh/blob/f4435a4522c1070b04d4e3a5b6b705bcebc309e5/lib/history.zsh
-setopt extended_history       # record timestamp of command in HISTFILE
+#setopt extended_history      # record timestamp of command in HISTFILE
 setopt hist_expire_dups_first # delete duplicates first when HISTFILE size exceeds HISTSIZE
 setopt hist_ignore_dups       # ignore duplicated commands history list
 setopt hist_ignore_space      # ignore commands that start with space
