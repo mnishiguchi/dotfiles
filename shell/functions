@@ -1,0 +1,145 @@
+#!/bin/sh
+
+## Helpers
+
+pcall() { "$@" || true; }
+command-exists() { command -v "$1" >/dev/null; }
+
+## Homebrew (macOS)
+
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
+## Erlang and Elixir
+
+# https://www.erlang.org/doc/man/erlc.html
+export ERLC_USE_SERVER=true
+
+# https://erlang.mk/guide/building.html
+export MAKEFLAGS="-j$(($(nproc) + 1))"
+
+# https://hexdocs.pm/iex/IEx.html
+export ERL_AFLAGS="-kernel shell_history enabled"
+
+# https://hexdocs.pm/iex/IEx.Helpers.html#open/1
+command-exists code && export ELIXIR_EDITOR="code --goto"
+command-exists codium && export ELIXIR_EDITOR="codium --goto"
+
+# https://github.com/asdf-vm/asdf-erlang/blob/master/README.md#setting-the-environment-variable-in-bash
+export KERL_BUILD_DOCS="yes"
+
+## Ruby
+
+# Install bundler with specific version
+install-bundler() {
+  if [ -z $1 ]; then
+    echo "Installing default bundler..."
+    gem install bundler
+  else
+    echo "Installing bundler $1..."
+    gem uninstall -xI bundler && gem install bundler --version "$1"
+  fi
+}
+
+## Files
+
+mkreadme() {
+  [ -f README.md ] && {
+    echo "README.md already exists"
+    return 1
+  }
+  echo 'Nothing interesting here yet. Try again later.' >README.md
+}
+
+# create a zip archive of a directory
+mkzip() { zip -r "$1".zip "$1"; }
+
+# create a tar-gzip archive of a directory
+mktgz() { tar cvzf "$1".tgz "$1"; }
+mktargz() { tar cvzf "$1".tar.gz "$1"; }
+
+# extract a compressed archive
+extract() {
+  if [ ! -f "$1" ]; then
+    echo "error: invalid file '$1'"
+    return 1
+  fi
+
+  case "$1" in
+  *.tar.bz2) tar xvjf "$1" ;;
+  *.tar.gz) tar xvzf "$1" ;;
+  *.bz2) bunzip2 "$1" ;;
+  *.rar) unrar x "$1" ;;
+  *.gz) gunzip "$1" ;;
+  *.tar) tar xvf "$1" ;;
+  *.tbz2) tar xvjf "$1" ;;
+  *.tgz) tar xvzf "$1" ;;
+  *.zip) unzip "$1" ;;
+  *.ZIP) unzip "$1" ;;
+  *.pax) cat "$1" | pax -r ;;
+  *.pax.Z) uncompress "$1" —stdout | pax -r ;;
+  *.Z) uncompress "$1" ;;
+  *.7z) 7z x "$1" ;;
+  *)
+    echo "error: don't know how to extract '$1'"
+    return 1
+    ;;
+  esac
+}
+
+encrypt() {
+  if [ ! -f "$1" ] && [ ! -d "$1" ]; then
+    echo "error: invalid file or directory '$1'"
+    return 1
+  fi
+
+  source="$1"
+  archive="${source}.tar.gz"
+  tar cvzf "$archive" "$source"
+  gpg --symmetric --cipher-algo aes256 "$archive"
+  rm -rf "$archive"
+}
+
+decrypt() {
+  if [ ! -f "$1" ]; then
+    echo "error: invalid file: '$1'"
+    return 1
+  fi
+
+  source="$1"
+
+  case "$source" in
+  *.tar.gz.gpg)
+    gpg --decrypt "$source" | tar xvzf -
+    ;;
+  *.gpg)
+    gpg --output "${source%.*}" --decrypt "$source"
+    ;;
+  *)
+    echo "error: don't know how to extract '$source'"
+    return 1
+    ;;
+  esac
+}
+
+## etc
+
+# Turn on/off capslock
+capslock() {
+  if [ "$(uname)" = "Darwin" ]; then
+    echo "capslock() does not support 'Darwin'"
+    return 1
+  fi
+
+  if [ -z "$1" ]; then
+    # use capslock as capslock
+    setxkbmap -option
+  else
+    # use capslock as another ctrl
+    setxkbmap -option ctrl:nocaps
+  fi
+
+  setxkbmap -print -verbose 10
+}
+
+alias nocaps="capslock off"
+

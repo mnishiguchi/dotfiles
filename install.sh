@@ -137,7 +137,9 @@ fi
 
 ## Shells
 
+symlink_file "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
 symlink_file "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
+symlink_file "${this_dir}/shell/functions" "$XDG_CONFIG_HOME/shell/functions"
 
 symlink_file "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
 symlink_file "${this_dir}/bash/bashrc" "$HOME/.bashrc"

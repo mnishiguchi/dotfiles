@@ -1,4 +1,7 @@
 #!/bin/bash
 
-# avoid login and non-login interactive shell setup difference
-source "$HOME/.bashrc"
+if [ -f ~/.bashrc ]; then
+  . ~/.bashrc
+fi
+
+PATH=$PATH:$HOME/.local/bin:$HOME/bin

@@ -1,8 +1,44 @@
 #!/bin/bash
 
-## Aliases
+# If not running interactively, don't do anything
+[ -z "$PS1" ] && return
 
-[ -f "${XDG_CONFIG_HOME}/shell/aliases" ] && source "${XDG_CONFIG_HOME}/shell/aliases"
+if [ -f /etc/bashrc ]; then
+  . /etc/bashrc
+fi
+
+## Common shell stuff
+
+# Cross-Desktop Group (XDG) directories
+# https://wiki.archlinux.org/title/XDG_Base_Directory
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+export XDG_RUNTIME_DIR="/run/user/$UID"
+
+source "$XDG_CONFIG_HOME/shell/variables"
+source "$XDG_CONFIG_HOME/shell/aliases"
+source "$XDG_CONFIG_HOME/shell/functions"
+
+## Bash-specific variables
+
+export HISTCONTROL=ignorespace:ignoredups
+export HISTFILE="$HOME/.bash_history"
+export HISTFILESIZE=10000
+export HISTIGNORE="history:ls:pwd:cd:"
+export HISTSIZE=10000
+export PROMPT_COMMAND='history -a'
+
+## Git editor
+
+if command-exists nvim; then
+  git config --global core.editor "nvim"
+elif command-exists vim; then
+  git config --global core.editor "vim"
+else
+  git config --global core.editor "nano"
+fi
 
 ## Git prompt
 
@@ -10,8 +46,8 @@ mkdir -p "$XDG_CONFIG_HOME/git"
 git_prompt_script="$XDG_CONFIG_HOME/git/git-prompt.sh"
 
 # https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
-GIT_PS1_SHOWDIRTYSTATE=1
-GIT_PS1_SHOWCOLORHINTS=1
+export GIT_PS1_SHOWDIRTYSTATE=1
+export GIT_PS1_SHOWCOLORHINTS=1
 
 if [ ! -f "$git_prompt_script" ]; then
   curl -L https://raw.github.com/git/git/master/contrib/completion/git-prompt.sh >"$git_prompt_script"
@@ -77,3 +113,26 @@ end_color="\e[0m"
 ## Shell prompt
 
 PS1="\[${yellow_bold}\]\u\[${end_color}\]@\[${blue_bold}\]\h\[${end_color}\]:\[${green_bold}\]\w\[${end_color}\]\$(__git_ps1)\n\$ "
+
+## asdf
+
+ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
+
+# https://asdf-vm.com/guide/getting-started.html
+if [ -f "$ASDF_DIR/asdf.sh" ]; then
+  source "$ASDF_DIR/asdf.sh"
+
+  if [ -f "$ASDF_DIR/completions/asdf.bash" ]; then
+    source "$ASDF_DIR/completions/asdf.bash"
+  fi
+fi
+
+## direnv
+
+# https://direnv.net/docs/hook.html
+command-exists direnv && eval "$(direnv hook bash)"
+
+## Wrapping up
+
+# Do this at the very end so that we can tell all above is executed
+pcall neofetch

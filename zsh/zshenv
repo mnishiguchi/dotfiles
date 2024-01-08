@@ -1,16 +1,7 @@
 #!/usr/bin/env zsh
 
-#
-# Export environment variables
-#
+## Common variables
 
-export DOTFILES="$HOME/.dotfiles"
-export VIMWIKI="$HOME/Documents/vimwiki"
-
-export GIT_USER_NAME="Masatoshi Nishiguchi"
-export GIT_USER_EMAIL="7563926+mnishiguchi@users.noreply.github.com"
-export GITHUB_USER_NAME="mnishiguchi"
-#
 # Cross-Desktop Group (XDG) directories
 # https://wiki.archlinux.org/title/XDG_Base_Directory
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -19,49 +10,11 @@ export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 export XDG_RUNTIME_DIR="/run/user/$UID"
 
-# editor
-export EDITOR="nvim"
-export VISUAL="nvim"
+source "${XDG_CONFIG_HOME}/shell/variables"
 
-# zsh
+## ZSH-specific variables
+
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 export HISTFILE="$ZDOTDIR/.zsh_history"
 export HISTSIZE=10000
 export SAVEHIST=10000
-
-# man page
-export MANPAGER="less -R --use-color --color=d+r --color=u+y"
-
-# fzf
-export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git"'
-
-# X11
-export XINITRC="$XDG_CONFIG_HOME/X11/xinitrc"
-export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
-
-# asdf.vm
-export ASDF_DIR="$XDG_CONFIG_HOME/asdf"
-export ASDF_DATA_DIR="$XDG_DATA_HOME/asdf"
-
-# NPM
-export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
-export NPM_PATH="$XDG_CONFIG_HOME/npm"
-export NPM_BIN="$XDG_CONFIG_HOME/npm/bin"
-export NPM_CONFIG_PREFIX="$XDG_CONFIG_HOME/npm"
-
-# other software
-export GNUPGHOME="$XDG_DATA_HOME/gnupg"
-export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
-export LESSHISTFILE="-"
-export TMUXP_CONFIGDIR="$XDG_CONFIG_HOME/tmuxp"
-export VIMCONFIG="$XDG_CONFIG_HOME/nvim"
-export _Z_DATA="$XDG_DATA_HOME/z"
-
-# PATH
-export PATH="$GOBIN:$PATH"
-export PATH="$NPM_BIN:$PATH"
-[ -d "/opt/homebrew/bin" ] && export PATH="/opt/homebrew/bin:$PATH"
-
-# Include user's private bin
-mkdir -p "$HOME/.local/bin"
-export PATH="$HOME/.local/bin:$PATH"
