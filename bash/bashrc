@@ -1,0 +1,79 @@
+#!/bin/bash
+
+## Aliases
+
+[ -f "${XDG_CONFIG_HOME}/shell/aliases" ] && source "${XDG_CONFIG_HOME}/shell/aliases"
+
+## Git prompt
+
+mkdir -p "$XDG_CONFIG_HOME/git"
+git_prompt_script="$XDG_CONFIG_HOME/git/git-prompt.sh"
+
+# https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+GIT_PS1_SHOWDIRTYSTATE=1
+GIT_PS1_SHOWCOLORHINTS=1
+
+if [ ! -f "$git_prompt_script" ]; then
+  curl -L https://raw.github.com/git/git/master/contrib/completion/git-prompt.sh >"$git_prompt_script"
+fi
+
+source "$git_prompt_script"
+
+## Git completion
+
+mkdir -p "$XDG_CONFIG_HOME/git"
+git_completion_script="$XDG_CONFIG_HOME/git/git-completion.bash"
+
+if [ ! -f "$git_completion_script" ]; then
+  curl -L https://raw.github.com/git/git/master/contrib/completion/git-completion.bash >"$git_completion_script"
+fi
+
+source "$git_completion_script"
+
+## z
+
+z_dir="$XDG_CONFIG_HOME/z"
+
+if [ ! -d "$z_dir" ]; then
+  git clone --depth=1 https://github.com/rupa/z.git "$z_dir"
+fi
+
+source "$z_dir/z.sh"
+
+## Colors
+
+# Normal Colors
+black='\e[0;30m'
+red='\e[0;31m'
+green='\e[0;32m'
+yellow='\e[0;33m'
+blue='\e[0;34m'
+purple='\e[0;35m'
+cyan='\e[0;36m'
+white='\e[0;37m'
+
+# Bold
+black_bold='\e[1;30m'
+red_bold='\e[1;31m'
+green_bold='\e[1;32m'
+yellow_bold='\e[1;33m'
+blue_bold='\e[1;34m'
+purple_bold='\e[1;35m'
+cyan_bold='\e[1;36m'
+white_bold='\e[1;37m'
+
+# Background
+black_bg='\e[40m'
+red_bg='\e[41m'
+green_bg='\e[42m'
+yellow_bg='\e[43m'
+blue_bg='\e[44m'
+purple_bg='\e[45m'
+cyan_bg='\e[46m'
+white_bg='\e[47m'
+
+end_color="\e[0m"
+
+## Shell prompt
+
+PS1="\[${yellow_bold}\]\u\[${end_color}\]@\[${blue_bold}\]\h\[${end_color}\]:\[${green_bold}\]\w\[${end_color}\]\$(__git_ps1)\n\$ "

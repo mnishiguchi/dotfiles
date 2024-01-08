@@ -135,6 +135,16 @@ if command-exists rofi; then
   symlink_file "${this_dir}/rofi/config/snippets.txt" "$XDG_CONFIG_HOME/rofi/snippets.txt"
 fi
 
+## Shells
+
+symlink_file "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
+
+symlink_file "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
+symlink_file "${this_dir}/bash/bashrc" "$HOME/.bashrc"
+
+symlink_file "${this_dir}/zsh/zshenv" "$HOME/.zshenv"
+symlink_file "${this_dir}/zsh/zshrc" "$XDG_CONFIG_HOME/zsh/.zshrc"
+
 ## Other software
 
 symlink_dir "${this_dir}/nvim" "$XDG_CONFIG_HOME/nvim"
@@ -145,8 +155,5 @@ symlink_file "${this_dir}/elixir/iex.exs" "$HOME/.iex.exs"
 symlink_file "${this_dir}/npmrc" "$XDG_CONFIG_HOME/npm/npmrc"
 symlink_file "${this_dir}/ranger/rc.conf" "$XDG_CONFIG_HOME/ranger/rc.conf"
 symlink_file "${this_dir}/ruby/irbrc" "$HOME/.irbrc"
-symlink_file "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
 symlink_file "${this_dir}/tmux/tmux.conf" "$XDG_CONFIG_HOME/tmux/tmux.conf"
 symlink_file "${this_dir}/vim/vimrc" "$HOME/.vim/vimrc"
-symlink_file "${this_dir}/zsh/zshenv" "$HOME/.zshenv"
-symlink_file "${this_dir}/zsh/zshrc" "$XDG_CONFIG_HOME/zsh/.zshrc"

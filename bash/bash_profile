@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# avoid login and non-login interactive shell setup difference
+source "$HOME/.bashrc"
