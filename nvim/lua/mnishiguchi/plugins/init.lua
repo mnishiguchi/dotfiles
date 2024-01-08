@@ -40,7 +40,6 @@ local plugins = {
   require("mnishiguchi.plugins.indent-blankline"),     -- Add indentation guides on blank lines
   require("mnishiguchi.plugins.lsp-zero"),             -- A starting point to setup some LSP related features
   require("mnishiguchi.plugins.lualine"),              -- Set lualine as statusline
-  require("mnishiguchi.plugins.memolist"),             -- Simple memo
   require("mnishiguchi.plugins.nvim-surround"),        -- surroundings with ys{motion}{char}, ds{char}, and cs{target}{replacement}
   require("mnishiguchi.plugins.nvim-treesitter"),      -- Highlight, edit, and navigate code
   require("mnishiguchi.plugins.telescope"),            -- Fuzzy Finder (files, lsp, etc)
