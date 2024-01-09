@@ -8,7 +8,7 @@ command_exists() { command -v "$1" >/dev/null; }
 
 if command_exists exa; then
   # https://the.exa.website/docs/colour-themes
-  alias ls="EXA_COLORS='da=1;34' exa --group-directories-first"
+  alias ls='EXA_COLORS="da=1;34" exa --group-directories-first'
   alias ll='ls -F -l'
   alias la='ls -F -la'
   alias lt='ls -F -lt'
@@ -24,9 +24,9 @@ fi
 
 alias grep='grep --color=always'
 
-alias cp="cp -iv"
-alias mv="mv -iv"
-alias rm="rm -vI"
+alias cp='cp -iv'
+alias mv='mv -iv'
+alias rm='rm -vI'
 
 ## Git
 
@@ -51,21 +51,21 @@ alias gpf!='git push --force'
 ## Elixir
 
 # https://hexdocs.pm/hex/Mix.Tasks.Hex.Docs.html
-alias hexdocs="mix hex.docs online "
+alias hexdocs='mix hex.docs online'
 
 ## Ruby
 
-alias be="bundle exec"
+alias be='bundle exec'
 
 ## Others
 
 alias timestamp='date "+%Y%m%d%H%M%S"'
 
 # for project directories, cd first so that grepping works
-alias dotfiles="cd ${DOTFILES} && ${EDITOR} ."
-alias vimwiki="cd ${VIMWIKI} && ${EDITOR} index.md"
+alias dotfiles='cd ${DOTFILES} && ${EDITOR} .'
+alias vimwiki='cd ${VIMWIKI} && ${EDITOR} index.md'
 
-alias 2desk="tee ${HOME}/Desktop/terminal-output-$(timestamp).txt"
+alias 2desk='tee ${HOME}/Desktop/terminal-output-$(timestamp).txt'
 
 # Run a simple web server
-command_exists npx && alias serve='npx serve '
+command_exists npx && alias serve='npx serve'
