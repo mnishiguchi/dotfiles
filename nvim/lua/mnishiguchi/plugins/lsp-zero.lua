@@ -27,7 +27,6 @@ return {
           "eslint",
           "elixirls",
           "emmet_ls",
-          "erlangls",
           "html",
           "jsonls",
           "tsserver",
