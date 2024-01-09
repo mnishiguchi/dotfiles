@@ -123,12 +123,19 @@ echo -e "${light_yellow}$(git config --global --list)${color_default}"
 ## Rofi
 
 if command_exists rofi; then
+  # bin
   symlink_file "${this_dir}/rofi/bin/gh-repos" "$HOME/.local/bin/gh-repos"
-  symlink_file "${this_dir}/rofi/bin/rofi-combi-menu" "$HOME/.local/bin/rofi-combi-menu"
+
+  # modi
   symlink_file "${this_dir}/rofi/bin/rofi-gh-repos-modi" "$HOME/.local/bin/rofi-gh-repos-modi"
-  symlink_file "${this_dir}/rofi/bin/rofi-power-menu" "$HOME/.local/bin/rofi-power-menu"
   symlink_file "${this_dir}/rofi/bin/rofi-power-modi" "$HOME/.local/bin/rofi-power-modi"
   symlink_file "${this_dir}/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
+
+  # menu
+  symlink_file "${this_dir}/rofi/bin/rofi-combi-menu" "$HOME/.local/bin/rofi-combi-menu"
+  symlink_file "${this_dir}/rofi/bin/rofi-power-menu" "$HOME/.local/bin/rofi-power-menu"
+
+  # configuration
   symlink_file "${this_dir}/rofi/config/config.rasi" "$XDG_CONFIG_HOME/rofi/config.rasi"
   symlink_file "${this_dir}/rofi/config/power-theme.rasi" "$XDG_CONFIG_HOME/rofi/power-theme.rasi"
   symlink_file "${this_dir}/rofi/config/snippets.txt" "$XDG_CONFIG_HOME/rofi/snippets.txt"
@@ -136,13 +143,13 @@ fi
 
 ## Shells
 
-symlink_file "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
 symlink_file "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
-symlink_file "${this_dir}/shell/functions" "$XDG_CONFIG_HOME/shell/functions"
 symlink_file "${this_dir}/shell/editors" "$XDG_CONFIG_HOME/shell/editors"
+symlink_file "${this_dir}/shell/functions" "$XDG_CONFIG_HOME/shell/functions"
+symlink_file "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
 
-symlink_file "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
-symlink_file "${this_dir}/bash/bashrc" "$HOME/.bashrc"
+symlink_file "${this_dir}/shell/bash_profile" "$HOME/.bash_profile"
+symlink_file "${this_dir}/shell/bashrc" "$HOME/.bashrc"
 
 symlink_file "${this_dir}/zsh/zshenv" "$HOME/.zshenv"
 symlink_file "${this_dir}/zsh/zshrc" "$XDG_CONFIG_HOME/zsh/.zshrc"
