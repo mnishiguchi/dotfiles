@@ -69,11 +69,6 @@ alias be='bundle exec'
 ## Others
 
 alias timestamp='date "+%Y%m%d%H%M%S"'
-
-# for project directories, cd first so that grepping works
-alias dot='cd ${DOTFILES} && ${EDITOR} .'
-alias memo='cd ${VIMWIKI} && ${EDITOR} index.md'
-
 alias 2desk='tee ${HOME}/Desktop/terminal-output-$(timestamp).txt'
 
 # Run a simple web server

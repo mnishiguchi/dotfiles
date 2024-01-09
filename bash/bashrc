@@ -7,8 +7,6 @@ if [ -f /etc/bashrc ]; then
   . /etc/bashrc
 fi
 
-## Common shell stuff
-
 # Cross-Desktop Group (XDG) directories
 # https://wiki.archlinux.org/title/XDG_Base_Directory
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -23,12 +21,15 @@ else
 fi
 mkdir -p "$XDG_RUNTIME_DIR"
 
+## Helpers
+
+command_exists() { command -v "$1" >/dev/null; }
+
+## Variables
+
 source "$XDG_CONFIG_HOME/shell/variables"
-source "$XDG_CONFIG_HOME/shell/aliases"
-source "$XDG_CONFIG_HOME/shell/functions"
 
-## Bash-specific variables
-
+# Bash-specific variables
 export HISTCONTROL=ignorespace:ignoredups
 export HISTFILE="$HOME/.bash_history"
 export HISTFILESIZE=10000
@@ -146,6 +147,12 @@ white_bg='\e[47m'
 end_color="\e[0m"
 
 PS1="\[${yellow_bold}\]\u\[${end_color}\]@\[${blue_bold}\]\h\[${end_color}\]:\[${green_bold}\]\w\[${end_color}\]\$(__git_ps1)\n\$ "
+
+### Common shell stuff
+
+source "$XDG_CONFIG_HOME/shell/aliases"
+source "$XDG_CONFIG_HOME/shell/editors"
+source "$XDG_CONFIG_HOME/shell/functions"
 
 ## Wrapping up
 

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if command_exists nvim; then
+  export EDITOR="nvim"
+elif command_exists vim; then
+  export EDITOR="vim"
+else
+  export EDITOR="nano"
+fi
+
+export VISUAL="$EDITOR"
+
+# for project directories, cd first so that grepping works
+alias dot='cd ${DOTFILES} && ${EDITOR} .'
+alias memo='cd ${VIMWIKI} && ${EDITOR} index.md'
+

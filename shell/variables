@@ -13,25 +13,13 @@ export GIT_USER_NAME="Masatoshi Nishiguchi"
 export GIT_USER_EMAIL="7563926+mnishiguchi@users.noreply.github.com"
 export GITHUB_USER_NAME="mnishiguchi"
 
-# Editor
-
-if command_exists nvim; then
-  export EDITOR="nvim"
-elif command_exists vim; then
-  export EDITOR="vim"
-else
-  export EDITOR="nano"
-fi
-
-export VISUAL="$EDITOR"
-
 ## Manual pages
 
 export MANPAGER="less -R --use-color --color=d+r --color=u+y"
 
 ## fzf
 
-if command_exists fzf &&command_exists rg ; then
+if command_exists fzf && command_exists rg ; then
   export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git"'
 fi
 

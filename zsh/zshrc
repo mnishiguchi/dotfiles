@@ -1,7 +1,6 @@
-## Common shell stuff
+## Helpers
 
-source "${XDG_CONFIG_HOME}/shell/aliases"
-source "${XDG_CONFIG_HOME}/shell/functions"
+command_exists() { command -v "$1" >/dev/null; }
 
 ## ZSH configuration
 
@@ -97,6 +96,12 @@ fi
 
 # https://direnv.net/docs/hook.html
 command_exists direnv && eval "$(direnv hook zsh)"
+
+## Common shell stuff
+
+source "${XDG_CONFIG_HOME}/shell/aliases"
+source "${XDG_CONFIG_HOME}/shell/editors"
+source "${XDG_CONFIG_HOME}/shell/functions"
 
 ## Wrapping up
 

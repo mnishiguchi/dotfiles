@@ -49,7 +49,6 @@ puts_warning() { printf "${color_warning}warning: %s${color_default}\n" "${1}"; 
 puts_error() { printf "${color_error}error: %s${color_default}\n" "${1}"; }
 pcall() { "$@" || true; }
 command_exists() { command -v "$1" >/dev/null; }
-ensure-command_exists() { command_exists "$1" || echo "$1 not installed" 1>&2; }
 
 # Symlinks a file if the file exists.
 #
@@ -140,6 +139,7 @@ fi
 symlink_file "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
 symlink_file "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
 symlink_file "${this_dir}/shell/functions" "$XDG_CONFIG_HOME/shell/functions"
+symlink_file "${this_dir}/shell/editors" "$XDG_CONFIG_HOME/shell/editors"
 
 symlink_file "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
 symlink_file "${this_dir}/bash/bashrc" "$HOME/.bashrc"
