@@ -153,6 +153,9 @@ PS1="\[${yellow_bold}\]\u\[${end_color}\]@\[${blue_bold}\]\h\[${end_color}\]:\[$
 
 ## Wrapping up
 
+# Clean up PATH
+PATH=$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
+
 # Do this at the very end so that we can tell all above is executed
 pcall neofetch
 
