@@ -15,7 +15,13 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
-export XDG_RUNTIME_DIR="/run/user/$UID"
+
+if [ "$(uname)" = "Darwin" ]; then
+  export XDG_RUNTIME_DIR="$HOME/Library/Caches/TemporaryItems"
+else
+  export XDG_RUNTIME_DIR="/run/user/$UID"
+fi
+mkdir -p "$XDG_RUNTIME_DIR"
 
 source "$XDG_CONFIG_HOME/shell/variables"
 source "$XDG_CONFIG_HOME/shell/aliases"
@@ -76,7 +82,48 @@ fi
 
 source "$z_dir/z.sh"
 
-## Colors
+## Bash Line Editor (ble.sh)
+
+blesh_install_dir="$XDG_DATA_HOME/blesh"
+
+if [ ! -f "$blesh_install_dir/ble.sh" ]; then
+  (
+    cd "$TMPDIR"
+    git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git
+    # install to $XDG_DATA_HOME/blesh
+    make --directory ble.sh install
+    rm -fr "ble.sh"
+  )
+fi
+
+# https://github.com/akinomyoga/ble.sh
+[[ $- == *i* ]] && source "$blesh_install_dir/ble.sh" --noattach
+
+# https://github.com/akinomyoga/ble.sh/wiki
+ble-face syntax_error='fg=203,bg=241'
+bleopt complete_limit=100
+bleopt complete_timeout_auto=2000
+bleopt edit_abell=
+
+## asdf
+
+ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
+
+# https://asdf-vm.com/guide/getting-started.html
+if [ -f "$ASDF_DIR/asdf.sh" ]; then
+  source "$ASDF_DIR/asdf.sh"
+
+  if [ -f "$ASDF_DIR/completions/asdf.bash" ]; then
+    source "$ASDF_DIR/completions/asdf.bash"
+  fi
+fi
+
+## direnv
+
+# https://direnv.net/docs/hook.html
+command-exists direnv && eval "$(direnv hook bash)"
+
+## Shell prompt
 
 # Normal Colors
 black='\e[0;30m'
@@ -110,29 +157,13 @@ white_bg='\e[47m'
 
 end_color="\e[0m"
 
-## Shell prompt
-
 PS1="\[${yellow_bold}\]\u\[${end_color}\]@\[${blue_bold}\]\h\[${end_color}\]:\[${green_bold}\]\w\[${end_color}\]\$(__git_ps1)\n\$ "
-
-## asdf
-
-ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
-
-# https://asdf-vm.com/guide/getting-started.html
-if [ -f "$ASDF_DIR/asdf.sh" ]; then
-  source "$ASDF_DIR/asdf.sh"
-
-  if [ -f "$ASDF_DIR/completions/asdf.bash" ]; then
-    source "$ASDF_DIR/completions/asdf.bash"
-  fi
-fi
-
-## direnv
-
-# https://direnv.net/docs/hook.html
-command-exists direnv && eval "$(direnv hook bash)"
 
 ## Wrapping up
 
 # Do this at the very end so that we can tell all above is executed
 pcall neofetch
+
+# Do this line at the end of .bashrc:
+# https://github.com/akinomyoga/ble.sh
+[[ ${BLE_VERSION-} ]] && ble-attach
