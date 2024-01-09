@@ -74,26 +74,22 @@ source "$z_dir/z.sh"
 
 ## Bash Line Editor (ble.sh)
 
-blesh_install_dir="$XDG_DATA_HOME/blesh"
+ble_source_dir="$XDG_CONFIG_HOME/blesh"
+ble_install_dir="$XDG_DATA_HOME/blesh"
 
-if [ ! -f "$blesh_install_dir/ble.sh" ]; then
-  (
-    cd "$TMPDIR"
-    git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git
-    # install to $XDG_DATA_HOME/blesh
-    make --directory ble.sh install
-    rm -fr "ble.sh"
-  )
+if [ ! -d "$ble_source_dir" ]; then
+  git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git "$ble_source_dir"
+  # install to $XDG_DATA_HOME/blesh
+  make --directory "$ble_source_dir" install
 fi
 
-if ! command_exists ble; then
+if [[ $- == *i* ]] && [[ -z "${BLE_VERSION-}" ]]; then
   # https://github.com/akinomyoga/ble.sh
-  [[ $- == *i* ]] && source "$blesh_install_dir/ble.sh" --noattach
+  source "$ble_install_dir/ble.sh" --noattach
 
   # https://github.com/akinomyoga/ble.sh/wiki
-  ble-face syntax_error='fg=203,bg=241'
   bleopt complete_limit=100
-  bleopt complete_timeout_auto=2000
+  bleopt complete_timeout_auto=1000
   bleopt edit_abell=
 fi
 
