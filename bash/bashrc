@@ -86,14 +86,16 @@ if [ ! -f "$blesh_install_dir/ble.sh" ]; then
   )
 fi
 
-# https://github.com/akinomyoga/ble.sh
-[[ $- == *i* ]] && source "$blesh_install_dir/ble.sh" --noattach
+if ! command_exists ble; then
+  # https://github.com/akinomyoga/ble.sh
+  [[ $- == *i* ]] && source "$blesh_install_dir/ble.sh" --noattach
 
-# https://github.com/akinomyoga/ble.sh/wiki
-ble-face syntax_error='fg=203,bg=241'
-bleopt complete_limit=100
-bleopt complete_timeout_auto=2000
-bleopt edit_abell=
+  # https://github.com/akinomyoga/ble.sh/wiki
+  ble-face syntax_error='fg=203,bg=241'
+  bleopt complete_limit=100
+  bleopt complete_timeout_auto=2000
+  bleopt edit_abell=
+fi
 
 ## asdf
 
