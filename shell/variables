@@ -2,7 +2,7 @@
 
 ## Helpers
 
-command-exists() { command -v "$1" >/dev/null; }
+command_exists() { command -v "$1" >/dev/null; }
 
 ## User-defined
 
@@ -15,9 +15,9 @@ export GITHUB_USER_NAME="mnishiguchi"
 
 # Editor
 
-if command-exists nvim; then
+if command_exists nvim; then
   export EDITOR="nvim"
-elif command-exists vim; then
+elif command_exists vim; then
   export EDITOR="vim"
 else
   export EDITOR="nano"
@@ -31,7 +31,7 @@ export MANPAGER="less -R --use-color --color=d+r --color=u+y"
 
 ## fzf
 
-if command-exists fzf &&command-exists rg ; then
+if command_exists fzf &&command_exists rg ; then
   export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git"'
 fi
 

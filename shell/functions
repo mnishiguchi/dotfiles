@@ -3,7 +3,7 @@
 ## Helpers
 
 pcall() { "$@" || true; }
-command-exists() { command -v "$1" >/dev/null; }
+command_exists() { command -v "$1" >/dev/null; }
 
 ## Homebrew (macOS)
 
@@ -21,8 +21,8 @@ export MAKEFLAGS="-j$(($(nproc) + 1))"
 export ERL_AFLAGS="-kernel shell_history enabled"
 
 # https://hexdocs.pm/iex/IEx.Helpers.html#open/1
-command-exists code && export ELIXIR_EDITOR="code --goto"
-command-exists codium && export ELIXIR_EDITOR="codium --goto"
+command_exists code && export ELIXIR_EDITOR="code --goto"
+command_exists codium && export ELIXIR_EDITOR="codium --goto"
 
 # https://github.com/asdf-vm/asdf-erlang/blob/master/README.md#setting-the-environment-variable-in-bash
 export KERL_BUILD_DOCS="yes"
@@ -30,8 +30,8 @@ export KERL_BUILD_DOCS="yes"
 ## Ruby
 
 # Install bundler with specific version
-install-bundler() {
-  if [ -z $1 ]; then
+install_bundler() {
+  if [ -z "$1" ]; then
     echo "Installing default bundler..."
     gem install bundler
   else
@@ -142,4 +142,3 @@ capslock() {
 }
 
 alias nocaps="capslock off"
-

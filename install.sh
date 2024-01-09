@@ -48,8 +48,8 @@ color_warning="\033[93m"
 puts_warning() { printf "${color_warning}warning: %s${color_default}\n" "${1}"; }
 puts_error() { printf "${color_error}error: %s${color_default}\n" "${1}"; }
 pcall() { "$@" || true; }
-command-exists() { command -v "$1" >/dev/null; }
-ensure-command-exists() { command-exists "$1" || echo "$1 not installed" 1>&2; }
+command_exists() { command -v "$1" >/dev/null; }
+ensure-command_exists() { command_exists "$1" || echo "$1 not installed" 1>&2; }
 
 # Symlinks a file if the file exists.
 #
@@ -99,13 +99,13 @@ git config --global init.defaultBranch "main"
 git config --global fetch.prune true
 git config --global advice.detachedHead false
 
-if command-exists diff-so-fancy; then
+if command_exists diff-so-fancy; then
   git config --global interactive.diffFilter "diff-so-fancy --patch"
   git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
 fi
 
-command-exists vim && git config --global core.editor "vim"
-command-exists nvim && git config --global core.editor "nvim"
+command_exists vim && git config --global core.editor "vim"
+command_exists nvim && git config --global core.editor "nvim"
 
 if [ "$(uname)" = "Darwin" ]; then credential_helper="osxkeychain"; else credential_helper="store"; fi
 git config --global credential.helper "$credential_helper"
@@ -123,7 +123,7 @@ echo -e "${light_yellow}$(git config --global --list)${color_default}"
 
 ## Rofi
 
-if command-exists rofi; then
+if command_exists rofi; then
   symlink_file "${this_dir}/rofi/bin/gh-repos" "$HOME/.local/bin/gh-repos"
   symlink_file "${this_dir}/rofi/bin/rofi-combi-menu" "$HOME/.local/bin/rofi-combi-menu"
   symlink_file "${this_dir}/rofi/bin/rofi-gh-repos-modi" "$HOME/.local/bin/rofi-gh-repos-modi"

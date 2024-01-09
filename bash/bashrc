@@ -38,9 +38,9 @@ export PROMPT_COMMAND='history -a'
 
 ## Git editor
 
-if command-exists nvim; then
+if command_exists nvim; then
   git config --global core.editor "nvim"
-elif command-exists vim; then
+elif command_exists vim; then
   git config --global core.editor "vim"
 else
   git config --global core.editor "nano"
@@ -121,7 +121,7 @@ fi
 ## direnv
 
 # https://direnv.net/docs/hook.html
-command-exists direnv && eval "$(direnv hook bash)"
+command_exists direnv && eval "$(direnv hook bash)"
 
 ## Shell prompt
 

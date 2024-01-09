@@ -35,7 +35,7 @@ alias zdot="cd ${ZDOTDIR} && ${EDITOR} ."
 
 # Uninstall oh-my-zsh
 # https://github.com/ohmyzsh/ohmyzsh#uninstalling-oh-my-zsh
-command-exists uninstall_oh_my_zsh && uninstall_oh_my_zsh
+command_exists uninstall_oh_my_zsh && uninstall_oh_my_zsh
 
 ## ZSH autosuggestions
 
@@ -101,7 +101,7 @@ fi
 ## direnv
 
 # https://direnv.net/docs/hook.html
-command-exists direnv && eval "$(direnv hook zsh)"
+command_exists direnv && eval "$(direnv hook zsh)"
 
 ## Wrapping up
 
