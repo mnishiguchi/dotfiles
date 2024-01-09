@@ -26,11 +26,6 @@ compinit
 # https://github.com/ohmyzsh/ohmyzsh/blob/f4435a4522c1070b04d4e3a5b6b705bcebc309e5/lib/key-bindings.zsh#L109
 bindkey '^r' history-incremental-search-backward # [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
 
-## ZSH-specific aliases
-
-alias zshrc="${EDITOR} ${ZDOTDIR}/.zshrc"
-alias zdot="cd ${ZDOTDIR} && ${EDITOR} ."
-
 ## Oh my zsh
 
 # Uninstall oh-my-zsh

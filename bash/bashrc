@@ -36,16 +36,6 @@ export HISTIGNORE="history:ls:pwd:cd:"
 export HISTSIZE=10000
 export PROMPT_COMMAND='history -a'
 
-## Git editor
-
-if command_exists nvim; then
-  git config --global core.editor "nvim"
-elif command_exists vim; then
-  git config --global core.editor "vim"
-else
-  git config --global core.editor "nano"
-fi
-
 ## Git prompt
 
 mkdir -p "$XDG_CONFIG_HOME/git"
