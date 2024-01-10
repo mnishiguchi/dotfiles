@@ -114,39 +114,13 @@ command_exists direnv && eval "$(direnv hook bash)"
 
 ## Shell prompt
 
-# Normal Colors
-black='\e[0;30m'
-red='\e[0;31m'
-green='\e[0;32m'
-yellow='\e[0;33m'
-blue='\e[0;34m'
-purple='\e[0;35m'
-cyan='\e[0;36m'
-white='\e[0;37m'
+# https://starship.rs
+if ! command_exists starship; then
+  curl -sS https://starship.rs/install.sh | sh
+fi
 
-# Bold
-black_bold='\e[1;30m'
-red_bold='\e[1;31m'
-green_bold='\e[1;32m'
-yellow_bold='\e[1;33m'
-blue_bold='\e[1;34m'
-purple_bold='\e[1;35m'
-cyan_bold='\e[1;36m'
-white_bold='\e[1;37m'
+eval "$(starship init bash)"
 
-# Background
-black_bg='\e[40m'
-red_bg='\e[41m'
-green_bg='\e[42m'
-yellow_bg='\e[43m'
-blue_bg='\e[44m'
-purple_bg='\e[45m'
-cyan_bg='\e[46m'
-white_bg='\e[47m'
-
-end_color="\e[0m"
-
-PS1="\[${yellow_bold}\]\u\[${end_color}\]@\[${blue_bold}\]\h\[${end_color}\]:\[${green_bold}\]\w\[${end_color}\]\$(__git_ps1)\n\$ "
 
 ### Common shell stuff
 

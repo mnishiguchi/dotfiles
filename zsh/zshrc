@@ -53,17 +53,6 @@ fi
 
 source "$syntax_highlighting_dir/zsh-syntax-highlighting.zsh"
 
-## Prompt theme
-
-# https://github.com/spaceship-prompt/spaceship-prompt
-spaceship_dir="$XDG_CONFIG_HOME/spaceship-prompt"
-
-if [ ! -d "$spaceship_dir" ]; then
-  git clone --depth=1 https://github.com/spaceship-prompt/spaceship-prompt.git "$spaceship_dir"
-fi
-
-source "$spaceship_dir/spaceship.zsh"
-
 ## z
 
 z_dir="$XDG_CONFIG_HOME/z"
@@ -96,6 +85,15 @@ fi
 
 # https://direnv.net/docs/hook.html
 command_exists direnv && eval "$(direnv hook zsh)"
+
+## Shell prompt
+
+# https://starship.rs
+if ! command_exists starship; then
+  curl -sS https://starship.rs/install.sh | sh
+fi
+
+eval "$(starship init zsh)"
 
 ## Common shell stuff
 
