@@ -30,12 +30,15 @@ command_exists() { command -v "$1" >/dev/null; }
 source "$XDG_CONFIG_HOME/shell/variables"
 
 # Bash-specific variables
-export HISTCONTROL=ignorespace:ignoredups
+export HISTCONTROL=erasedups:ignoredups:ignorespace
 export HISTFILE="$HOME/.bash_history"
-export HISTFILESIZE=10000
 export HISTIGNORE="history:ls:pwd:cd:"
-export HISTSIZE=10000
-export PROMPT_COMMAND='history -a'
+export HISTFILESIZE=10000
+export HISTSIZE=${HISTFILESIZE}
+shopt -s histappend
+
+# ensure synchronization between bash memory and history file
+export PROMPT_COMMAND="history -a; history -n"
 
 ## Git prompt
 
@@ -67,7 +70,7 @@ source "$git_completion_script"
 
 # https://github.com/ajeetdsouza/zoxide
 if ! command_exists zoxide; then
- curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+  curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
 fi
 
 eval "$(zoxide init bash)"
@@ -91,6 +94,17 @@ if [[ $- == *i* ]] && [[ -z "${BLE_VERSION-}" ]]; then
   bleopt complete_limit=100
   bleopt complete_timeout_auto=1000
   bleopt edit_abell=
+fi
+
+## HSTR configuration
+
+# https://github.com/dvorka/hstr
+if [[ $- =~ .*i.* ]] && command_exists hstr; then
+  export HSTR_CONFIG=hicolor # get more colors
+  export HSTR_TIOCSTI=y
+
+  bind '"\C-r": "\C-a hstr -- \C-j"'
+  bind '"\C-xk": "\C-a hstr -k \C-j"'
 fi
 
 ## asdf
@@ -119,7 +133,6 @@ if ! command_exists starship; then
 fi
 
 eval "$(starship init bash)"
-
 
 ### Common shell stuff
 
