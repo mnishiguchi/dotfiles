@@ -53,15 +53,14 @@ fi
 
 source "$syntax_highlighting_dir/zsh-syntax-highlighting.zsh"
 
-## z
+## zoxide
 
-z_dir="$XDG_CONFIG_HOME/z"
-
-if [ ! -d "$z_dir" ]; then
-  git clone --depth=1 https://github.com/rupa/z.git "$z_dir"
+# https://github.com/ajeetdsouza/zoxide
+if ! command_exists zoxide; then
+ curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
 fi
 
-source "$z_dir/z.sh"
+eval "$(zoxide init zsh)"
 
 ## asdf
 
