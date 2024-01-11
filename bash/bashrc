@@ -61,38 +61,6 @@ fi
 
 eval "$(zoxide init bash)"
 
-## Bash Line Editor (ble.sh)
-
-ble_source_dir="$XDG_CONFIG_HOME/blesh"
-ble_install_dir="$XDG_DATA_HOME/blesh"
-
-if [ ! -d "$ble_source_dir" ]; then
-  git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git "$ble_source_dir"
-  # install to $XDG_DATA_HOME/blesh
-  make --directory "$ble_source_dir" install
-fi
-
-if [[ $- == *i* ]] && command_exists ble; then
-  # https://github.com/akinomyoga/ble.sh
-  source "$ble_install_dir/ble.sh" --noattach
-
-  # https://github.com/akinomyoga/ble.sh/wiki
-  bleopt complete_limit=100
-  bleopt complete_timeout_auto=1000
-  bleopt edit_abell=
-fi
-
-## HSTR configuration
-
-# https://github.com/dvorka/hstr
-if [[ $- =~ .*i.* ]] && command_exists hstr; then
-  export HSTR_CONFIG=hicolor # get more colors
-  export HSTR_TIOCSTI=y
-
-  bind '"\C-r": "\C-a hstr -- \C-j"'
-  bind '"\C-xk": "\C-a hstr -k \C-j"'
-fi
-
 ## asdf
 
 ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
@@ -123,11 +91,47 @@ fi
 
 eval "$(starship init bash)"
 
-### Common shell stuff
+## Common shell stuff
 
 source "$XDG_CONFIG_HOME/shell/aliases"
 source "$XDG_CONFIG_HOME/shell/editors"
 source "$XDG_CONFIG_HOME/shell/functions"
+
+## Bash Line Editor (ble.sh)
+
+ble_source_dir="$XDG_CONFIG_HOME/blesh"
+ble_install_dir="$XDG_DATA_HOME/blesh"
+ble_script="$XDG_DATA_HOME/blesh/ble.sh"
+
+# download ble.sh source code
+if [ ! -d "$ble_source_dir" ]; then
+  git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git "$ble_source_dir"
+fi
+
+# install ble.sh
+if [ ! -d "$ble_install_dir" ]; then
+  # install to $XDG_DATA_HOME/blesh
+  make --directory "$ble_source_dir" install
+fi
+
+# Note: Be sure to attach or reload ble.sh at the end of .bashrc
+# https://github.com/akinomyoga/ble.sh
+if command_exists ble-reload; then
+  echo "ble.sh already loaded -- reloading ${BLE_VERSION}"
+  ble-update
+  ble-reload
+else
+  echo "loading ble.sh ${BLE_VERSION}"
+  source "$ble_script" --noattach
+
+  echo "attaching ble.sh ${BLE_VERSION}"
+  ble-attach
+
+  # https://github.com/akinomyoga/ble.sh/wiki
+  bleopt complete_limit=100
+  bleopt complete_timeout_auto=1000
+  bleopt edit_abell=
+fi
 
 ## Wrapping up
 
@@ -136,7 +140,3 @@ PATH=$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; pr
 
 # Do this at the very end so that we can tell all above is executed
 pcall neofetch
-
-# Do this line at the end of .bashrc:
-# https://github.com/akinomyoga/ble.sh
-[[ ${BLE_VERSION-} ]] && ble-attach
