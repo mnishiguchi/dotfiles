@@ -72,7 +72,7 @@ if [ ! -d "$ble_source_dir" ]; then
   make --directory "$ble_source_dir" install
 fi
 
-if [[ $- == *i* ]] && [[ -z "${BLE_VERSION-}" ]]; then
+if [[ $- == *i* ]] && command_exists ble; then
   # https://github.com/akinomyoga/ble.sh
   source "$ble_install_dir/ble.sh" --noattach
 
