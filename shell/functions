@@ -20,9 +20,6 @@ export MAKEFLAGS="-j$(($(nproc) + 1))"
 # https://hexdocs.pm/iex/IEx.html
 export ERL_AFLAGS="-kernel shell_history enabled"
 
-# https://hexdocs.pm/iex/IEx.Helpers.html#open/1
-command_exists code && export ELIXIR_EDITOR="code --goto"
-command_exists codium && export ELIXIR_EDITOR="codium --goto"
 
 # https://github.com/asdf-vm/asdf-erlang/blob/master/README.md#setting-the-environment-variable-in-bash
 export KERL_BUILD_DOCS="yes"

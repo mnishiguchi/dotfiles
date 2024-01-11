@@ -46,7 +46,6 @@ export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export LESSHISTFILE="-"
 export TMUXP_CONFIGDIR="$XDG_CONFIG_HOME/tmuxp"
-export _Z_DATA="$XDG_DATA_HOME/z"
 
 ## PATH
 

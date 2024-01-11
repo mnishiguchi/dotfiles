@@ -8,7 +8,7 @@ printf "current dir: %s\nscript path: %s\n" "$(pwd)" "$this_dir"
 
 ## Environment variables
 
-source "${this_dir}/zsh/zshenv"
+source "${this_dir}/shell/variables"
 
 # https://wiki.archlinux.org/title/XDG_Base_Directory
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -87,6 +87,7 @@ function symlink_dir {
 
 ## Git
 
+# https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration
 mkdir -p "$XDG_CONFIG_HOME/git"
 touch "$XDG_CONFIG_HOME/git/config"
 
@@ -102,9 +103,6 @@ if command_exists diff-so-fancy; then
   git config --global interactive.diffFilter "diff-so-fancy --patch"
   git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
 fi
-
-command_exists vim && git config --global core.editor "vim"
-command_exists nvim && git config --global core.editor "nvim"
 
 if [ "$(uname)" = "Darwin" ]; then credential_helper="osxkeychain"; else credential_helper="store"; fi
 git config --global credential.helper "$credential_helper"

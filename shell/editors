@@ -1,16 +1,18 @@
 #!/bin/bash
 
-if command_exists nvim; then
-  export EDITOR="nvim"
-elif command_exists vim; then
-  export EDITOR="vim"
-else
-  export EDITOR="nano"
-fi
+command_exists() { command -v "$1" &>/dev/null; }
 
+[ -z "$EDITOR" ] && command_exists nvim && EDITOR="nvim"
+[ -z "$EDITOR" ] && command_exists vim && EDITOR="vim"
+
+# https://hexdocs.pm/iex/IEx.Helpers.html#open/1
+[ -z "$ELIXIR_EDITOR" ] && command_exists codium && ELIXIR_EDITOR="codium --goto"
+[ -z "$ELIXIR_EDITOR" ] && command_exists code && ELIXIR_EDITOR="code --goto"
+
+export EDITOR="$EDITOR"
 export VISUAL="$EDITOR"
+export ELIXIR_EDITOR="$ELIXIR_EDITOR"
 
 # for project directories, cd first so that grepping works
-alias dot='cd ${DOTFILES} && ${EDITOR} .'
-alias memo='cd ${VIMWIKI} && ${EDITOR} index.md'
-
+alias dot=' cd ${DOTFILES} && ${EDITOR} .       ;'
+alias memo='cd ${VIMWIKI}  && ${EDITOR} index.md;'
