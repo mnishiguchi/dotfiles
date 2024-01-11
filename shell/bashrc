@@ -40,23 +40,9 @@ shopt -s histappend
 # ensure synchronization between bash memory and history file
 export PROMPT_COMMAND="history -a; history -n"
 
-## Git prompt
-
-mkdir -p "$XDG_CONFIG_HOME/git"
-git_prompt_script="$XDG_CONFIG_HOME/git/git-prompt.sh"
-
-# https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
-export GIT_PS1_SHOWDIRTYSTATE=1
-export GIT_PS1_SHOWCOLORHINTS=1
-
-if [ ! -f "$git_prompt_script" ]; then
-  curl -L https://raw.github.com/git/git/master/contrib/completion/git-prompt.sh >"$git_prompt_script"
-fi
-
-source "$git_prompt_script"
-
 ## Git completion
 
+# https://git-scm.com/book/en/v2/Appendix-A:-Git-in-Other-Environments-Git-in-Bash
 mkdir -p "$XDG_CONFIG_HOME/git"
 git_completion_script="$XDG_CONFIG_HOME/git/git-completion.bash"
 
