@@ -87,6 +87,9 @@ command_exists direnv && eval "$(direnv hook zsh)"
 
 ## Shell prompt
 
+# https://starship.rs/config/
+export STARSHIP_CONFIG="$XDG_CONFIG_HOME/zsh/starship.toml"
+
 # https://starship.rs
 if ! command_exists starship; then
   curl -sS https://starship.rs/install.sh | sh

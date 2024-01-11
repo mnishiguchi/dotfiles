@@ -1,0 +1,54 @@
+# https://starship.rs/config
+
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_commit\
+$git_state\
+$git_metrics\
+$git_status\
+$cmd_duration\
+$line_break\
+$character"""
+
+[username]
+
+show_always = true
+style_root = 'bold red'
+style_user = 'bold yellow'
+format = '[$user]($style)@'
+
+[hostname]
+
+ssh_only = false
+style = 'bold dimmed green'
+format = '[$ssh_symbol$hostname]($style) '
+
+[directory]
+truncate_to_repo = false
+truncation_symbol = ""
+truncation_length = 16
+style = 'bold cyan'
+format = '[$path]($style)[$read_only]($read_only_style)'
+
+[git_branch]
+
+style = 'bold purple'
+format = ' [$symbol$branch(:$remote_branch)]($style) '
+
+[cmd_duration]
+
+min_time = 5000
+style = 'bold yellow'
+format = '[$duration]($style) '
+
+[character]
+
+success_symbol = '[\$](bold green)'
+error_symbol = '[\$](bold red)'
+vimcmd_symbol = '[\$](bold green)'
+vimcmd_replace_one_symbol = '[\$](bold purple)'
+vimcmd_replace_symbol = '[\$](bold purple)'
+vimcmd_visual_symbol = '[\$](bold yellow)'

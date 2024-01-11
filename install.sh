@@ -146,11 +146,13 @@ symlink_file "${this_dir}/shell/editors" "$XDG_CONFIG_HOME/shell/editors"
 symlink_file "${this_dir}/shell/functions" "$XDG_CONFIG_HOME/shell/functions"
 symlink_file "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
 
-symlink_file "${this_dir}/shell/bash_profile" "$HOME/.bash_profile"
-symlink_file "${this_dir}/shell/bashrc" "$HOME/.bashrc"
+symlink_file "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
+symlink_file "${this_dir}/bash/bashrc" "$HOME/.bashrc"
+symlink_file "${this_dir}/bash/starship.toml" "$XDG_CONFIG_HOME/bash/starship.toml"
 
 symlink_file "${this_dir}/zsh/zshenv" "$HOME/.zshenv"
 symlink_file "${this_dir}/zsh/zshrc" "$XDG_CONFIG_HOME/zsh/.zshrc"
+symlink_file "${this_dir}/zsh/starship.toml" "$XDG_CONFIG_HOME/zsh/starship.toml"
 
 ## Other software
 
