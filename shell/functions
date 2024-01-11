@@ -3,7 +3,7 @@
 ## Helpers
 
 pcall() { "$@" || true; }
-command_exists() { command -v "$1" >/dev/null; }
+command_exists() { command -v "$1" &>/dev/null; }
 
 ## Homebrew (macOS)
 

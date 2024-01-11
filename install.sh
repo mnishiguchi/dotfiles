@@ -48,7 +48,7 @@ color_warning="\033[93m"
 puts_warning() { printf "${color_warning}warning: %s${color_default}\n" "${1}"; }
 puts_error() { printf "${color_error}error: %s${color_default}\n" "${1}"; }
 pcall() { "$@" || true; }
-command_exists() { command -v "$1" >/dev/null; }
+command_exists() { command -v "$1" &>/dev/null; }
 
 # Symlinks a file if the file exists.
 #

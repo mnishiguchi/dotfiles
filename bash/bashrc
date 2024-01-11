@@ -7,6 +7,12 @@ if [ -f /etc/bashrc ]; then
   . /etc/bashrc
 fi
 
+## Helpers
+
+command_exists() { command -v "$1" &>/dev/null; }
+
+## Common variables
+
 # Cross-Desktop Group (XDG) directories
 # https://wiki.archlinux.org/title/XDG_Base_Directory
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -20,12 +26,6 @@ else
   export XDG_RUNTIME_DIR="/run/user/$UID"
 fi
 mkdir -p "$XDG_RUNTIME_DIR"
-
-## Helpers
-
-command_exists() { command -v "$1" >/dev/null; }
-
-## Variables
 
 source "$XDG_CONFIG_HOME/shell/variables"
 

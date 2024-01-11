@@ -2,7 +2,7 @@
 
 ## Helpers
 
-command_exists() { command -v "$1" >/dev/null; }
+command_exists() { command -v "$1" &>/dev/null; }
 
 ## User-defined
 
@@ -49,6 +49,9 @@ export TMUXP_CONFIGDIR="$XDG_CONFIG_HOME/tmuxp"
 
 ## PATH
 
-export PATH="$NPM_BIN:$PATH"
-[ -d "/opt/homebrew/bin" ] && export PATH="/opt/homebrew/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
+# append
+export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$HOME/.cargo/bin"
+export PATH="$PATH:/var/lib/flatpak/exports/bin"
+export PATH="$PATH:$HOME/.local/share/flatpak/exports/bin"
+export PATH="$PATH:$NPM_BIN"
