@@ -97,6 +97,14 @@ source "$XDG_CONFIG_HOME/shell/aliases"
 source "$XDG_CONFIG_HOME/shell/editors"
 source "$XDG_CONFIG_HOME/shell/functions"
 
+## Wrapping up
+
+# Clean up PATH
+PATH=$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
+
+# Do this at the very end so that we can tell all above is executed
+pcall neofetch
+
 ## Bash Line Editor (ble.sh)
 
 ble_source_dir="$XDG_CONFIG_HOME/blesh"
@@ -118,7 +126,6 @@ fi
 # https://github.com/akinomyoga/ble.sh
 if command_exists ble-reload; then
   echo "ble.sh already loaded -- reloading ${BLE_VERSION}"
-  ble-update
   ble-reload
 else
   echo "loading ble.sh ${BLE_VERSION}"
@@ -132,11 +139,3 @@ else
   bleopt complete_timeout_auto=1000
   bleopt edit_abell=
 fi
-
-## Wrapping up
-
-# Clean up PATH
-PATH=$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
-
-# Do this at the very end so that we can tell all above is executed
-pcall neofetch
