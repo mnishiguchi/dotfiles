@@ -1,10 +1,77 @@
 #!/usr/bin/env bash
+set -eu
 
-## Check paths
+# https://github.com/japaric/trust/blob/08c86c03efb887c33abd4bd5bc3677f81bac98e7/install.sh
+help() {
+  cat <<'EOF'
+Install all dotfiles that are defined in this project.
 
-whereisthis() { cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P; }
+Usage:
+    install.sh [options]
+
+Options:
+    -h, --help      Display this message
+    -f, --force     Force overwriting destination files
+    -b, --backup    Rename preexisting destination files as each file is overwritten
+EOF
+}
+
+say() {
+  echo "install.sh: $1"
+}
+
+say_err() {
+  say "$1" >&2
+}
+
+err() {
+  say_err "ERROR $1"
+  exit 1
+}
+
+need() {
+  if ! command -v $1 >/dev/null 2>&1; then
+    err "need $1 (command not found)"
+  fi
+}
+
+command_exists() {
+  command -v "$1" &>/dev/null
+}
+
+## Option parser
+
+force=false
+backup=false
+while test $# -gt 0; do
+  case $1 in
+  --backup | -b)
+    backup=true
+    ;;
+  --force | -f)
+    force=true
+    ;;
+  --help | -h)
+    help
+    exit 0
+    ;;
+  *) ;;
+  esac
+  shift
+done
+echo "Options:"
+echo "  force:  ${force}"
+echo "  backup: ${backup}"
+echo ""
+
+# Check paths
+
+whereisthis() { cd -- "$(dirname "$0")" &>/dev/null && pwd -P; }
 this_dir="$(whereisthis)"
-printf "current dir: %s\nscript path: %s\n" "$(pwd)" "$this_dir"
+echo "Paths:"
+echo "  pwd:    $(pwd)"
+echo "  script: ${this_dir}"
+echo ""
 
 ## Environment variables
 
@@ -17,68 +84,93 @@ XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 
 # Git user and email to set up git automatically
-GIT_USER_NAME="${GIT_USER_NAME:-somebody}"
-GIT_USER_EMAIL="${GIT_USER_EMAIL:-somebody@example.com}"
-GITHUB_USER_NAME="${GITHUB_USER_NAME:somebody}"
+GIT_USER_NAME="${GIT_USER_NAME:-'somebody'}"
+GIT_USER_EMAIL="${GIT_USER_EMAIL:-'somebody@example.com'}"
+GITHUB_USER_NAME="${GITHUB_USER_NAME:-'somebody'}"
 
-## Colors
+## Symlink helpers
 
-color_default="\033[39m"
-black="\033[30m"
-red="\033[0;31m"
-green="\033[32m"
-yellow="\033[33m"
-blue="\033[34m"
-magenta="\033[35m"
-cyan="\033[36m"
-light_gray="\033[37m"
-dark_gray="\033[90m"
-light_red="\033[91m"
-light_green="\033[92m"
-light_yellow="\033[93m"
-light_blue="\033[94m"
-light_magenta="\033[95m"
-light_cyan="\033[96m"
-white="\033[97m"
-
-## Helpers
-
+color_ok="\033[92m"
 color_error="\033[91m"
 color_warning="\033[93m"
-puts_warning() { printf "${color_warning}warning: %s${color_default}\n" "${1}"; }
-puts_error() { printf "${color_error}error: %s${color_default}\n" "${1}"; }
-pcall() { "$@" || true; }
-command_exists() { command -v "$1" &>/dev/null; }
+color_default="\033[39m"
+
+ln_options() {
+  if [ "$1" = "true" ]; then
+    echo "-sf"
+  else
+    echo "-si"
+  fi
+}
+
+cp_options() {
+  if [ "$(uname)" = "Darwin" ]; then
+    echo -RL
+  else
+    # r = recursive
+    # L = follow and expand symlinks
+    echo -rL
+  fi
+}
+
+timestamp() {
+  date "+%Y%m%d%H%M%S"
+}
+
+backup_symlink() {
+  cp $(cp_options) "$1" "$1~$(date "+%Y%m%d")"
+}
 
 # Symlinks a file if the file exists.
 #
 # Usage:
-#
 #   symlink_file file1 file2
 #
-function symlink_file {
-  if [ -f "$1" ]; then
-    mkdir -p "$(dirname "$2")"
-    ln -sf "$1" "$2"
-    printf "${green}✓${color_default} %s -> %s\n" "$1" "$2"
+symlink_file() {
+  src="$1"
+  target="$2"
+
+  if [ -f "$src" ]; then
+    mkdir -p "$(dirname "$target")"
+
+    if [ "$backup" == "true" ]; then
+      backup_symlink "$target"
+    fi
+
+    if ln "$(ln_options "$force")" "$src" "$target"; then
+      printf "${color_ok}✓${color_default} %s -> %s\n" "$src" "$target"
+    else
+      printf "${color_error}✗ couldn't symlink to %s\n${color_default}" "$target"
+    fi
   else
-    printf "${red}✗ source file does not exist: %s\n" "$1"
+    printf "${color_error}✗ source file does not exist: %s\n${color_default}" "$src"
   fi
 }
 
 # Symlinks a directory if the directory exists.
 #
 # Usage:
-#
 #   symlink_dir dir1 dir2
 #
-function symlink_dir {
-  if [ -d "$1" ]; then
-    mkdir -p "$(dirname "$2")"
-    ln -sf "$1" "$2"
-    printf "${green}✓${color_default} %s -> %s\n" "$1" "$2"
+symlink_dir() {
+  src="$1"
+  target="$2"
+
+  if [ -d "$src" ]; then
+    mkdir -p "$(dirname "$target")"
+
+    if [ "$backup" == "true" ]; then
+      # Ignore an error like: "cp: directory causes a cycle"
+      backup_symlink "$target" &>/dev/null || true
+    fi
+
+    if ln "$(ln_options "$force")" "$src" "$target"; then
+      printf "${color_ok}✓${color_default} %s -> %s\n" "$src" "$target"
+    else
+      printf "${color_error}✗ couldn't symlink to %s\n${color_default}" "$target"
+    fi
   else
-    printf "${red}✗ source directory does not exist: %s\n" "$1"
+    printf "${color_error}✗ source directory does not exist: %s\n${color_default}" "$src"
   fi
 }
 
@@ -108,15 +200,17 @@ if [ "$(uname)" = "Darwin" ]; then credential_helper="osxkeychain"; else credent
 git config --global credential.helper "$credential_helper"
 
 excludesfile="$XDG_CONFIG_HOME/git/excludes"
-symlink_file "${this_dir}/git/excludes" "$excludesfile"
-git config --global core.excludesfile "$excludesfile"
+if symlink_file "${this_dir}/git/excludes" "$excludesfile"; then
+  git config --global core.excludesfile "$excludesfile"
+fi
 
 commit_template="$XDG_CONFIG_HOME/git/commit-template"
-symlink_file "${this_dir}/git/commit-template" "$commit_template"
-git config --global commit.template "$commit_template"
+if symlink_file "${this_dir}/git/commit-template" "$commit_template"; then
+  git config --global commit.template "$commit_template"
+fi
 
 # print global git configuration
-echo -e "${light_yellow}$(git config --global --list)${color_default}"
+echo -e "${color_warning}$(git config --global --list)${color_default}"
 
 ## Rofi
 
