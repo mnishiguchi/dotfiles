@@ -8,21 +8,19 @@ command_exists() { command -v "$1" &>/dev/null; }
 
 if command_exists exa; then
   # https://the.exa.website/docs/colour-themes
-  alias _ls='EXA_COLORS="da=1;34" exa --group-directories-first --classify'
-  alias l='_ls'
-  alias ll='_ls --long'
-  alias la='_ls --long --all'
-  alias lt='_ls --long --time modified'
-  alias lr='_ls --recurse'
-  alias l.='_ls --long --list-dirs .*'
+  alias ls='EXA_COLORS="da=1;34" exa --group-directories-first --classify'
+  alias ll='ls --long'
+  alias la='ls --long --all'
+  alias lt='ls --long --time modified'
+  alias lr='ls --recurse'
+  alias l.='ls --long --list-dirs .*'
 else
-  alias _ls='ls -Fh'
-  alias l='_ls'
-  alias ll='_ls -l'
-  alias la='_ls -lA'
-  alias lt='_ls -lt'
-  alias lr='_ls -R'
-  alias l.='_ls -ld .*'
+  alias ls='ls -Fh'
+  alias ll='ls -l'
+  alias la='ls -lA'
+  alias lt='ls -lt'
+  alias lr='ls -R'
+  alias l.='ls -ld .*'
 fi
 
 alias ..='cd ../'
@@ -32,8 +30,8 @@ alias grep='grep --color=always'
 alias mv='mv -iv'
 alias path='echo -e ${PATH//:/\\n}'
 alias rm='rm -vI'
-rmd() { command rm -rfv "$@" ; }
-trash() { command mv "$@" ~/.Trash ; }
+alias rmd='rm -rf'
+trash() { mv "$@" ~/.Trash ; }
 alias wget='wget -c'
 
 alias dud='du -d 1 -h'                      # Short and human-readable directory listing
