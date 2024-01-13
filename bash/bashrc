@@ -136,10 +136,14 @@ if [ -z "$BLE_ATTACHED" ]; then
   echo "attaching ble.sh ${BLE_VERSION}"
   ble-attach
 
-  # https://github.com/akinomyoga/ble.sh/wiki
-  bleopt complete_limit=100
-  bleopt complete_timeout_auto=1000
+  # disable the bell
   bleopt edit_abell=
+  bleopt edit_vbell=
+
+  # purple: 92 -> 99
+  ble-face syntax_function_name='fg=99,bold'
+  ble-face command_function='fg=99'
+  ble-face varname_expr='fg=99,bold'
 else
   echo "ble.sh already attached -- reloading"
   ble-reload
