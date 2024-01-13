@@ -14,5 +14,5 @@ export VISUAL="$EDITOR"
 export ELIXIR_EDITOR="$ELIXIR_EDITOR"
 
 # for project directories, cd first so that grepping works
-alias dot=' cd ${DOTFILES} && ${EDITOR} .       ;'
-alias memo='cd ${VIMWIKI}  && ${EDITOR} index.md;'
+alias dot=' cd ${DOTFILES_DIR} && ${EDITOR} .       ;'
+alias memo='cd ${VIMWIKI_DIR}  && ${EDITOR} index.md;'

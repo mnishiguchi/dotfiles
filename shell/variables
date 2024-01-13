@@ -6,8 +6,8 @@ command_exists() { command -v "$1" &>/dev/null; }
 
 ## User-defined
 
-export DOTFILES="$HOME/.dotfiles"
-export VIMWIKI="$HOME/Documents/vimwiki"
+export DOTFILES_DIR="$HOME/.dotfiles"
+export VIMWIKI_DIR="$HOME/Documents/vimwiki"
 
 export GIT_USER_NAME="Masatoshi Nishiguchi"
 export GIT_USER_EMAIL="7563926+mnishiguchi@users.noreply.github.com"
