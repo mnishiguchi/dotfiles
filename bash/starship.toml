@@ -17,26 +17,48 @@ $character"""
 
 show_always = true
 style_root = 'bold red'
-style_user = 'bold yellow'
+style_user = 'yellow'
 format = '[$user]($style)@'
 
 [hostname]
 
 ssh_only = false
-style = 'bold dimmed green'
-format = '[$ssh_symbol$hostname]($style) '
+style = 'dimmed green'
+format = '[$ssh_symbol$hostname]($style):'
 
 [directory]
+
 truncate_to_repo = false
 truncation_symbol = ""
 truncation_length = 16
 style = 'bold cyan'
-format = '[$path]($style)[$read_only]($read_only_style)'
+format = '[$path]($style)[$read_only]($read_only_style) '
 
 [git_branch]
 
 style = 'bold purple'
-format = ' [$symbol$branch(:$remote_branch)]($style) '
+format = '[$symbol$branch(:$remote_branch)]($style) '
+
+[git_commit]
+
+style = 'bold green'
+format = '[\($hash$tag\)]($style) '
+
+[git_state]
+
+style = 'bold yellow'
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+
+[git_metrics]
+
+added_style = "bold green"
+deleted_style = "bold red"
+format = '([+$added]($added_style) )([-$deleted]($deleted_style) )'
+
+[git_status]
+
+style = 'bold red'
+format = '([\[$all_status$ahead_behind\]]($style) )'
 
 [cmd_duration]
 
