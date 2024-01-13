@@ -124,13 +124,15 @@ fi
 
 # Note: Be sure to attach or reload ble.sh at the end of .bashrc
 # https://github.com/akinomyoga/ble.sh
-if command_exists ble-reload; then
-  echo "ble.sh already loaded -- reloading ${BLE_VERSION}"
-  ble-reload
-else
+
+if [ -z "$BLE_VERSION" ]; then
   echo "loading ble.sh ${BLE_VERSION}"
   source "$ble_script" --noattach
+else
+  echo "ble.sh already loaded"
+fi
 
+if [ -z "$BLE_ATTACHED" ]; then
   echo "attaching ble.sh ${BLE_VERSION}"
   ble-attach
 
@@ -138,4 +140,7 @@ else
   bleopt complete_limit=100
   bleopt complete_timeout_auto=1000
   bleopt edit_abell=
+else
+  echo "ble.sh already attached -- reloading"
+  ble-reload
 fi
