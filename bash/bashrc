@@ -102,14 +102,13 @@ source "$XDG_CONFIG_HOME/shell/functions"
 # Clean up PATH
 PATH=$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
 
-# Do this at the very end so that we can tell all above is executed
 pcall neofetch
 
 ## Bash Line Editor (ble.sh)
 
 ble_source_dir="$XDG_CONFIG_HOME/blesh"
 ble_install_dir="$XDG_DATA_HOME/blesh"
-ble_script="$XDG_DATA_HOME/blesh/ble.sh"
+ble_init_script="$XDG_DATA_HOME/blesh/ble.sh"
 
 # download ble.sh source code
 if [ ! -d "$ble_source_dir" ]; then
@@ -125,16 +124,21 @@ fi
 # Note: Be sure to attach or reload ble.sh at the end of .bashrc
 # https://github.com/akinomyoga/ble.sh
 
-if [ -z "$BLE_VERSION" ]; then
-  echo "loading ble.sh ${BLE_VERSION}"
-  source "$ble_script" --noattach
-else
-  echo "ble.sh already loaded"
-fi
+if [ -f "$ble_init_script" ]; then
+  if [ -z "$BLE_VERSION" ]; then
+    echo "loading ble.sh ${BLE_VERSION}"
+    source "$ble_init_script" --noattach
+  else
+    echo "ble.sh already loaded"
+  fi
 
-if [ -z "$BLE_ATTACHED" ]; then
-  echo "attaching ble.sh ${BLE_VERSION}"
-  ble-attach
+  if [ -z "$BLE_ATTACHED" ]; then
+    echo "attaching ble.sh ${BLE_VERSION}"
+    ble-attach
+  else
+    echo "ble.sh already attached -- reloading"
+    ble-reload
+  fi
 
   # disable the bell
   bleopt edit_abell=
@@ -144,7 +148,10 @@ if [ -z "$BLE_ATTACHED" ]; then
   ble-face syntax_function_name='fg=99,bold'
   ble-face command_function='fg=99'
   ble-face varname_expr='fg=99,bold'
-else
-  echo "ble.sh already attached -- reloading"
-  ble-reload
+
+  # teal: 26 -> 36
+  ble-face filename_directory_sticky='underline,fg=white,bg=36'
+  ble-face filename_directory='underline,fg=36'
+  ble-face command_directory='fg=36,underline'
+  ble-face syntax_expr='fg=36'
 fi
