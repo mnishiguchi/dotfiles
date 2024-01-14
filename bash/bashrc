@@ -144,6 +144,16 @@ if [ -f "$ble_init_script" ]; then
   bleopt edit_abell=
   bleopt edit_vbell=
 
+  # the delay to start auto completion after the user made the last input
+  bleopt complete_auto_delay=300
+
+  # the timeout for the pathname expansions performed in auto-complete
+  bleopt complete_timeout_auto=900
+
+  # the maximum acceptable size of any data structure generated during the completion process
+  bleopt complete_limit=2000
+  bleopt complete_limit_auto=2000
+
   # purple: 92 -> 99
   ble-face syntax_function_name='fg=99,bold'
   ble-face command_function='fg=99'
