@@ -40,9 +40,6 @@ alias duf='du -sh *'                        # Short and human-readable file list
 alias tree='tree -CAhF --dirsfirst'
 alias treed='tree -CAFd'
 
-alias qfind="find . -name"                 # qfind:    Quickly search for file
-alias ff='find . -type f -name'
-
 alias count_files="for t in files links directories; do echo \`find . -type \${t:0:1} | wc -l\` \$t; done 2> /dev/null"
 
 # Searches for text in all files in the current folder
