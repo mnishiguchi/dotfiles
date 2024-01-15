@@ -9,6 +9,23 @@ fi
 
 ## Helpers
 
+say() {
+  echo "~/.bashrc: $1"
+}
+
+say_err() {
+  say "$1" >&2
+}
+
+err() {
+  if [ ! -z $td ]; then
+    rm -rf $td
+  fi
+
+  say_err "ERROR $1"
+  exit 1
+}
+
 command_exists() { command -v "$1" &>/dev/null; }
 
 ## Common variables
@@ -126,17 +143,17 @@ fi
 
 if [ -f "$ble_init_script" ]; then
   if [ -z "$BLE_VERSION" ]; then
-    echo "loading ble.sh ${BLE_VERSION}"
+    say "loading ble.sh ${BLE_VERSION}"
     source "$ble_init_script" --noattach
   else
-    echo "ble.sh already loaded"
+    say "ble.sh already loaded"
   fi
 
   if [ -z "$BLE_ATTACHED" ]; then
-    echo "attaching ble.sh ${BLE_VERSION}"
+    say "attaching ble.sh ${BLE_VERSION}"
     ble-attach
   else
-    echo "ble.sh already attached -- reloading"
+    say "ble.sh already attached -- reloading"
     ble-reload
   fi
 
