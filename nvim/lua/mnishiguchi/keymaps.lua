@@ -73,8 +73,8 @@ command("QA", "qa", {})
 command("Qa", "qa", {})
 
 -- increment/decrement numbers
-keymap("n", "<leader>+", "<C-a>") -- increment
-keymap("n", "<leader>_", "<C-x>") -- decrement
+keymap("n", "<leader>=", "<C-a>") -- increment
+keymap("n", "<leader>-", "<C-x>") -- decrement
 
 -- Press jk fast to exit insert mode
 keymap("i", "jk", "<ESC>")

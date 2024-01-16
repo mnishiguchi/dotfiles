@@ -37,6 +37,20 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   command = [[set filetype=scss]],
 })
 
+-- Handle Markdown files witout .md
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  group = mnishiguchi_augroup,
+  pattern = "*.livemd",
+  command = [[set filetype=markdown]],
+})
+
+-- Handle Ruby files without .rb
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  group = mnishiguchi_augroup,
+  pattern = "Gemfile,Rakefile,Vagrantfile,Thorfile,Procfile,Guardfile,config.ru,*.rake",
+  command = [[set filetype=ruby]],
+})
+
 -- Set up formatting
 local setup_formatting = function()
   local shortcut = "<leader>lf"

@@ -9,5 +9,8 @@ return {
         ext    = '.md',
       }
     }
+
+    -- restrict Vimwiki's operation to only those paths listed in g:vimwiki_list
+    vim.g.vimwiki_global_ext = 0
   end,
 }

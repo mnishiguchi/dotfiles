@@ -1,5 +1,7 @@
 set encoding=utf-8
 set nocompatible
+filetype plugin on
+syntax on
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Plugins
@@ -33,11 +35,9 @@ Jetpack 'tpope/vim-endwise'
 Jetpack 'tpope/vim-eunuch'
 Jetpack 'tpope/vim-fugitive'
 Jetpack 'tpope/vim-rails'
-Jetpack 'tpope/vim-repeat'
 Jetpack 'tpope/vim-rhubarb'
 Jetpack 'tpope/vim-sleuth'
 Jetpack 'tpope/vim-surround'
-Jetpack 'tpope/vim-unimpaired'
 Jetpack 'vim-airline/vim-airline'
 Jetpack 'vim-airline/vim-airline-themes'
 Jetpack 'vim-ruby/vim-ruby'
@@ -68,21 +68,26 @@ endfor
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " theme
-syntax enable
 colorscheme molokai
 
-" line numbers
+" line and columns
 set number
+set cursorline
+set colorcolumn=80
+set scrolloff=8
+set signcolumn=yes
 
 " tabs
 set expandtab
-set tabstop=2 shiftwidth=2 softtabstop=2
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
 
 " indent
 set autoindent
 set smartindent
 
-" line wrapping
+" format
 set nowrap           " do not automatically wrap on load
 set formatoptions-=t " do not automatically wrap text when typing
 
@@ -94,11 +99,13 @@ set incsearch
 
 " appearance
 set termguicolors " highlight groups
-set cursorline
-set colorcolumn=80
-set scrolloff=8
-set signcolumn=yes
 let g:netrw_banner=0
+
+" clipboard
+set clipboard=unnamedplus " sync clipboard between OS and Neovim
+
+" backspace
+set backspace=indent,eol,start " make backspace work like other programs
 
 " diffs
 set diffopt=filler,vertical " side by side
@@ -107,6 +114,12 @@ set diffopt=filler,vertical " side by side
 set path+=**
 set wildmenu
 set wildmode=full
+
+" insert-mode completion
+set completeopt=menuone,noselect
+
+" mouse mode
+set mouse=a
 
 " others
 set isfname+=@-@ " all alphas
@@ -172,8 +185,8 @@ command! Wq wq
 command! E e
 
 " increment/decrement numbers
-nnoremap <leader>+ <C-a>
-nnoremap <leader>_ <C-x>
+nnoremap <leader>= <C-a>
+nnoremap <leader>- <C-x>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " autocommands
@@ -190,5 +203,6 @@ augroup random
 
   " set some file types
   autocmd BufRead,BufNewFile mix.lock set filetype=elixir
+  autocmd BufRead,BufNewFile *.livemd set filetype=markdown
   autocmd BufRead,BufNewFile {Gemfile,Rakefile,Vagrantfile,Thorfile,Procfile,Guardfile,config.ru,*.rake} set filetype=ruby
 augroup END

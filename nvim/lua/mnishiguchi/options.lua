@@ -1,5 +1,9 @@
--- line numbers
+-- lines and columns
 vim.opt.number = true
+vim.opt.signcolumn = "yes"
+vim.opt.cursorline = true
+vim.opt.colorcolumn = "80"
+vim.opt.scrolloff = 8
 
 -- tabs
 vim.opt.tabstop = 2
@@ -12,8 +16,8 @@ vim.opt.autoindent = true
 vim.opt.smartindent = true
 vim.opt.breakindent = true
 
--- line wrapping
-vim.opt.wrap = false -- no automatic wrap on load
+-- format
+vim.opt.wrap = false              -- no automatic wrap on load
 vim.opt.formatoptions:remove("t") -- no automatic wrap text when typing
 
 -- search
@@ -25,10 +29,6 @@ vim.opt.incsearch = true
 -- appearance
 vim.opt.termguicolors = true
 vim.opt.background = "dark"
-vim.opt.signcolumn = "yes"
-vim.opt.cursorline = true
-vim.opt.colorcolumn = "80"
-vim.opt.scrolloff = 8
 vim.opt.winbar = "%=%m %f"
 vim.g.netrw_banner = 0
 
@@ -36,7 +36,7 @@ vim.g.netrw_banner = 0
 vim.opt.clipboard = "unnamedplus" -- sync clipboard between OS and Neovim
 
 -- backspace
-vim.optbackspace = "intent,eol,start"
+vim.opt.backspace = "indent,eol,start" -- make backspace work like other programs
 
 -- diffs
 vim.opt.diffopt = "filler,vertical" -- side by side
