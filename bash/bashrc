@@ -10,7 +10,7 @@ fi
 ## Helpers
 
 say() {
-  echo "~/.bashrc: $1"
+  echo "bashrc: $1"
 }
 
 say_err() {

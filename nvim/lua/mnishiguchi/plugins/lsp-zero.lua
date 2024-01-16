@@ -1,111 +1,153 @@
 -- A starting point to setup some LSP related features
+-- https://github.com/VonHeikemen/lsp-zero.nvim/tree/v3.x
+-- https://github.com/VonHeikemen/lsp-zero.nvim/blob/v3.x/doc/md/guides/lazy-loading-with-lazy-nvim.md
 return {
-  "VonHeikemen/lsp-zero.nvim",
-  branch = "v3.x",
-  config = function()
-    local lsp_zero = require("lsp-zero")
+  {
+    -- https://github.com/VonHeikemen/lsp-zero.nvim
+    'VonHeikemen/lsp-zero.nvim',
+    branch = 'v3.x',
+    lazy = true,
+    config = false,
+    init = function()
+      -- Disable automatic setup, we are doing it manually
+      vim.g.lsp_zero_extend_cmp = 0
+      vim.g.lsp_zero_extend_lspconfig = 0
+    end,
+  },
+  {
+    -- https://github.com/williamboman/mason.nvim
+    'williamboman/mason.nvim',
+    lazy = false,
+    config = function()
+      require('mason').setup({
+        ui = {
+          icons = {
+            package_installed = '✓',
+            package_pending = '➜',
+            package_uninstalled = '✗'
+          }
+        }
+      })
+    end,
+  },
+  {
+    -- LSP
+    -- https://github.com/neovim/nvim-lspconfig
+    'neovim/nvim-lspconfig',
+    cmd = { 'LspInfo', 'LspInstall', 'LspStart' },
+    event = { 'BufReadPre', 'BufNewFile' },
+    dependencies = {
+      { 'hrsh7th/cmp-nvim-lsp' },
+      { 'williamboman/mason-lspconfig.nvim' },
+    },
+    config = function()
+      -- This is where all the LSP shenanigans will live
+      local lsp_zero = require('lsp-zero')
+      lsp_zero.extend_lspconfig()
 
-    -- see :help lsp-zero-keybindings for available actions
-    local function setup_keybindings()
-      lsp_zero.on_attach(function(_, bufnr)
+      --- if you want to know more about lsp-zero and mason.nvim
+      --- read this: https://github.com/VonHeikemen/lsp-zero.nvim/blob/v3.x/doc/md/guides/integrate-with-mason-nvim.md
+      lsp_zero.on_attach(function(client, bufnr)
+        -- see :help lsp-zero-keybindings
+        -- to learn the available actions
         lsp_zero.default_keymaps({
           buffer = bufnr,
           preserve_mappings = false -- force lsp-zero's bindings
         })
       end)
-    end
 
-    local function setup_lsp_servers()
-      require("mason").setup({})
+      lsp_zero.set_sign_icons({
+        error = '✘',
+        warn = '▲',
+        hint = '⚑',
+        info = '»'
+      })
 
-      require("mason-lspconfig").setup({
-        -- list the language servers you want to to be installed automatically
+      require('mason-lspconfig').setup({
+        -- language servers you want to be installed automatically
         -- https://github.com/williamboman/mason-lspconfig.nvim#available-lsp-servers
         ensure_installed = {
-          "cssls",
-          "dockerls",
-          "eslint",
-          "elixirls",
-          "emmet_ls",
-          "html",
-          "jsonls",
-          "tsserver",
-          "lua_ls",
-          "marksman",
-          "pyright",
-          "ruby_ls",
-          "rust_analyzer",
-          "sqlls",
-          "taplo",
-          "tailwindcss",
-          "yamlls",
-          "zls",
+          'bashls',
+          'cssls',
+          'dockerls',
+          'eslint',
+          'elixirls',
+          'emmet_ls',
+          'html',
+          'jsonls',
+          'tsserver',
+          'lua_ls',
+          'marksman',
+          'pyright',
+          'ruby_ls',
+          'rust_analyzer',
+          'sqlls',
+          'taplo',
+          'tailwindcss',
+          'yamlls',
+          'zls',
         },
-
         handlers = {
           lsp_zero.default_setup,
           lua_ls = function()
+            -- Configure lua language server for neovim
             local lua_opts = lsp_zero.nvim_lua_ls()
             require('lspconfig').lua_ls.setup(lua_opts)
           end,
           tsserver = lsp_zero.noop,
-        },
+        }
       })
     end
-
-    local function setup_autocompletion()
-      local cmp = require("cmp")
-
-      cmp.setup({
-        sources = cmp.config.sources({
-          { name = "nvim_lsp" },
-          { name = "path" },
-          { name = "luasnip", keyword_length = 2 },
-          { name = "buffer",  keyword_length = 5 },
-        }, {
-        }),
-        mapping = cmp.mapping.preset.insert({
-          ["<CR>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-        })
-      })
-    end
-
-    setup_keybindings()
-    setup_lsp_servers()
-    setup_autocompletion()
-  end,
-  dependencies = {
-    -- LSP support
-    "neovim/nvim-lspconfig",
-    "williamboman/mason-lspconfig.nvim",
-    "williamboman/mason.nvim",
-
+  },
+  {
     -- Autocompletion
     -- https://github.com/hrsh7th/nvim-cmp
-    "hrsh7th/nvim-cmp",
-    "hrsh7th/cmp-nvim-lsp",
-    "hrsh7th/cmp-buffer",
-    "hrsh7th/cmp-path",
-    "saadparwaiz1/cmp_luasnip",
+    'hrsh7th/nvim-cmp',
+    event = 'InsertEnter',
+    dependencies = {
+      { 'L3MON4D3/LuaSnip' },
+    },
+    config = function()
+      -- Here is where you configure the autocompletion settings.
+      local lsp_zero = require('lsp-zero')
+      lsp_zero.extend_cmp()
 
+      -- And you can configure cmp even more, if you want to.
+      local cmp = require('cmp')
+
+      cmp.setup({
+        formatting = lsp_zero.cmp_format(),
+        mapping = cmp.mapping.preset.insert({
+          -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items
+          ['<CR>'] = cmp.mapping.confirm({ select = true }),
+        }),
+        sources = cmp.config.sources({
+          { name = 'nvim_lsp' },
+          { name = 'path' },
+          { name = 'luasnip', keyword_length = 2 },
+          { name = 'buffer',  keyword_length = 5 },
+        }, {
+        }),
+      })
+    end
+  },
+  {
     -- Snippet engine
     -- https://github.com/L3MON4D3/LuaSnip
-    {
-      "L3MON4D3/LuaSnip",
-      dependencies = {
-        "rafamadriz/friendly-snippets",
-      },
-      config = function(_, opts)
-        if opts then require("luasnip").config.setup(opts) end
-
-        require("luasnip.loaders.from_vscode").lazy_load()
-
-        -- add html snippets to other languages
-        require("luasnip").filetype_extend("elixir", { "html" })
-        require("luasnip").filetype_extend("erb", { "html" })
-        require("luasnip").filetype_extend("heex", { "html" })
-        require("luasnip").filetype_extend("leex", { "html" })
-      end,
+    'L3MON4D3/LuaSnip',
+    dependencies = {
+      'rafamadriz/friendly-snippets',
     },
-  },
+    config = function(_, opts)
+      if opts then require('luasnip').config.setup(opts) end
+
+      require('luasnip.loaders.from_vscode').lazy_load()
+
+      -- add html snippets to other languages
+      require('luasnip').filetype_extend('elixir', { 'html' })
+      require('luasnip').filetype_extend('erb', { 'html' })
+      require('luasnip').filetype_extend('heex', { 'html' })
+      require('luasnip').filetype_extend('leex', { 'html' })
+    end,
+  }
 }
