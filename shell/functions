@@ -5,25 +5,6 @@
 pcall() { "$@" || true; }
 command_exists() { command -v "$1" &>/dev/null; }
 
-## Homebrew (macOS)
-
-[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
-
-## Erlang and Elixir
-
-# https://www.erlang.org/doc/man/erlc.html
-export ERLC_USE_SERVER=true
-
-# https://erlang.mk/guide/building.html
-export MAKEFLAGS="-j$(($(nproc) + 1))"
-
-# https://hexdocs.pm/iex/IEx.html
-export ERL_AFLAGS="-kernel shell_history enabled"
-
-
-# https://github.com/asdf-vm/asdf-erlang/blob/master/README.md#setting-the-environment-variable-in-bash
-export KERL_BUILD_DOCS="yes"
-
 ## Ruby
 
 # Install bundler with specific version

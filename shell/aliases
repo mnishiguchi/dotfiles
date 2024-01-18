@@ -1,26 +1,15 @@
-#!/bin/sh
-
-## Helpers
-
-command_exists() { command -v "$1" &>/dev/null; }
+#!/bin/bash
 
 ## Common commands
 
-if command_exists exa; then
-  # https://the.exa.website/docs/colour-themes
-  alias ls='EXA_COLORS="da=1;34" exa --group-directories-first --classify'
+if command -v eza &>/dev/null; then
+  # https://github.com/eza-community/eza
+  alias ls='eza --group-directories-first --classify'
   alias ll='ls --long'
   alias la='ls --long --all'
   alias lt='ls --long --time modified'
   alias lr='ls --recurse'
   alias l.='ls --long --list-dirs .*'
-else
-  alias ls='ls -Fh'
-  alias ll='ls -l'
-  alias la='ls -lA'
-  alias lt='ls -lt'
-  alias lr='ls -R'
-  alias l.='ls -ld .*'
 fi
 
 alias ..='cd ../'
@@ -31,11 +20,11 @@ alias mv='mv -iv'
 alias path='echo -e ${PATH//:/\\n}'
 alias rm='rm -vI'
 alias rmd='rm -rf'
-trash() { mv "$@" ~/.Trash ; }
+trash() { mv "$@" ~/.Trash; }
 alias wget='wget -c'
 
-alias dud='du -d 1 -h'                      # Short and human-readable directory listing
-alias duf='du -sh *'                        # Short and human-readable file listing
+alias dud='du -d 1 -h' # Short and human-readable directory listing
+alias duf='du -sh *'   # Short and human-readable file listing
 
 alias tree='tree -CAhF --dirsfirst'
 alias treed='tree -CAFd'
@@ -48,11 +37,11 @@ find_text() { grep -iIHrn --color=always "$1" . | less -r; }
 ## Chmod
 
 # https://github.com/ohmybash/oh-my-bash/blob/d025bddc67ace7e44dc894ca96a12887249dad06/aliases/chmod.aliases.sh
-alias 000='chmod 000'                       # ---------- (nobody)
-alias 640='chmod 640'                       # -rw-r----- (user: rw, group: r)
-alias 644='chmod 644'                       # -rw-r--r-- (user: rw, group: r, other: r)
-alias 755='chmod 755'                       # -rwxr-xr-x (user: rwx, group: rx, other: rx)
-alias 775='chmod 775'                       # -rwxrwxr-x (user: rwx, group: rwx, other: rx)
+alias 000='chmod 000' # ---------- (nobody)
+alias 640='chmod 640' # -rw-r----- (user: rw, group: r)
+alias 644='chmod 644' # -rw-r--r-- (user: rw, group: r, other: r)
+alias 755='chmod 755' # -rwxr-xr-x (user: rwx, group: rx, other: rx)
+alias 775='chmod 775' # -rwxrwxr-x (user: rwx, group: rwx, other: rx)
 
 ## Archives
 
@@ -98,4 +87,4 @@ alias timestamp='date "+%Y%m%d%H%M%S"'
 alias 2desk='tee ${HOME}/Desktop/terminal-output-$(timestamp).txt'
 
 # Run a simple web server
-command_exists npx && alias serve='npx serve'
+command -v npx &>/dev/null && alias serve='npx serve'
