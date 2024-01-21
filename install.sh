@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -eu
 
+# https://stackoverflow.com/a/246128/3837223
+this_name="$(basename "$0")"
+this_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
 # https://github.com/japaric/trust/blob/08c86c03efb887c33abd4bd5bc3677f81bac98e7/install.sh
 help() {
   cat <<'EOF'
@@ -10,14 +14,14 @@ Usage:
     install.sh [options]
 
 Options:
-    -h, --help      Display this message
-    -f, --force     Force overwriting destination files
-    -b, --backup    Rename preexisting destination files as each file is overwritten
+    --debug         Display debugging information
+    --force, -f     Force overwriting destination files
+    --help, -h      Display this message
 EOF
 }
 
 say() {
-  echo "install.sh: $1"
+  echo "$this_name: $1"
 }
 
 say_err() {
@@ -29,24 +33,14 @@ err() {
   exit 1
 }
 
-need() {
-  if ! command -v $1 >/dev/null 2>&1; then
-    err "need $1 (command not found)"
-  fi
-}
-
-command_exists() {
-  command -v "$1" &>/dev/null
-}
-
 ## Option parser
 
-force=false
-backup=false
-while test $# -gt 0; do
-  case $1 in
-  --backup | -b)
-    backup=true
+debug=
+force=
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+  --debug)
+    debug=true
     ;;
   --force | -f)
     force=true
@@ -59,19 +53,6 @@ while test $# -gt 0; do
   esac
   shift
 done
-echo "Options:"
-echo "  force:  ${force}"
-echo "  backup: ${backup}"
-echo ""
-
-# Check paths
-
-whereisthis() { cd -- "$(dirname "$0")" &>/dev/null && pwd -P; }
-this_dir="$(whereisthis)"
-echo "Paths:"
-echo "  pwd:    $(pwd)"
-echo "  script: ${this_dir}"
-echo ""
 
 ## Environment variables
 
@@ -84,94 +65,77 @@ XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 
 # Git user and email to set up git automatically
-GIT_USER_NAME="${GIT_USER_NAME:-'somebody'}"
-GIT_USER_EMAIL="${GIT_USER_EMAIL:-'somebody@example.com'}"
-GITHUB_USER_NAME="${GITHUB_USER_NAME:-'somebody'}"
+GIT_USER_NAME="${GIT_USER_NAME:-}"
+GIT_USER_EMAIL="${GIT_USER_EMAIL:-}"
+GITHUB_USER_NAME="${GITHUB_USER_NAME:-}"
 
-## Symlink helpers
+## Presentation
 
-color_ok="\033[92m"
+# color_ok="\033[92m"
 color_error="\033[91m"
 color_warning="\033[93m"
 color_default="\033[39m"
 
-ln_options() {
-  if [ "$1" = "true" ]; then
-    echo "-sf"
-  else
-    echo "-si"
-  fi
-}
+## Symlink helpers
 
-cp_options() {
-  if [ "$(uname)" = "Darwin" ]; then
-    echo -RL
-  else
-    # r = recursive
-    # L = follow and expand symlinks
-    echo -rL
-  fi
-}
+if [[ "$debug" = true ]]; then
+  set -x
+fi
 
 timestamp() {
   date "+%Y%m%d%H%M%S"
 }
 
-backup_symlink() {
-  cp $(cp_options) "$1" "$1~$(date "+%Y%m%d")"
+backup_file() {
+  local filename="$1"
+  local cp_flags
+  local suffix
+
+  if [[ "$(uname)" = "Darwin" ]]; then
+    cp_flags="-RLv"
+  else
+    # r = recursive
+    # L = follow and expand symlinks
+    cp_flags="-rLv"
+  fi
+
+  suffix="~$(date "+%Y%m%d")"
+
+  # Ignore errors because we want to suppress "cp: directory causes a cycle"
+  cp "$cp_flags" "$filename" "$filename$suffix" &>/dev/null || true
 }
 
-# Symlinks a file if the file exists.
+# Symlinks a file to the specified target
 #
 # Usage:
-#   symlink_file file1 file2
+#   do_symlink file1 file2
+#   do_symlink dir1 dir2
 #
-symlink_file() {
-  src="$1"
-  target="$2"
+do_symlink() {
+  local src="$1"
+  local target="$2"
 
-  if [ -f "$src" ]; then
+  if [[ "$force" = "true" ]]; then
+    ln_flags="-sfv"
+  else
+    ln_flags="-siv"
+  fi
+
+  if [[ -e "$src" ]]; then
     mkdir -p "$(dirname "$target")"
 
-    if [ "$backup" == "true" ]; then
-      backup_symlink "$target"
+    if [[ -e "$target" ]]; then
+      echo "exists $target -- backing up"
+      backup_file "$target"
     fi
 
-    if ln "$(ln_options "$force")" "$src" "$target"; then
-      printf "${color_ok}✓${color_default} %s -> %s\n" "$src" "$target"
-    else
-      printf "${color_error}✗ couldn't symlink to %s\n${color_default}" "$target"
-    fi
+    # alway exit 0
+    ln "$ln_flags" "$src" "$target" || true
   else
     printf "${color_error}✗ source file does not exist: %s\n${color_default}" "$src"
   fi
-}
 
-# Symlinks a directory if the directory exists.
-#
-# Usage:
-#   symlink_dir dir1 dir2
-#
-symlink_dir() {
-  src="$1"
-  target="$2"
-
-  if [ -d "$src" ]; then
-    mkdir -p "$(dirname "$target")"
-
-    if [ "$backup" == "true" ]; then
-      # Ignore an error like: "cp: directory causes a cycle"
-      backup_symlink "$target" &>/dev/null || true
-    fi
-
-    if ln "$(ln_options "$force")" "$src" "$target"; then
-      printf "${color_ok}✓${color_default} %s -> %s\n" "$src" "$target"
-    else
-      printf "${color_error}✗ couldn't symlink to %s\n${color_default}" "$target"
-    fi
-  else
-    printf "${color_error}✗ source directory does not exist: %s\n${color_default}" "$src"
-  fi
+  echo
 }
 
 # Note: always use absolute path when linking files
@@ -191,72 +155,76 @@ git config --global init.defaultBranch "main"
 git config --global fetch.prune true
 git config --global advice.detachedHead false
 
-if command_exists diff-so-fancy; then
+if command -v diff-so-fancy >/dev/null; then
   git config --global interactive.diffFilter "diff-so-fancy --patch"
   git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
 fi
 
-if [ "$(uname)" = "Darwin" ]; then credential_helper="osxkeychain"; else credential_helper="store"; fi
-git config --global credential.helper "$credential_helper"
-
-excludesfile="$XDG_CONFIG_HOME/git/excludes"
-if symlink_file "${this_dir}/git/excludes" "$excludesfile"; then
-  git config --global core.excludesfile "$excludesfile"
+if [[ "$(uname)" = "Darwin" ]]; then
+  git config --global credential.helper "osxkeychain"
+else
+  git config --global credential.helper "store"
 fi
 
-commit_template="$XDG_CONFIG_HOME/git/commit-template"
-if symlink_file "${this_dir}/git/commit-template" "$commit_template"; then
-  git config --global commit.template "$commit_template"
+excludesfile_target="$XDG_CONFIG_HOME/git/excludes"
+if do_symlink "${this_dir}/git/excludes" "$excludesfile_target"; then
+  git config --global core.excludesfile "$excludesfile_target"
 fi
 
-# print global git configuration
-echo -e "${color_warning}$(git config --global --list)${color_default}"
+commit_template_target="$XDG_CONFIG_HOME/git/commit-template"
+if do_symlink "${this_dir}/git/commit-template" "$commit_template_target"; then
+  git config --global commit.template "$commit_template_target"
+fi
 
 ## Rofi
 
-if command_exists rofi; then
+if command -v rofi >/dev/null; then
   # bin
-  symlink_file "${this_dir}/rofi/bin/gh-repos" "$HOME/.local/bin/gh-repos"
+  do_symlink "${this_dir}/rofi/bin/gh-repos" "$HOME/.local/bin/gh-repos"
 
   # modi
-  symlink_file "${this_dir}/rofi/bin/rofi-gh-repos-modi" "$HOME/.local/bin/rofi-gh-repos-modi"
-  symlink_file "${this_dir}/rofi/bin/rofi-power-modi" "$HOME/.local/bin/rofi-power-modi"
-  symlink_file "${this_dir}/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
+  do_symlink "${this_dir}/rofi/bin/rofi-gh-repos-modi" "$HOME/.local/bin/rofi-gh-repos-modi"
+  do_symlink "${this_dir}/rofi/bin/rofi-power-modi" "$HOME/.local/bin/rofi-power-modi"
+  do_symlink "${this_dir}/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
 
   # menu
-  symlink_file "${this_dir}/rofi/bin/rofi-combi-menu" "$HOME/.local/bin/rofi-combi-menu"
-  symlink_file "${this_dir}/rofi/bin/rofi-power-menu" "$HOME/.local/bin/rofi-power-menu"
+  do_symlink "${this_dir}/rofi/bin/rofi-combi-menu" "$HOME/.local/bin/rofi-combi-menu"
+  do_symlink "${this_dir}/rofi/bin/rofi-power-menu" "$HOME/.local/bin/rofi-power-menu"
 
   # configuration
-  symlink_file "${this_dir}/rofi/config/config.rasi" "$XDG_CONFIG_HOME/rofi/config.rasi"
-  symlink_file "${this_dir}/rofi/config/power-theme.rasi" "$XDG_CONFIG_HOME/rofi/power-theme.rasi"
-  symlink_file "${this_dir}/rofi/config/snippets.txt" "$XDG_CONFIG_HOME/rofi/snippets.txt"
+  do_symlink "${this_dir}/rofi/config/config.rasi" "$XDG_CONFIG_HOME/rofi/config.rasi"
+  do_symlink "${this_dir}/rofi/config/power-theme.rasi" "$XDG_CONFIG_HOME/rofi/power-theme.rasi"
+  do_symlink "${this_dir}/rofi/config/snippets.txt" "$XDG_CONFIG_HOME/rofi/snippets.txt"
 fi
 
 ## Shells
 
-symlink_file "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
-symlink_file "${this_dir}/shell/editors" "$XDG_CONFIG_HOME/shell/editors"
-symlink_file "${this_dir}/shell/functions" "$XDG_CONFIG_HOME/shell/functions"
-symlink_file "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
+do_symlink "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
+do_symlink "${this_dir}/shell/editors" "$XDG_CONFIG_HOME/shell/editors"
+do_symlink "${this_dir}/shell/functions" "$XDG_CONFIG_HOME/shell/functions"
+do_symlink "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
 
-symlink_file "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
-symlink_file "${this_dir}/bash/bashrc" "$HOME/.bashrc"
-symlink_file "${this_dir}/bash/starship.toml" "$XDG_CONFIG_HOME/bash/starship.toml"
+do_symlink "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
+do_symlink "${this_dir}/bash/bashrc" "$HOME/.bashrc"
+do_symlink "${this_dir}/bash/starship.toml" "$XDG_CONFIG_HOME/bash/starship.toml"
 
-symlink_file "${this_dir}/zsh/zshenv" "$HOME/.zshenv"
-symlink_file "${this_dir}/zsh/zshrc" "$XDG_CONFIG_HOME/zsh/.zshrc"
-symlink_file "${this_dir}/zsh/starship.toml" "$XDG_CONFIG_HOME/zsh/starship.toml"
+do_symlink "${this_dir}/zsh/zshenv" "$HOME/.zshenv"
+do_symlink "${this_dir}/zsh/zshrc" "$XDG_CONFIG_HOME/zsh/.zshrc"
+do_symlink "${this_dir}/zsh/starship.toml" "$XDG_CONFIG_HOME/zsh/starship.toml"
 
 ## Other software
 
-symlink_dir "${this_dir}/nvim" "$XDG_CONFIG_HOME/nvim"
-symlink_file "${this_dir}/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
-symlink_file "${this_dir}/editorconfig" "$HOME/.editorconfig"
-symlink_file "${this_dir}/elixir/default-mix-commands" "$HOME/.default-mix-commands"
-symlink_file "${this_dir}/elixir/iex.exs" "$HOME/.iex.exs"
-symlink_file "${this_dir}/npmrc" "$XDG_CONFIG_HOME/npm/npmrc"
-symlink_file "${this_dir}/ranger/rc.conf" "$XDG_CONFIG_HOME/ranger/rc.conf"
-symlink_file "${this_dir}/ruby/irbrc" "$HOME/.irbrc"
-symlink_file "${this_dir}/tmux/tmux.conf" "$XDG_CONFIG_HOME/tmux/tmux.conf"
-symlink_file "${this_dir}/vim/vimrc" "$HOME/.vim/vimrc"
+do_symlink "${this_dir}/nvim" "$XDG_CONFIG_HOME/nvim"
+do_symlink "${this_dir}/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
+do_symlink "${this_dir}/editorconfig" "$HOME/.editorconfig"
+do_symlink "${this_dir}/elixir/default-mix-commands" "$HOME/.default-mix-commands"
+do_symlink "${this_dir}/elixir/iex.exs" "$HOME/.iex.exs"
+do_symlink "${this_dir}/npmrc" "$XDG_CONFIG_HOME/npm/npmrc"
+do_symlink "${this_dir}/ranger/rc.conf" "$XDG_CONFIG_HOME/ranger/rc.conf"
+do_symlink "${this_dir}/ruby/irbrc" "$HOME/.irbrc"
+do_symlink "${this_dir}/tmux/tmux.conf" "$XDG_CONFIG_HOME/tmux/tmux.conf"
+do_symlink "${this_dir}/vim/vimrc" "$HOME/.vim/vimrc"
+
+# print global git configuration
+echo "Git configuration ($XDG_CONFIG_HOME/git/config)"
+cat "$XDG_CONFIG_HOME/git/config"
