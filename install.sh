@@ -82,16 +82,38 @@ if [[ "$debug" = true ]]; then
   set -x
 fi
 
-timestamp() {
-  date "+%Y%m%d%H%M%S"
+timestamp() { date "+%Y%m%d%H%M%S"; }
+
+basename_no_ext() {
+  local f
+  f="$(basename "$1")" # remove all the higher path segments
+  f="${f#.}"           # remove leading dot
+  echo "${f%%.*}"      # remove extension
 }
 
-backup_file() {
-  local filename="$1"
-  local cp_flags
-  local suffix
+get_ext() {
+  local f
+  f="$(basename "$1")" # remove all the higher path segments
+  f="${f#.}"           # remove all the higher path segments
+  local ext="${f#*.}"  # get extension
+  # return extension if detected; else return nothing
+  [[ ! "$ext" = "$f" ]] && echo "$ext" || return 1
+}
 
-  if [[ "$(uname)" = "Darwin" ]]; then
+backup_dir="$HOME/.dotfiles-backup"
+mkdir -p "$backup_dir"
+
+backup_file() {
+  local new_filename
+  local cp_flags
+
+  if get_ext "$1"; then
+    new_filename="$backup_dir/$(basename_no_ext "$1")~$(date "+%Y%m%d").$(get_ext "$1")"
+  else
+    new_filename="$backup_dir/$(basename_no_ext "$1")~$(date "+%Y%m%d")"
+  fi
+
+  if [[ "$(uname)" = Darwin ]]; then
     cp_flags="-RLv"
   else
     # r = recursive
@@ -99,10 +121,8 @@ backup_file() {
     cp_flags="-rLv"
   fi
 
-  suffix="~$(date "+%Y%m%d")"
-
   # Ignore errors because we want to suppress "cp: directory causes a cycle"
-  cp "$cp_flags" "$filename" "$filename$suffix" &>/dev/null || true
+  cp "$cp_flags" "$1" "$new_filename" &>/dev/null || true
 }
 
 # Symlinks a file to the specified target
@@ -115,7 +135,7 @@ do_symlink() {
   local src="$1"
   local target="$2"
 
-  if [[ "$force" = "true" ]]; then
+  if [[ "$force" = true ]]; then
     ln_flags="-sfv"
   else
     ln_flags="-siv"
