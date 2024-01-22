@@ -44,7 +44,6 @@ local plugins = {
   require("mnishiguchi.plugins.nvim-surround"),        -- surroundings with ys{motion}{char}, ds{char}, and cs{target}{replacement}
   require("mnishiguchi.plugins.nvim-treesitter"),      -- Highlight, edit, and navigate code
   require("mnishiguchi.plugins.telescope"),            -- Fuzzy Finder (files, lsp, etc)
-  require("mnishiguchi.plugins.telescope-fzf-native"), -- Fuzzy Finder Algorithm which requires local dependencies to be built.
   require("mnishiguchi.plugins.todo-comments"),        -- Highlight, list and search todo comments
   require("mnishiguchi.plugins.toggleterm"),           -- Toggle a terminal
   require("mnishiguchi.plugins.vimwiki"),
