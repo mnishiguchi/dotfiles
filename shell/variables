@@ -42,9 +42,9 @@ if command_exists fzf; then
   # Default command to use when input is tty
   # https://github.com/junegunn/fzf#environment-variables
   if command_exists rg; then
-    export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git"'
+    export FZF_DEFAULT_COMMAND="rg --files --hidden --max-filesize 1M --glob '!.git' --ignore-file '$XDG_CONFIG_HOME/git/excludes'"
   else
-    export FZF_DEFAULT_COMMAND='find . -type f ! -path "*git*"'
+    export FZF_DEFAULT_COMMAND="find . -type f ! -path '*git*'"
   fi
 fi
 

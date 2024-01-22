@@ -79,10 +79,24 @@ alias hexdocs='mix hex.docs online'
 alias be='bundle exec'
 
 if command_exists fzf; then
-  ranger() {
-    find "${1:-"."}" -type f ! -path "*git*" |
-      fzf --preview="cat {}" --bind "enter:become(${EDITOR:-vim} {})"
+  fzfedit() {
+    fzf --preview="cat {}" --bind "enter:become(${EDITOR:-vim} {})"
   }
+
+  if command_exists rg; then
+    ranger() {
+      rg "${1:-"."}" \
+        --hidden \
+        --files \
+        --glob "!.git" \
+        --max-filesize 1M \
+        --ignore-file "$XDG_CONFIG_HOME/git/excludes" | fzfedit
+    }
+  else
+    ranger() {
+      find "${1:-"."}" -type f ! -path "*git*" | fzfedit
+    }
+  fi
 fi
 
 alias timestamp='date "+%Y%m%d%H%M%S"'
