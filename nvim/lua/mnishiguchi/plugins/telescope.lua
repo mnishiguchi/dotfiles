@@ -11,6 +11,11 @@ return {
               ["<C-d>"] = false,
             },
           },
+          -- https://www.reddit.com/r/neovim/comments/ymb8zx/comment/iv412oy/
+          sorting_strategy = "ascending",
+          layout_config = {
+            prompt_position = "top",
+          },
         },
       })
 
