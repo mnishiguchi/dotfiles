@@ -81,6 +81,15 @@ alias hexdocs='mix hex.docs online'
 
 alias be='bundle exec'
 
+## fzf
+
+if command -v fzf &>/dev/null; then
+  ranger() {
+    find "${1:-"."}" -type f ! -path "*git*" |
+      fzf --preview="cat {}" --bind "enter:become(${EDITOR:-vim} {})"
+  }
+fi
+
 ## Others
 
 alias timestamp='date "+%Y%m%d%H%M%S"'
