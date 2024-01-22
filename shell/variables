@@ -1,5 +1,7 @@
 #!/bin/bash
 
+command_exists() { command -v "$1" &>/dev/null; }
+
 ## User-defined
 
 export DOTFILES_DIR="$HOME/.dotfiles"
@@ -9,13 +11,26 @@ export GIT_USER_NAME="Masatoshi Nishiguchi"
 export GIT_USER_EMAIL="7563926+mnishiguchi@users.noreply.github.com"
 export GITHUB_USER_NAME="mnishiguchi"
 
+## Editors
+
+command_exists vim && EDITOR="vim"
+command_exists nvim && EDITOR="nvim"
+
+# https://hexdocs.pm/iex/IEx.Helpers.html#open/1
+command_exists codium && ELIXIR_EDITOR="codium --goto"
+command_exists code && ELIXIR_EDITOR="code --goto"
+
+export EDITOR="$EDITOR"
+export VISUAL="$EDITOR"
+export ELIXIR_EDITOR="$ELIXIR_EDITOR"
+
 ## Manual pages
 
 export MANPAGER="less -R --use-color --color=d+r --color=u+y"
 
 ## fzf
 
-if command -v fzf &>/dev/null; then
+if command_exists fzf; then
   # https://github.com/junegunn/fzf/wiki/Color-schemes#dracula
   export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
 --reverse
@@ -26,7 +41,7 @@ if command -v fzf &>/dev/null; then
 
   # Default command to use when input is tty
   # https://github.com/junegunn/fzf#environment-variables
-  if command -v rg &>/dev/null; then
+  if command_exists rg; then
     export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git"'
   else
     export FZF_DEFAULT_COMMAND='find . -type f ! -path "*git*"'

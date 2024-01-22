@@ -48,10 +48,10 @@ source "$XDG_CONFIG_HOME/shell/variables"
 
 # Bash-specific variables
 export HISTCONTROL=erasedups:ignoredups:ignorespace
-export HISTFILE="$HOME/.bash_history"
+export HISTFILE="$XDG_STATE_HOME/bash/history"
 export HISTIGNORE="history:ls:pwd:cd:"
 export HISTFILESIZE=10000
-export HISTSIZE=${HISTFILESIZE}
+export HISTSIZE=10000
 shopt -s histappend
 
 ## Git completion
@@ -108,7 +108,6 @@ eval "$(starship init bash)"
 ## Common shell stuff
 
 source "$XDG_CONFIG_HOME/shell/aliases"
-source "$XDG_CONFIG_HOME/shell/editors"
 source "$XDG_CONFIG_HOME/shell/functions"
 
 ## Wrapping up

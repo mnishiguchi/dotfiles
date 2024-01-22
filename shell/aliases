@@ -1,8 +1,8 @@
 #!/bin/bash
 
-## Common commands
+command_exists() { command -v "$1" &>/dev/null; }
 
-if command -v eza &>/dev/null; then
+if command_exists eza; then
   # https://github.com/eza-community/eza
   alias ls='eza --group-directories-first --classify'
   alias ll='ls --long'
@@ -10,6 +10,13 @@ if command -v eza &>/dev/null; then
   alias lt='ls --long --time modified'
   alias lr='ls --recurse'
   alias l.='ls --long --list-dirs .*'
+else
+  alias ls='ls -Fh'
+  alias ll='ls -l'
+  alias la='ls -lA'
+  alias lt='ls -lt'
+  alias lr='ls -R'
+  alias l.='ls -ld .*'
 fi
 
 alias ..='cd ../'
@@ -20,7 +27,6 @@ alias mv='mv -iv'
 alias path='echo -e ${PATH//:/\\n}'
 alias rm='rm -vI'
 alias rmd='rm -rf'
-trash() { mv "$@" ~/.Trash; }
 alias wget='wget -c'
 
 alias dud='du -d 1 -h' # Short and human-readable directory listing
@@ -29,12 +35,11 @@ alias duf='du -sh *'   # Short and human-readable file listing
 alias tree='tree -CAhF --dirsfirst'
 alias treed='tree -CAFd'
 
+# Count files in current directory
 alias count_files="for t in files links directories; do echo \`find . -type \${t:0:1} | wc -l\` \$t; done 2> /dev/null"
 
-# Searches for text in all files in the current folder
+# Searches for text in current directory
 find_text() { grep -iIHrn --color=always "$1" . | less -r; }
-
-## Chmod
 
 # https://github.com/ohmybash/oh-my-bash/blob/d025bddc67ace7e44dc894ca96a12887249dad06/aliases/chmod.aliases.sh
 alias 000='chmod 000' # ---------- (nobody)
@@ -43,16 +48,12 @@ alias 644='chmod 644' # -rw-r--r-- (user: rw, group: r, other: r)
 alias 755='chmod 755' # -rwxr-xr-x (user: rwx, group: rx, other: rx)
 alias 775='chmod 775' # -rwxrwxr-x (user: rwx, group: rwx, other: rx)
 
-## Archives
-
 alias mktar='tar -cvf'
 alias mkbz2='tar -cvjf'
-alias mkgz='tar -cvzf'
+alias mkgz=' tar -cvzf'
 alias untar='tar -xvf'
 alias unbz2='tar -xvjf'
-alias ungz='tar -xvzf'
-
-## Git
+alias ungz=' tar -xvzf'
 
 alias ga='   git add'
 alias gaa='  git add --all'
@@ -72,28 +73,25 @@ alias gp='   git push'
 alias gpf='  git push --force-with-lease --force-if-includes'
 alias gpf!=' git push --force'
 
-## Elixir
-
 # https://hexdocs.pm/hex/Mix.Tasks.Hex.Docs.html
 alias hexdocs='mix hex.docs online'
 
-## Ruby
-
 alias be='bundle exec'
 
-## fzf
-
-if command -v fzf &>/dev/null; then
+if command_exists fzf; then
   ranger() {
     find "${1:-"."}" -type f ! -path "*git*" |
       fzf --preview="cat {}" --bind "enter:become(${EDITOR:-vim} {})"
   }
 fi
 
-## Others
-
 alias timestamp='date "+%Y%m%d%H%M%S"'
 alias 2desk='tee ${HOME}/Desktop/terminal-output-$(timestamp).txt'
 
 # Run a simple web server
-command -v npx &>/dev/null && alias serve='npx serve'
+command_exists npx && alias serve='npx serve'
+
+# Shortcuts to directories I often edit
+# Note: for project directories, cd first so that grepping works
+alias dot=' cd ${DOTFILES_DIR} && ${EDITOR} .       ;'
+alias memo='cd ${VIMWIKI_DIR}  && ${EDITOR} index.md;'

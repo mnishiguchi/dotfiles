@@ -200,7 +200,6 @@ fi
 ## Shells
 
 do_symlink "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
-do_symlink "${this_dir}/shell/editors" "$XDG_CONFIG_HOME/shell/editors"
 do_symlink "${this_dir}/shell/functions" "$XDG_CONFIG_HOME/shell/functions"
 do_symlink "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
 
