@@ -73,8 +73,14 @@ alias gp='   git push'
 alias gpf='  git push --force-with-lease --force-if-includes'
 alias gpf!=' git push --force'
 
+if ! command_exists open; then
+  alias open='xdg-open &>/dev/null'
+fi
+
 # https://hexdocs.pm/hex/Mix.Tasks.Hex.Docs.html
-alias hexdocs='mix hex.docs online'
+hexdocs() { mix hex.docs online "${1:-elixir}"; }
+
+hexpm() { open "https://hex.pm/packages?search=${1:-}"; }
 
 alias be='bundle exec'
 
@@ -85,7 +91,7 @@ if command_exists fzf; then
 
   if command_exists rg; then
     ranger() {
-      rg "${1:-"."}" \
+      rg "${1:-$(pwd)}" \
         --hidden \
         --files \
         --glob "!.git" \
@@ -103,7 +109,7 @@ alias timestamp='date "+%Y%m%d%H%M%S"'
 alias 2desk='tee ${HOME}/Desktop/terminal-output-$(timestamp).txt'
 
 # Run a simple web server
-command_exists npx && alias serve='npx serve'
+alias serve='npx serve'
 
 # Shortcuts to directories I often edit
 # Note: for project directories, cd first so that grepping works
