@@ -85,6 +85,18 @@ fi
 # https://direnv.net/docs/hook.html
 command_exists direnv && eval "$(direnv hook zsh)"
 
+## fuzzy finder
+
+export FZF_DIR="$XDG_CONFIG_HOME/fzf"
+
+# https://github.com/junegunn/fzf
+if [[ ! -d "$FZF_DIR" ]]; then
+  git clone --depth 1 https://github.com/junegunn/fzf.git "$FZF_DIR"
+  "$FZF_DIR/install" --xdg
+fi
+
+source "$FZF_DIR/fzf.zsh"
+
 ## Shell prompt
 
 # https://starship.rs/config/
