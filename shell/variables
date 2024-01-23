@@ -1,6 +1,27 @@
 #!/bin/bash
 
+## Helpers
+
 command_exists() { command -v "$1" &>/dev/null; }
+
+## Cross-Desktop Group (XDG) directories
+
+# https://wiki.archlinux.org/title/XDG_Base_Directory
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+mkdir -p "$XDG_CACHE_HOME"
+mkdir -p "$XDG_CONFIG_HOME"
+mkdir -p "$XDG_DATA_HOME"
+mkdir -p "$XDG_STATE_HOME"
+
+if [ "$(uname)" = "Darwin" ]; then
+  export XDG_RUNTIME_DIR="$HOME/Library/Caches/TemporaryItems"
+else
+  export XDG_RUNTIME_DIR="/run/user/$UID"
+fi
+mkdir -p "$XDG_RUNTIME_DIR"
 
 ## User-defined
 
@@ -65,11 +86,6 @@ if [ -f "$HOMEBREW_PREFIX/bin/brew" ]; then
   # Load Homebrew's variables
   eval "$("$HOMEBREW_PREFIX/bin/brew" shellenv)"
 fi
-
-## asdf
-
-export ASDF_DIR="$XDG_CONFIG_HOME/asdf"
-export ASDF_DATA_DIR="$XDG_DATA_HOME/asdf"
 
 ## Erlang and Elixir
 

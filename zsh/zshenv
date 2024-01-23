@@ -1,22 +1,6 @@
 #!/usr/bin/env zsh
 
-## Common variables
-
-# Cross-Desktop Group (XDG) directories
-# https://wiki.archlinux.org/title/XDG_Base_Directory
-export XDG_CONFIG_HOME="$HOME/.config"
-export XDG_CACHE_HOME="$HOME/.cache"
-export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_STATE_HOME="$HOME/.local/state"
-
-if [ "$(uname)" = "Darwin" ]; then
-  export XDG_RUNTIME_DIR="$HOME/Library/Caches/TemporaryItems"
-else
-  export XDG_RUNTIME_DIR="/run/user/$UID"
-fi
-mkdir -p "$XDG_RUNTIME_DIR"
-
-source "${XDG_CONFIG_HOME}/shell/variables"
+source "$HOME/.config/shell/variables"
 
 ## ZSH-specific variables
 

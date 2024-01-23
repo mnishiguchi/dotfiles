@@ -64,7 +64,8 @@ eval "$(zoxide init zsh)"
 
 ## asdf
 
-ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
+export ASDF_DIR="$XDG_CONFIG_HOME/asdf"
+export ASDF_DATA_DIR="$XDG_DATA_HOME/asdf"
 
 # https://asdf-vm.com/guide/getting-started.html
 if [ -f "$ASDF_DIR/asdf.sh" ]; then
