@@ -114,32 +114,69 @@ pcall neofetch
 
 ## Bash Line Editor (ble.sh)
 
-ble_source_dir="$XDG_CONFIG_HOME/blesh"
-ble_install_dir="$XDG_DATA_HOME/blesh"
-ble_init_script="$XDG_DATA_HOME/blesh/ble.sh"
+ble_config_dir="$XDG_CONFIG_HOME/blesh"
+ble_data_dir="$XDG_DATA_HOME/blesh"
+ble_script="$ble_data_dir/ble.sh"
+ble_rc="$ble_config_dir/init.sh"
 
 # download ble.sh source code
-if [ ! -d "$ble_source_dir" ]; then
-  git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git "$ble_source_dir"
+if [ ! -d "$ble_config_dir" ]; then
+  git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git "$ble_config_dir"
 fi
 
 # install ble.sh
-if [ ! -d "$ble_install_dir" ]; then
+if [ ! -d "$ble_data_dir" ]; then
   # install to $XDG_DATA_HOME/blesh
-  make --directory "$ble_source_dir" install
+  make --directory "$ble_config_dir" install
 fi
 
-# Note: Be sure to attach or reload ble.sh at the end of .bashrc
-# https://github.com/akinomyoga/ble.sh
+# https://github.com/akinomyoga/ble.sh#14-user-settings-blerc
+if [ ! -f "$ble_rc" ]; then
+  say "creating $ble_rc"
 
-if [ -f "$ble_init_script" ]; then
+  cat <<EOF >"$ble_rc"
+# https://github.com/akinomyoga/ble.sh/blob/master/blerc.template
+# https://github.com/akinomyoga/blesh-contrib#option-2-setup-in-blerc
+
+# fzf integration
+ble-import -d integration/fzf-completion
+ble-import -d integration/fzf-key-bindings
+
+# disable the bell
+bleopt edit_abell=
+bleopt edit_vbell=
+
+# the delay to start auto completion after the user made the last input
+bleopt complete_auto_delay=300
+
+# the timeout for the pathname expansions performed in auto-complete
+bleopt complete_timeout_auto=500
+
+# the maximum acceptable size of any data structure generated during the completion process
+bleopt complete_limit=2000
+bleopt complete_limit_auto=2000
+
+# Disable highlighting based on filenames
+bleopt highlight_filename=
+
+# Disable highlighting based on variable types
+bleopt highlight_variable=
+EOF
+  echo
+  cat "$ble_rc"
+  echo
+fi
+
+if [ -f "$ble_script" ]; then
   if [ -z "$BLE_VERSION" ]; then
-    say "loading ble.sh ${BLE_VERSION}"
-    source "$ble_init_script" --noattach
+    say "loading ${ble_script}"
+    source "$ble_script" --noattach
   else
     say "ble.sh already loaded"
   fi
 
+  # Note: Be sure to attach or reload ble.sh at the end of .bashrc
+  # https://github.com/akinomyoga/ble.sh
   if [ -z "$BLE_ATTACHED" ]; then
     say "attaching ble.sh ${BLE_VERSION}"
     ble-attach
@@ -147,25 +184,4 @@ if [ -f "$ble_init_script" ]; then
     say "ble.sh already attached -- reloading"
     ble-reload
   fi
-
-  # disable the bell
-  bleopt edit_abell=
-  bleopt edit_vbell=
-
-  # the delay to start auto completion after the user made the last input
-  bleopt complete_auto_delay=500
-
-  # the timeout for the pathname expansions performed in auto-complete
-  bleopt complete_timeout_auto=500
-
-  # the maximum acceptable size of any data structure generated during the completion process
-  bleopt complete_limit=2000
-  bleopt complete_limit_auto=2000
-
-  # Disable highlighting based on filenames
-  bleopt highlight_filename=
-
-  # Disable highlighting based on variable types
-  bleopt highlight_variable=
 fi
-
