@@ -113,7 +113,6 @@ eval "$(starship init zsh)"
 ## Common shell stuff
 
 source "${XDG_CONFIG_HOME}/shell/aliases"
-source "${XDG_CONFIG_HOME}/shell/functions"
 
 ## Wrapping up
 

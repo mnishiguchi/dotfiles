@@ -103,7 +103,6 @@ source "$FZF_DIR/fzf.bash"
 ## Common shell stuff
 
 source "$XDG_CONFIG_HOME/shell/aliases"
-source "$XDG_CONFIG_HOME/shell/functions"
 
 ## Wrapping up
 

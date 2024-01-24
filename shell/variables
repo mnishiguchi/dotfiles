@@ -108,9 +108,19 @@ export NPM_PATH="$XDG_CONFIG_HOME/npm"
 export NPM_BIN="$XDG_CONFIG_HOME/npm/bin"
 export NPM_CONFIG_PREFIX="$XDG_CONFIG_HOME/npm"
 
-## Other software
+## GNU Pretty Good Privacy (PGP)
 
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+mkdir -p "$GNUPGHOME"
+
+# https://gist.github.com/oseme-techguy/bae2e309c084d93b75a9b25f49718f85
+chown -R "$(whoami)" "$GNUPGHOME"
+chmod 700 "$GNUPGHOME"
+chmod 600 "$GNUPGHOME"/*
+chmod 700 "$GNUPGHOME"/*.d
+
+## Other software
+
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export LESSHISTFILE="-"
 export TMUXP_CONFIGDIR="$XDG_CONFIG_HOME/tmuxp"
