@@ -72,7 +72,7 @@ return {
           'dockerls',
           'eslint',
           'elixirls',
-          'emmet_ls',
+          'emmet_language_server', -- https://github.com/olrtg/emmet-language-server
           'html',
           'jsonls',
           'tsserver',
@@ -80,10 +80,8 @@ return {
           'marksman',
           'pyright',
           'ruby_ls',
-          'rust_analyzer',
           'sqlls',
           'taplo',
-          'tailwindcss',
           'yamlls',
           'zls',
         },
@@ -93,6 +91,30 @@ return {
             -- Configure lua language server for neovim
             local lua_opts = lsp_zero.nvim_lua_ls()
             require('lspconfig').lua_ls.setup(lua_opts)
+          end,
+          emmet_language_server = function()
+            require('lspconfig').emmet_language_server.setup({
+              filetypes = {
+                "css",
+                "eelixir",
+                "elixir",
+                "eruby",
+                "heex",
+                "html",
+                "javascript",
+                "javascriptreact",
+                "less",
+                "markdown",
+                "pug",
+                "sass",
+                "scss",
+                "typescriptreact"
+              },
+              -- See https://code.visualstudio.com/docs/editor/emmet#_emmet-configuration
+              init_options = {
+                excludeLanguages = {},
+              },
+            })
           end,
           tsserver = lsp_zero.noop,
         }
@@ -135,6 +157,7 @@ return {
     -- Snippet engine
     -- https://github.com/L3MON4D3/LuaSnip
     'L3MON4D3/LuaSnip',
+    version = "v2.*",
     dependencies = {
       'rafamadriz/friendly-snippets',
     },
@@ -142,12 +165,6 @@ return {
       if opts then require('luasnip').config.setup(opts) end
 
       require('luasnip.loaders.from_vscode').lazy_load()
-
-      -- add html snippets to other languages
-      require('luasnip').filetype_extend('elixir', { 'html' })
-      require('luasnip').filetype_extend('erb', { 'html' })
-      require('luasnip').filetype_extend('heex', { 'html' })
-      require('luasnip').filetype_extend('leex', { 'html' })
     end,
   }
 }
