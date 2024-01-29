@@ -157,30 +157,13 @@ extract() (
 )
 
 if command_exists fzf; then
-  if command_exists rg; then
-    alias ranger='ranger_rg'
-  else
-    alias ranger='ranger_find'
-  fi
-
-  fzfedit() {
-    fzf --preview="cat {}" --bind "enter:become(${EDITOR:-vim} {})"
+  fzfopen() {
+    find "${1:-.}" -type d -maxdepth 5 ! -path "*git*" | fzf --preview="ls -al {}" --bind "enter:become(open {})"
   }
 
-  ranger_rg() (
-    set -x
-    rg "${1:-.}" \
-      --hidden \
-      --files \
-      --glob "!.git" \
-      --max-filesize 1M \
-      --ignore-file "$XDG_CONFIG_HOME/git/excludes" | fzfedit
-  )
-
-  ranger_find() (
-    set -x
-    find "${1:-.}" -type f ! -path "*git*" | fzfedit
-  )
+  fzfedit() {
+    find "${1:-.}" -type f -maxdepth 5 ! -path "*git*" | fzf --preview="cat {}" --bind "enter:become(${EDITOR:-vim} {})"
+  }
 fi
 
 alias caps="capslock"
