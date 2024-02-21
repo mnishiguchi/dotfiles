@@ -30,7 +30,6 @@ source "$HOME/.config/shell/variables"
 
 # Bash-specific variables
 export HISTCONTROL=erasedups:ignoredups:ignorespace
-export HISTFILE="$XDG_STATE_HOME/bash/history"
 export HISTIGNORE="history:ls:pwd:cd:"
 export HISTFILESIZE=10000
 export HISTSIZE=10000
