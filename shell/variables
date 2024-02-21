@@ -41,9 +41,9 @@ command_exists nvim && EDITOR="nvim"
 command_exists codium && ELIXIR_EDITOR="codium --goto"
 command_exists code && ELIXIR_EDITOR="code --goto"
 
-export EDITOR="$EDITOR"
+export EDITOR="${EDITOR:-nano}"
 export VISUAL="$EDITOR"
-export ELIXIR_EDITOR="$ELIXIR_EDITOR"
+export ELIXIR_EDITOR="${ELIXIR_EDITOR:-$EDITOR}"
 
 ## Manual pages
 
@@ -53,7 +53,7 @@ export MANPAGER="less -R --use-color --color=d+r --color=u+y"
 
 if command_exists fzf; then
   # https://github.com/junegunn/fzf/wiki/Color-schemes#dracula
-  export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
+  export FZF_DEFAULT_OPTS='
 --reverse
 --color=dark
 --color=fg:-1,bg:-1,hl:#5fff87,fg+:-1,bg+:-1,hl+:#ffaf5f
@@ -116,8 +116,6 @@ mkdir -p "$GNUPGHOME"
 # https://gist.github.com/oseme-techguy/bae2e309c084d93b75a9b25f49718f85
 chown -R "$(whoami)" "$GNUPGHOME"
 chmod 700 "$GNUPGHOME"
-chmod 600 "$GNUPGHOME"/*
-chmod 700 "$GNUPGHOME"/*.d
 
 ## Other software
 
