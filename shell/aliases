@@ -11,6 +11,13 @@ if command_exists eza; then
   alias lt='ls --long --time modified'
   alias lr='ls --recurse'
   alias l.='ls --long --list-dirs .*'
+elif command_exists exa; then
+  alias ls='exa --group-directories-first --classify'
+  alias ll='ls --long'
+  alias la='ls --long --all'
+  alias lt='ls --long --time modified'
+  alias lr='ls --recurse'
+  alias l.='ls --long --list-dirs .*'
 else
   alias ls='ls -Fh'
   alias ll='ls -l'
