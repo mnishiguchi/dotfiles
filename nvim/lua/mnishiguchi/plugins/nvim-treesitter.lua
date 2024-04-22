@@ -5,7 +5,17 @@ return {
   config = function()
     require("nvim-treesitter.configs").setup({
       -- A list of parsers that should always be installed
-      ensure_installed = { "c", "elixir", "javascript", "lua", "ruby", "vim", "vimdoc" },
+      ensure_installed = {
+        "c",
+        "eex",
+        "elixir",
+        "heex",
+        "javascript",
+        "lua",
+        "ruby",
+        "vim",
+        "vimdoc"
+      },
       -- Install parsers synchronously (only applied to `ensure_installed`)
       sync_install = false,
       -- Automatically install missing parsers when entering buffer
