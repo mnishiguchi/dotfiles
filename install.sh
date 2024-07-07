@@ -161,41 +161,6 @@ do_symlink() {
 # Note: always use absolute path when linking files
 # Note: symlnking a directory can be tricky
 
-## Git
-
-# https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration
-mkdir -p "$XDG_CONFIG_HOME/git"
-touch "$XDG_CONFIG_HOME/git/config"
-
-git config --global user.name "$GIT_USER_NAME"
-git config --global user.email "$GIT_USER_EMAIL"
-git config --global github.user "$GITHUB_USER_NAME"
-git config --global core.ignorecase false
-git config --global init.defaultBranch "main"
-git config --global fetch.prune true
-git config --global advice.detachedHead false
-
-if command -v diff-so-fancy >/dev/null; then
-  git config --global interactive.diffFilter "diff-so-fancy --patch"
-  git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
-fi
-
-if [[ "$(uname)" = "Darwin" ]]; then
-  git config --global credential.helper "osxkeychain"
-else
-  git config --global credential.helper "store"
-fi
-
-excludesfile_target="$XDG_CONFIG_HOME/git/excludes"
-if do_symlink "${this_dir}/git/excludes" "$excludesfile_target"; then
-  git config --global core.excludesfile "$excludesfile_target"
-fi
-
-commit_template_target="$XDG_CONFIG_HOME/git/commit-template"
-if do_symlink "${this_dir}/git/commit-template" "$commit_template_target"; then
-  git config --global commit.template "$commit_template_target"
-fi
-
 ## Rofi
 
 if command -v rofi >/dev/null; then
@@ -242,6 +207,47 @@ do_symlink "${this_dir}/ruby/irbrc" "$HOME/.irbrc"
 do_symlink "${this_dir}/tmux/tmux.conf" "$XDG_CONFIG_HOME/tmux/tmux.conf"
 do_symlink "${this_dir}/vim/vimrc" "$HOME/.vim/vimrc"
 
-# print global git configuration
-echo "Git configuration ($XDG_CONFIG_HOME/git/config)"
-cat "$XDG_CONFIG_HOME/git/config"
+## Git
+
+gen_git_config() {
+  git config --global user.name "$GIT_USER_NAME"
+  git config --global user.email "$GIT_USER_EMAIL"
+  git config --global github.user "$GITHUB_USER_NAME"
+  git config --global core.ignorecase false
+  git config --global core.longpaths true
+  git config --global init.defaultBranch "main"
+  git config --global fetch.prune true
+  git config --global advice.detachedHead false
+
+  if command -v diff-so-fancy >/dev/null; then
+    git config --global interactive.diffFilter "diff-so-fancy --patch"
+    git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
+  fi
+
+  if [[ "$(uname)" = "Darwin" ]]; then
+    git config --global credential.helper "osxkeychain"
+  else
+    git config --global credential.helper "store"
+  fi
+
+  excludesfile_target="$XDG_CONFIG_HOME/git/excludes"
+  if do_symlink "${this_dir}/git/excludes" "$excludesfile_target"; then
+    git config --global core.excludesfile "$excludesfile_target"
+  fi
+
+  commit_template_target="$XDG_CONFIG_HOME/git/commit-template"
+  if do_symlink "${this_dir}/git/commit-template" "$commit_template_target"; then
+    git config --global commit.template "$commit_template_target"
+  fi
+}
+
+# https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration
+mkdir -p "$XDG_CONFIG_HOME/git"
+git_config_file="$XDG_CONFIG_HOME/git/config"
+
+if [[ -f "$git_config_file" ]]; then
+  echo "git config file already exists at ${git_config_file}"
+  echo
+else
+  touch "$git_config_file" && gen_git_config
+fi
