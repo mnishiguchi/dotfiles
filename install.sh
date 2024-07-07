@@ -138,7 +138,7 @@ do_symlink() {
   if [[ "$force" = true ]]; then
     ln_flags="-sfv"
   else
-    ln_flags="-siv"
+    ln_flags="-sv"
   fi
 
   if [[ -e "$src" ]]; then
