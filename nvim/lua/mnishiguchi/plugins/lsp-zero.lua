@@ -79,6 +79,7 @@ return {
           'lua_ls',
           'marksman',
           'pyright',
+          'rust_analyzer',
           'ruby_lsp',
           'sqlls',
           'taplo',
