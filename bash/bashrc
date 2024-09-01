@@ -98,6 +98,12 @@ fi
 
 source "$FZF_DIR/fzf.bash"
 
+## sdkman
+
+# https://sdkman.io/install
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
 ## Common shell stuff
 
 source "$XDG_CONFIG_HOME/shell/aliases"
