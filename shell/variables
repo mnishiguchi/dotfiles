@@ -121,6 +121,10 @@ export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export LESSHISTFILE="-"
 export TMUXP_CONFIGDIR="$XDG_CONFIG_HOME/tmuxp"
 
+## Android
+
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+
 ## PATH
 
 # append
@@ -129,3 +133,5 @@ export PATH="$PATH:$HOME/.cargo/bin"
 export PATH="$PATH:/var/lib/flatpak/exports/bin"
 export PATH="$PATH:$HOME/.local/share/flatpak/exports/bin"
 export PATH="$PATH:$NPM_BIN"
+export PATH="$PATH:$ANDROID_HOME/emulator"
+export PATH="$PATH:$ANDROID_HOME/platform-tools"
