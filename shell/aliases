@@ -165,11 +165,11 @@ extract() (
 
 if command_exists fzf; then
   fzfopen() {
-    find "${1:-.}" -type d -maxdepth 5 ! -path "*git*" | fzf --preview="ls -al {}" --bind "enter:become(open {})"
+    find "${1:-.}" -type d -maxdepth 5 ! -path "*git*" | fzf --preview='ls -al {}' --bind 'enter:become(open {})'
   }
 
   fzfedit() {
-    find "${1:-.}" -type f -maxdepth 5 ! -path "*git*" | fzf --preview="cat {}" --bind "enter:become(${EDITOR:-vim} {})"
+    find "${1:-.}" -type f -maxdepth 5 ! -path "*git*" | fzf --preview='cat {}' --bind 'enter:become($EDITOR {})'
   }
 fi
 
@@ -225,5 +225,5 @@ alias serve='npx serve'
 
 # Shortcuts to directories I often edit
 # Note: cd first so that grepping works in an appropriate scope
-alias dot=' cd ${DOTFILES_DIR} && ${EDITOR} .       ;'
-alias memo='cd ${VIMWIKI_DIR}  && ${EDITOR} index.md;'
+alias dot=' cd $DOTFILES_DIR && $EDITOR .       ;'
+alias memo='cd $VIMWIKI_DIR  && $EDITOR index.md;'
