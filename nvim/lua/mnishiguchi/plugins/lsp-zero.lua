@@ -76,7 +76,14 @@ return {
 
         -- create a keymap gq to format the current buffer using all active servers with formatting capabilities
         vim.keymap.set({ 'n', 'x' }, 'gq', function()
-          vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
+          -- Use the attached language server for formatting if possible
+          if client.server_capabilities.documentFormattingProvider then
+            vim.print("using " .. client.name .. " for formatting")
+            vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
+          else
+            vim.print("using Neoformat for formatting")
+            vim.cmd.Neoformat()
+          end
         end, opts)
 
         lsp_zero.default_keymaps({
