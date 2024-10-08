@@ -195,6 +195,5 @@ alias 2desk='tee ${HOME}/Desktop/terminal-output-$(timestamp).txt'
 alias serve='npx serve'
 
 # Shortcuts to directories I often edit
-# Note: cd first so that grepping works in an appropriate scope
-alias dot=' cd $DOTFILES_DIR && $EDITOR .       ;'
-alias memo='cd $VIMWIKI_DIR  && $EDITOR index.md;'
+alias dot='cd $DOTFILES_DIR'
+alias memo='cd $VIMWIKI_DIR'
