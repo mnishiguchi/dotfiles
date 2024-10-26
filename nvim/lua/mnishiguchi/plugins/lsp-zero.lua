@@ -81,8 +81,8 @@ return {
             vim.print("using " .. client.name .. " for formatting")
             vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
           else
-            vim.print("using Neoformat for formatting")
-            vim.cmd.Neoformat()
+            vim.print("using formatter.nvim for formatting")
+            vim.cmd.Format()
           end
         end, opts)
 

@@ -25,7 +25,6 @@ local plugins = {
   "mbbill/undotree",                                   -- Visualize the undo history
   "mg979/vim-visual-multi",                            -- Multiple cursors with Ctrl-n and Ctrl-Up/Down
   "mhinz/vim-startify",                                -- Start screen
-  "sbdchd/neoformat",                                  -- Format code with external commands
   "tpope/vim-abolish",                                 -- Convert text case under the cursor with crp, crs, cru etc
   "tpope/vim-commentary",                              -- Comment out the target of a motion with gc
   "tpope/vim-endwise",                                 -- Add end after if, do, def etc
@@ -34,6 +33,7 @@ local plugins = {
   "tpope/vim-rhubarb",                                 -- GBrowse
   "vim-scripts/ReplaceWithRegister",                   -- Replace text with the contents of a register with [count]["x]gr{motion}
   "kevinhwang91/nvim-bqf",                             -- Better quickfix window
+  require("mnishiguchi.plugins.formatter"),            -- Format code with external commands
   require("mnishiguchi.plugins.git-blame"),            -- Git Blame
   require("mnishiguchi.plugins.gitsigns"),             -- Adds git releated signs to the gutter, as well as utilities for managing changes
   require("mnishiguchi.plugins.harpoon"),              -- Manage project marks
