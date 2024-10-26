@@ -142,6 +142,8 @@ return {
           'yamlls',
           'zls',
         },
+        -- For default configs nvim-lspconfig defines, see:
+        -- https://github.com/neovim/nvim-lspconfig/tree/28b205ebe73a18f401e040585106f9bafd8ff21f/lua/lspconfig/configs
         handlers = {
           -- this first function is the "default handler"
           -- it applies to every language server without a "custom handler"
@@ -152,6 +154,14 @@ return {
             -- Configure lua language server for neovim
             local lua_opts = lsp_zero.nvim_lua_ls()
             require('lspconfig').lua_ls.setup(lua_opts)
+          end,
+          cssls = function()
+            require('lspconfig').cssls.setup({
+              settings = {
+                -- to suppress warning: "Unknown rule @tailwind @apply"
+                css = { lint = { unknownAtRules = 'ignore' } }
+              },
+            })
           end,
           emmet_language_server = function()
             require('lspconfig').emmet_language_server.setup({
