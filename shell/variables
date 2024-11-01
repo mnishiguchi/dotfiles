@@ -70,13 +70,6 @@ export ERL_AFLAGS="-kernel shell_history enabled"
 # https://github.com/asdf-vm/asdf-erlang/blob/master/README.md#setting-the-environment-variable-in-bash
 export KERL_BUILD_DOCS="yes"
 
-## npm
-
-export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
-export NPM_PATH="$XDG_CONFIG_HOME/npm"
-export NPM_BIN="$XDG_CONFIG_HOME/npm/bin"
-export NPM_CONFIG_PREFIX="$XDG_CONFIG_HOME/npm"
-
 ## GNU Pretty Good Privacy (PGP)
 
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
@@ -96,6 +89,10 @@ export TMUXP_CONFIGDIR="$XDG_CONFIG_HOME/tmuxp"
 
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 
+## PHP
+
+export PHP_INI_SCAN_DIR="/home/mnishiguchi/.config/herd-lite/bin:$PHP_INI_SCAN_DIR"
+
 ## PATH
 
 # append
@@ -103,6 +100,7 @@ export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:$HOME/.cargo/bin"
 export PATH="$PATH:/var/lib/flatpak/exports/bin"
 export PATH="$PATH:$HOME/.local/share/flatpak/exports/bin"
-export PATH="$PATH:$NPM_BIN"
 export PATH="$PATH:$ANDROID_HOME/emulator"
 export PATH="$PATH:$ANDROID_HOME/platform-tools"
+export PATH="$PATH:$XDG_CONFIG_HOME/flutter/bin"
+export PATH="$PATH:$XDG_CONFIG_HOME/herd-lite/bin"
