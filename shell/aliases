@@ -194,6 +194,9 @@ alias 2desk='tee ${HOME}/Desktop/terminal-output-$(timestamp).txt'
 # Run a simple web server
 alias serve='npx serve'
 
+# Laravel Sail
+alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
+
 # Shortcuts to directories I often edit
 alias dot='cd $DOTFILES_DIR'
 alias memo='cd $VIMWIKI_DIR'
