@@ -22,6 +22,7 @@ return {
         javascriptreact = require("formatter.defaults").prettierd,
         json = require("formatter.defaults").prettierd,
         markdown = require("formatter.defaults").prettierd,
+        php = require("formatter.filetypes").php.pint,
         ruby = require("formatter.defaults").rubocop,
         sh = require("formatter.defaults").shfmt,
         toml = require("formatter.defaults").taplo,
