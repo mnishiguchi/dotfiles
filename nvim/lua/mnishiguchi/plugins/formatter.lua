@@ -12,6 +12,17 @@ return {
       -- For default formatters, see: https://github.com/mhartington/formatter.nvim/tree/master/lua/formatter
       filetype = {
         -- will be executed in order
+        blade = function()
+          return {
+            exe = "blade-formatter",
+            args = {
+              "--stdin",
+              "--no-multiple-empty-lines",
+              "--wrap-attributes=force-expand-multiline",
+            },
+            stdin = true
+          }
+        end,
         css = require("formatter.defaults").prettierd,
         dart = require("formatter.filetypes").dart.dartformat,
         eruby = require("formatter.defaults").htmlbeautifier,

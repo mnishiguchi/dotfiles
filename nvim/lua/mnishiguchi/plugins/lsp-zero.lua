@@ -166,6 +166,7 @@ return {
           emmet_language_server = function()
             require('lspconfig').emmet_language_server.setup({
               filetypes = {
+                "blade",
                 "css",
                 "eelixir",
                 "elixir",

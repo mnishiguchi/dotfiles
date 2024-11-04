@@ -27,6 +27,9 @@ return {
         additional_vim_regex_highlighting = false,
       },
     })
+
+    -- the blade filetype will use the HTML parser and queries.
+    vim.treesitter.language.register('html', 'blade')
   end,
   dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
 }
