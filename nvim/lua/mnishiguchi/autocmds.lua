@@ -50,11 +50,3 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   pattern = "Gemfile,Rakefile,Vagrantfile,Thorfile,Procfile,Guardfile,config.ru,*.rake",
   command = [[set filetype=ruby]],
 })
-
--- Handle HTML files without .html
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-  group = mnishiguchi_augroup,
-  pattern = "*.erb",
-  command = [[set filetype=html]],
-})
-

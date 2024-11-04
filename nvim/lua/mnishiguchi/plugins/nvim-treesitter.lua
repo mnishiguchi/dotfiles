@@ -30,6 +30,8 @@ return {
 
     -- the blade filetype will use the HTML parser and queries.
     vim.treesitter.language.register('html', 'blade')
+    -- the eruby filetype will use the HTML parser and queries.
+    vim.treesitter.language.register('html', 'eruby')
   end,
   dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
 }
