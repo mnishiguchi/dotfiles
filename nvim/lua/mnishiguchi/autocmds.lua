@@ -47,6 +47,6 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 -- Handle Ruby files without .rb
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   group = mnishiguchi_augroup,
-  pattern = "Gemfile,Rakefile,Vagrantfile,Thorfile,Procfile,Guardfile,config.ru,*.rake",
+  pattern = "Gemfile,Rakefile,Vagrantfile,Thorfile,Guardfile,config.ru,*.rake,*.jbuilder",
   command = [[set filetype=ruby]],
 })
