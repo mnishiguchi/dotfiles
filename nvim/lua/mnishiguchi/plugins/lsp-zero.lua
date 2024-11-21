@@ -75,7 +75,7 @@ return {
         local opts = { buffer = bufnr }
 
         -- create a keymap gq to format the current buffer using all active servers with formatting capabilities
-        vim.keymap.set({ 'n', 'x' }, 'gq', function()
+        vim.keymap.set({ 'n', 'x' }, '<space>gq', function()
           -- Use the attached language server for formatting if possible
           if client.server_capabilities.documentFormattingProvider then
             vim.print("using " .. client.name .. " for formatting")
