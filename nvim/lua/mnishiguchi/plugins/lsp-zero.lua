@@ -184,7 +184,22 @@ return {
               },
               -- See https://code.visualstudio.com/docs/editor/emmet#_emmet-configuration
               init_options = {
-                excludeLanguages = {},
+                includeLanguages = {
+                  html = "html", -- Standard HTML
+                  javascript = "javascript", -- Vanilla JS
+                  javascriptreact = "html", -- JSX
+                  typescript = "typescript", -- TypeScript
+                  typescriptreact = "html", -- TSX
+                  vue = "html", -- Vue templates
+                  ruby = "html", -- Embedded Ruby (ERB files)
+                  eelixir = "html", -- Phoenix templates (.eex, .heex)
+                  heex = "html", -- Phoenix LiveView templates
+                  markdown = "html", -- Markdown with embedded HTML
+                  css = "css", -- CSS
+                  scss = "scss", -- SCSS
+                  sass = "sass", -- SASS
+                  less = "less", -- LESS
+                },
               },
             })
           end,
