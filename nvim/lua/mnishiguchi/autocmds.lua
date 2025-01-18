@@ -37,7 +37,7 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   command = [[set filetype=scss]],
 })
 
--- Handle Markdown files witout .md
+-- Handle Markdown files without .md
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   group = mnishiguchi_augroup,
   pattern = "*.livemd",
@@ -49,4 +49,21 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   group = mnishiguchi_augroup,
   pattern = "Gemfile,Rakefile,Vagrantfile,Thorfile,Guardfile,config.ru,*.rake,*.jbuilder",
   command = [[set filetype=ruby]],
+})
+
+-- Large file optimization (prevent slowdowns)
+vim.api.nvim_create_autocmd("BufReadPre", {
+  group = mnishiguchi_augroup,
+  pattern = "*",
+  callback = function()
+    local max_size = 1024 * 1024    -- 1 MB
+    if vim.fn.getfsize(vim.fn.expand("%")) > max_size then
+      vim.opt.syntax = "off"        -- Disable syntax highlighting
+      vim.opt.swapfile = false      -- Disable swapfile
+      vim.opt.undofile = false      -- Disable undo history
+      vim.opt.bufhidden = "unload"  -- Unload the buffer when hidden
+      vim.opt.foldmethod = "manual" -- Disable folding to avoid parsing
+      vim.notify("Large file detected. Performance settings applied.", vim.log.levels.WARN)
+    end
+  end,
 })

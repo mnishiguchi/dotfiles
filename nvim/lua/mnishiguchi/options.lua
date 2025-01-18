@@ -39,12 +39,12 @@ vim.opt.clipboard = "unnamedplus" -- sync clipboard between OS and Neovim
 vim.opt.backspace = "indent,eol,start" -- make backspace work like other programs
 
 -- diffs
-vim.opt.diffopt = "filler,vertical" -- side by side
+vim.opt.diffopt = "filler,vertical" -- side by side diffs
 
 -- command completion
 vim.opt.path:append("**")
 vim.opt.wildmenu = true
-vim.opt.wildmode = "full"
+vim.opt.wildmode = "longest:full,full"
 
 -- insert-mode completion
 vim.opt.completeopt = "menuone,noselect"
@@ -54,7 +54,21 @@ vim.opt.mouse = "a"
 
 -- undo history
 vim.opt.undofile = true
+vim.opt.undodir = vim.fn.stdpath("state") .. "/undo"
 
 -- etc
 vim.opt.isfname:append("@-@") -- support all alphas in filenames
 vim.opt.iskeyword:append("-") -- make "-" part of word
+
+-- Performance and safe defaults
+vim.opt.swapfile = false    -- Disable swap file to avoid potential corruption
+vim.opt.backup = false      -- Disable backup files
+vim.opt.writebackup = false -- Disable write backups
+vim.opt.hidden = true       -- Allow hidden buffers
+vim.opt.updatetime = 300    -- Faster completion and linting updates
+vim.opt.timeoutlen = 500    -- Reduce timeout for key sequences
+vim.opt.lazyredraw = true   -- Improve performance for macros and large files
+vim.opt.synmaxcol = 200     -- Limit syntax highlighting for performance
+vim.opt.redrawtime = 10000  -- Allow more time for syntax highlighting in large files
+vim.opt.history = 1000      -- Increase command history size
+vim.opt.autoread = true     -- Automatically reload files changed outside of Neovim
