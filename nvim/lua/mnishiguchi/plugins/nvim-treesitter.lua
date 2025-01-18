@@ -28,10 +28,12 @@ return {
       },
     })
 
-    -- the blade filetype will use the HTML parser and queries.
+    -- Map the blade filetype to the HTML parser
     vim.treesitter.language.register('html', 'blade')
-    -- the eruby filetype will use the HTML parser and queries.
+    -- Map the eruby filetype to the HTML parser
     vim.treesitter.language.register('html', 'eruby')
+    -- Map the tmux filetype to the sh parser
+    vim.treesitter.language.register('sh', 'tmux')
   end,
   dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
 }
