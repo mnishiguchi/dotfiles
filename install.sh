@@ -204,7 +204,7 @@ do_symlink "${this_dir}/elixir/default-mix-commands" "$HOME/.default-mix-command
 do_symlink "${this_dir}/elixir/iex.exs" "$HOME/.iex.exs"
 do_symlink "${this_dir}/nodejs/npmrc" "$HOME/.npmrc"
 do_symlink "${this_dir}/ruby/irbrc" "$HOME/.irbrc"
-do_symlink "${this_dir}/tmux/tmux.conf" "$XDG_CONFIG_HOME/tmux/tmux.conf"
+do_symlink "${this_dir}/tmux/tmux.conf" "$HOME/.tmux.conf"
 do_symlink "${this_dir}/vim/vimrc" "$HOME/.vim/vimrc"
 
 ## Git
