@@ -1,7 +1,18 @@
 #!/bin/bash
 
+# ================================
+# Utility Functions
+# ================================
+
+# Check if a command exists
 command_exists() { command -v "$1" &>/dev/null; }
+
+# Safely call a command, ignoring errors
 pcall() { "$@" || true; }
+
+# ================================
+# Aliases for ls and Alternatives
+# ================================
 
 if command_exists eza; then
   # https://github.com/eza-community/eza
@@ -27,20 +38,44 @@ else
   alias l.='ls -ld .*'
 fi
 
+# ================================
+# Navigation Shortcuts
+# ================================
+
 alias ..='cd ../'
 alias ...='cd ../../'
+
+alias dot='cd "${DOTFILES_DIR:-$HOME/.dotfiles}"'
+alias memo='cd "${VIMWIKI_DIR:-$HOME/Documents/vimwiki}"'
+
+# ================================
+# File Operation Enhancements
+# ================================
+
 alias cp='cp -iv'
 alias grep='grep --color=always'
 alias mv='mv -iv'
-alias path='echo -e ${PATH//:/\\n}'
 alias rm='rm -vI'
-alias rmd='rm -rf'
 alias wget='wget --continue'
 
-# make sure the open command is available
+# ================================
+# PATH Management
+# ================================
+
+# Display PATH as one entry per line
+alias path='echo -e ${PATH//:/\\n}'
+
+# ================================
+# Cross-Platform `open` Command
+# ================================
+
 if ! command_exists open; then
   alias open='xdg-open &>/dev/null'
 fi
+
+# ================================
+# Text Search Utilities
+# ================================
 
 if command_exists rg; then
   alias find_text='find_text_rg'
@@ -55,6 +90,9 @@ find_text_rg() (
     --line-number \
     --color=always \
     "$1" "${2:-.}" | less --raw-control-chars
+  if [[ $? -ne 0 ]]; then
+    echo "No matches found for '$1' in '${2:-.}' or an error occurred." >&2
+  fi
 )
 
 find_text_grep() (
@@ -66,7 +104,14 @@ find_text_grep() (
     --color=always \
     --recursive \
     "$1" "${2:-.}" | less --raw-control-chars
+  if [[ $? -ne 0 ]]; then
+    echo "No matches found for '$1' in '${2:-.}' or an error occurred." >&2
+  fi
 )
+
+# ================================
+# Git Aliases
+# ================================
 
 alias ga='   git add'
 alias gaa='  git add --all'
@@ -85,6 +130,10 @@ alias gloga='git log --oneline --decorate --graph --all'
 alias gp='   git push'
 alias gpf='  git push --force-with-lease --force-if-includes'
 alias gpf!=' git push --force'
+
+# ================================
+# Archiving and Extraction
+# ================================
 
 mktar() (
   set -x
@@ -134,6 +183,10 @@ extract() (
   esac
 )
 
+# ================================
+# fzf Integration
+# ================================
+
 if command_exists fzf; then
   fzfopen() {
     find "${1:-.}" -type d -maxdepth 5 ! -path "*git*" | fzf --preview='ls -al {}' --bind 'enter:become(open {})'
@@ -143,6 +196,10 @@ if command_exists fzf; then
     find "${1:-.}" -type f -maxdepth 5 ! -path "*git*" | fzf --preview='cat {}' --bind 'enter:become($EDITOR {})'
   }
 fi
+
+# ================================
+# Caps Lock Configuration
+# ================================
 
 alias caps="capslock"
 alias nocaps="capslock off"
@@ -164,6 +221,15 @@ capslock() {
   setxkbmap -print -verbose 10
 }
 
+# ================================
+# Miscellaneous Utilities
+# ================================
+
+alias timestamp='date "+%Y%m%d%H%M%S"'
+alias 2desk='tee ${HOME}/Desktop/terminal-output-$(timestamp).txt'
+alias serve='npx serve || python3 -m http.server'
+
+# Create a README.md if it doesn't exist
 mkreadme() {
   [[ -f README.md ]] && {
     echo "README.md already exists"
@@ -171,6 +237,9 @@ mkreadme() {
   }
   echo 'Nothing interesting here yet. Try again later.' >README.md
 }
+
+# Ruby
+alias be='bundle exec'
 
 install_bundler() {
   if [[ -z "$1" ]]; then
@@ -182,21 +251,11 @@ install_bundler() {
   fi
 }
 
+# Elixir
 # https://hexdocs.pm/hex/Mix.Tasks.Hex.Docs.html
 hexdocs() { mix hex.docs online "${1:-elixir}"; }
 
 hexpm() { open "https://hex.pm/packages?search=${1:-}"; }
 
-alias be='bundle exec'
-alias timestamp='date "+%Y%m%d%H%M%S"'
-alias 2desk='tee ${HOME}/Desktop/terminal-output-$(timestamp).txt'
-
-# Run a simple web server
-alias serve='npx serve'
-
-# Laravel Sail
+# PHP
 alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
-
-# Shortcuts to directories I often edit
-alias dot='cd $DOTFILES_DIR'
-alias memo='cd $VIMWIKI_DIR'
