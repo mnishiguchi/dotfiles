@@ -124,23 +124,15 @@ return {
         ensure_installed = {
           'bashls',
           'cssls',
-          'dockerls',
-          'eslint',
           'elixirls',
           'emmet_language_server', -- https://github.com/olrtg/emmet-language-server
           'html',
           'jsonls',
-          'ts_ls',
           'lua_ls',
-          'marksman',
-          'pyright',
           'rust_analyzer',
           'rubocop',
           'ruby_lsp',
-          'sqlls',
-          'taplo',
           'yamlls',
-          'zls',
         },
         -- For default configs nvim-lspconfig defines, see:
         -- https://github.com/neovim/nvim-lspconfig/tree/28b205ebe73a18f401e040585106f9bafd8ff21f/lua/lspconfig/configs
