@@ -3,26 +3,30 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-if [ -f /etc/bashrc ]; then
-  . /etc/bashrc
-fi
-
 ## Helpers
 
-say() {
-  echo "bashrc: $1"
+echo_heading() {
+  echo -e "\n\033[34mbashrc: $1\033[0m"
 }
 
-say_err() {
-  say "$1" >&2
+echo_success() {
+  echo -e " \033[32m✔ $1\033[0m"
+}
+
+echo_failure() {
+  echo -e " \033[31m✖ $1\033[0m" >&2
 }
 
 err() {
-  say_err "ERROR $1"
+  echo_failure "ERROR $1"
   exit 1
 }
 
+# Check if a command exists
 command_exists() { command -v "$1" &>/dev/null; }
+
+# Safely call a command, ignoring errors
+pcall() { "$@" || true; }
 
 # Find the first available command
 find_first_command() {
@@ -36,11 +40,32 @@ find_first_command() {
   echo "$cmd"
 }
 
+## global bashrc
+
+# Source the global bashrc if it exists
+if [ -f /etc/bashrc ]; then
+  echo_heading "Sourcing global bashrc..."
+  . /etc/bashrc
+  echo_success "Global bashrc sourced."
+else
+  echo_heading "Global bashrc not found. Skipping."
+fi
+
 ## Common variables
 
-source "$HOME/.config/shell/variables"
+echo_heading "Loading common variables..."
+if [ -f "$HOME/.config/shell/variables" ]; then
+  if source "$HOME/.config/shell/variables"; then
+    echo_success "Common variables loaded."
+  else
+    echo_failure "Failed to load common variables."
+  fi
+else
+  echo_failure "Common variables file not found: $HOME/.config/shell/variables"
+fi
 
-# Bash-specific variables
+## Bash-specific variables
+
 export HISTCONTROL=erasedups:ignoredups:ignorespace
 export HISTIGNORE="history:ls:pwd:cd:"
 export HISTFILESIZE=10000
@@ -49,65 +74,91 @@ shopt -s histappend
 
 ## Git completion
 
+echo_heading "Setting up Git completion..."
 # https://git-scm.com/book/en/v2/Appendix-A:-Git-in-Other-Environments-Git-in-Bash
 mkdir -p "$XDG_CONFIG_HOME/git"
 git_completion_script="$XDG_CONFIG_HOME/git/git-completion.bash"
 
 if [ ! -f "$git_completion_script" ]; then
-  curl -L https://raw.github.com/git/git/master/contrib/completion/git-completion.bash >"$git_completion_script"
+  if curl -L https://raw.github.com/git/git/master/contrib/completion/git-completion.bash >"$git_completion_script"; then
+    echo_success "Git completion script downloaded."
+  else
+    echo_failure "Failed to download Git completion script."
+  fi
 fi
 
-source "$git_completion_script"
+if source "$git_completion_script"; then
+  echo_success "Git completion initialized."
+else
+  echo_failure "Failed to source Git completion."
+fi
 
 ## zoxide
 
+echo_heading "Setting up zoxide..."
 # https://github.com/ajeetdsouza/zoxide
 if command_exists zoxide; then
   eval "$(zoxide init bash)"
+  echo_success "zoxide initialized."
 else
-  say_err "zoxide is not installed."
+  echo_failure "zoxide is not installed."
 fi
 
 ## asdf
 
+echo_heading "Setting up asdf..."
 export ASDF_DIR="$HOME/.asdf"
 
 # https://asdf-vm.com/guide/getting-started.html
 if [ -f "$ASDF_DIR/asdf.sh" ]; then
   source "$ASDF_DIR/asdf.sh"
+  echo_success "asdf initialized."
 
   if [ -f "$ASDF_DIR/completions/asdf.bash" ]; then
     source "$ASDF_DIR/completions/asdf.bash"
+    echo_success "asdf completions loaded."
   fi
+else
+  echo_failure "asdf is not installed."
 fi
 
 ## direnv
 
+echo_heading "Setting up direnv..."
 # https://direnv.net/docs/hook.html
-command_exists direnv && eval "$(direnv hook bash)"
+if command_exists direnv; then
+  eval "$(direnv hook bash)"
+  echo_success "direnv initialized."
+else
+  echo_failure "direnv is not installed."
+fi
 
 ## Shell prompt
 
+echo_heading "Setting up Starship prompt..."
 # https://starship.rs/config/
 export STARSHIP_CONFIG="$XDG_CONFIG_HOME/bash/starship.toml"
 
 # https://starship.rs
-if ! command_exists starship; then
-  curl -sS https://starship.rs/install.sh | sh
+if command_exists starship; then
+  eval "$(starship init bash)"
+  echo_success "Starship prompt initialized."
+else
+  echo_failure "Starship is not installed."
 fi
-
-eval "$(starship init bash)"
 
 ## fuzzy finder
 
+echo_heading "Setting up fzf..."
 export FZF_DIR="$XDG_CONFIG_HOME/fzf"
 
 # https://github.com/junegunn/fzf
 # Source the fzf.bash script if available
 if [[ -f "$FZF_DIR/fzf.bash" ]]; then
   source "$FZF_DIR/fzf.bash"
+  echo_success "fzf initialized."
 else
-  say_err "fzf.bash not found in $FZF_DIR. Ensure fzf is properly installed."
+  echo_failure "fzf.bash not found in $FZF_DIR. Ensure fzf is properly installed."
 fi
 
 # https://github.com/junegunn/fzf/wiki/Color-schemes#dracula
@@ -122,19 +173,38 @@ export FZF_DEFAULT_OPTS='
 # https://github.com/junegunn/fzf#environment-variables
 if command_exists rg; then
   export FZF_DEFAULT_COMMAND="rg --files --hidden --max-filesize 1M --glob '!.git' --ignore-file '$XDG_CONFIG_HOME/git/excludes'"
+  echo_success "fzf configured to use ripgrep."
 else
   export FZF_DEFAULT_COMMAND="find . -type f ! -path '*git*'"
+  echo_success "fzf configured to use find."
 fi
 
 ## sdkman
 
+echo_heading "Setting up SDKMAN..."
 # https://sdkman.io/install
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+if [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
+  if source "$HOME/.sdkman/bin/sdkman-init.sh"; then
+    echo_success "SDKMAN initialized."
+  else
+    echo_failure "Failed to initialize SDKMAN."
+  fi
+else
+  echo_failure "SDKMAN init script not found or is empty."
+fi
 
 ## Common shell stuff
 
-source "$XDG_CONFIG_HOME/shell/aliases"
+echo_heading "Loading aliases..."
+if [ -f "$XDG_CONFIG_HOME/shell/aliases" ]; then
+  if source "$XDG_CONFIG_HOME/shell/aliases"; then
+    echo_success "Aliases loaded."
+  else
+    echo_failure "Failed to load aliases."
+  fi
+else
+  echo_failure "Aliases file not found: $XDG_CONFIG_HOME/shell/aliases"
+fi
 
 ## Editors
 
@@ -147,6 +217,7 @@ ELIXIR_EDITOR=$(find_first_command code nvim vim)
 # Clean up PATH
 PATH=$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
 
+# Call neofetch to verify .bashrc was loaded
 pcall neofetch
 
 ## Bash Line Editor (ble.sh)
@@ -159,22 +230,22 @@ ble_rc="$ble_config_dir/init.sh"
 # https://github.com/akinomyoga/ble.sh#14-user-settings-blerc
 if [[ -f "$ble_script" ]]; then
   if [ -z "$BLE_VERSION" ]; then
-    say "loading ${ble_script}"
+    echo_heading "loading ${ble_script}..."
     source "$ble_script" --noattach
+    echo_success "ble.sh loaded successfully."
   else
-    say "ble.sh already loaded"
+    echo_success "ble.sh is already loaded."
   fi
 
   # Note: Be sure to attach or reload ble.sh at the end of .bashrc
   # https://github.com/akinomyoga/ble.sh
   if [ -z "$BLE_ATTACHED" ]; then
-    say "attaching ble.sh ${BLE_VERSION}"
+    echo_heading "attaching ble.sh ${BLE_VERSION}"
     ble-attach
   else
-    say "ble.sh already attached -- reloading"
+    echo_heading "ble.sh already attached -- reloading"
     ble-reload
   fi
-
 else
-  say_err "ble.sh is not installed or the required script ($ble_script) is missing."
+  echo_failure "ble.sh is not installed or the required script ($ble_script) is missing."
 fi

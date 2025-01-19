@@ -1,6 +1,10 @@
 ## Helpers
 
+# Check if a command exists
 command_exists() { command -v "$1" &>/dev/null; }
+
+# Safely call a command, ignoring errors
+pcall() { "$@" || true; }
 
 ## ZSH configuration
 
