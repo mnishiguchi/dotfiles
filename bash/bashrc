@@ -24,6 +24,18 @@ err() {
 
 command_exists() { command -v "$1" &>/dev/null; }
 
+# Find the first available command
+find_first_command() {
+  local cmd=""
+  for candidate in "$@"; do
+    if command_exists "$candidate"; then
+      cmd="$candidate"
+      break
+    fi
+  done
+  echo "$cmd"
+}
+
 ## Common variables
 
 source "$HOME/.config/shell/variables"
@@ -50,11 +62,11 @@ source "$git_completion_script"
 ## zoxide
 
 # https://github.com/ajeetdsouza/zoxide
-if ! command_exists zoxide; then
-  curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+if command_exists zoxide; then
+  eval "$(zoxide init bash)"
+else
+  say_err "zoxide is not installed."
 fi
-
-eval "$(zoxide init bash)"
 
 ## asdf
 
@@ -91,12 +103,12 @@ eval "$(starship init bash)"
 export FZF_DIR="$XDG_CONFIG_HOME/fzf"
 
 # https://github.com/junegunn/fzf
-if [[ ! -d "$FZF_DIR" ]]; then
-  git clone --depth 1 https://github.com/junegunn/fzf.git "$FZF_DIR"
-  "$FZF_DIR/install" --xdg
+# Source the fzf.bash script if available
+if [[ -f "$FZF_DIR/fzf.bash" ]]; then
+  source "$FZF_DIR/fzf.bash"
+else
+  say_err "fzf.bash not found in $FZF_DIR. Ensure fzf is properly installed."
 fi
-
-source "$FZF_DIR/fzf.bash"
 
 # https://github.com/junegunn/fzf/wiki/Color-schemes#dracula
 export FZF_DEFAULT_OPTS='
@@ -126,12 +138,9 @@ source "$XDG_CONFIG_HOME/shell/aliases"
 
 ## Editors
 
-command_exists vim && EDITOR="vim"
-command_exists nvim && EDITOR="nvim"
-
-# https://hexdocs.pm/iex/IEx.Helpers.html#open/1
-command_exists codium && ELIXIR_EDITOR='codium --goto'
-command_exists code && ELIXIR_EDITOR='code --goto'
+EDITOR=$(find_first_command nvim vim)
+ELIXIR_EDITOR=$(find_first_command code nvim vim)
+[ "$ELIXIR_EDITOR" = "code" ] && ELIXIR_EDITOR="$ELIXIR_EDITOR --goto"
 
 ## Wrapping up
 
@@ -147,55 +156,8 @@ ble_data_dir="$XDG_DATA_HOME/blesh"
 ble_script="$ble_data_dir/ble.sh"
 ble_rc="$ble_config_dir/init.sh"
 
-# download ble.sh source code
-if [ ! -d "$ble_config_dir" ]; then
-  git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git "$ble_config_dir"
-fi
-
-# install ble.sh
-if [ ! -d "$ble_data_dir" ]; then
-  # install to $XDG_DATA_HOME/blesh
-  make --directory "$ble_config_dir" install
-fi
-
 # https://github.com/akinomyoga/ble.sh#14-user-settings-blerc
-if [ ! -f "$ble_rc" ]; then
-  say "creating $ble_rc"
-
-  cat <<EOF >"$ble_rc"
-# https://github.com/akinomyoga/ble.sh/blob/master/blerc.template
-# https://github.com/akinomyoga/blesh-contrib#option-2-setup-in-blerc
-
-# fzf integration
-ble-import -d integration/fzf-completion
-ble-import -d integration/fzf-key-bindings
-
-# disable the bell
-bleopt edit_abell=
-bleopt edit_vbell=
-
-# the delay to start auto completion after the user made the last input
-bleopt complete_auto_delay=300
-
-# the timeout for the pathname expansions performed in auto-complete
-bleopt complete_timeout_auto=500
-
-# the maximum acceptable size of any data structure generated during the completion process
-bleopt complete_limit=2000
-bleopt complete_limit_auto=2000
-
-# Disable highlighting based on filenames
-bleopt highlight_filename=
-
-# Disable highlighting based on variable types
-bleopt highlight_variable=
-EOF
-  echo
-  cat "$ble_rc"
-  echo
-fi
-
-if [ -f "$ble_script" ]; then
+if [[ -f "$ble_script" ]]; then
   if [ -z "$BLE_VERSION" ]; then
     say "loading ${ble_script}"
     source "$ble_script" --noattach
@@ -212,4 +174,7 @@ if [ -f "$ble_script" ]; then
     say "ble.sh already attached -- reloading"
     ble-reload
   fi
+
+else
+  say_err "ble.sh is not installed or the required script ($ble_script) is missing."
 fi
