@@ -26,7 +26,6 @@ return {
 		extensions = {
 			"fugitive",
 			"quickfix",
-			"toggleterm",
 		},
 	},
 	dependencies = { "nvim-tree/nvim-web-devicons" },
