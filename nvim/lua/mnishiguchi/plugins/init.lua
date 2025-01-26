@@ -22,18 +22,17 @@ end
 
 local plugins = {
   require("mnishiguchi.plugins.colorscheme"),
-  "mbbill/undotree",                                   -- Visualize the undo history
   "mg979/vim-visual-multi",                            -- Multiple cursors with Ctrl-n and Ctrl-Up/Down
   "mhinz/vim-startify",                                -- Start screen
   "tpope/vim-abolish",                                 -- Convert text case under the cursor with crp, crs, cru etc
   "tpope/vim-commentary",                              -- Comment out the target of a motion with gc
   "tpope/vim-endwise",                                 -- Add end after if, do, def etc
   "tpope/vim-eunuch",                                  -- File utilities, like Delete, Move, Rename, Copy, Duplicate, etc
-  "tpope/vim-fugitive",                                -- Git
   "tpope/vim-rhubarb",                                 -- GBrowse
   "vim-scripts/ReplaceWithRegister",                   -- Replace text with the contents of a register with [count]["x]gr{motion}
   "kevinhwang91/nvim-bqf",                             -- Better quickfix window
   require("mnishiguchi.plugins.formatter"),            -- Format code with external commands
+  require("mnishiguchi.plugins.fugitive"),             -- Git
   require("mnishiguchi.plugins.git-blame"),            -- Git Blame
   require("mnishiguchi.plugins.gitsigns"),             -- Adds git releated signs to the gutter, as well as utilities for managing changes
   require("mnishiguchi.plugins.harpoon"),              -- Manage project marks
@@ -44,6 +43,7 @@ local plugins = {
   require("mnishiguchi.plugins.nvim-treesitter"),      -- Highlight, edit, and navigate code
   require("mnishiguchi.plugins.telescope"),            -- Fuzzy Finder (files, lsp, etc)
   require("mnishiguchi.plugins.todo-comments"),        -- Highlight, list and search todo comments
+  require("mnishiguchi.plugins.undotree"),             -- Visualize the undo history
   require("mnishiguchi.plugins.vimwiki"),
   require("mnishiguchi.plugins.which-key"),            -- Show pending keybinds
 }
