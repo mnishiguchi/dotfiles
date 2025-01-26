@@ -33,6 +33,7 @@ return {
       vim.keymap.set("n", "<leader>fr", telescope_builtin.registers, { desc = "[f]ind [r]egisters" })
       vim.keymap.set("n", "<leader>fh", telescope_builtin.help_tags, { desc = "[f]ind [h]elp" })
       vim.keymap.set("n", "<leader>fq", telescope_builtin.quickfix, { desc = "[f]ind [q]uickfix items" })
+      vim.keymap.set("n", "<leader>km", telescope_builtin.keymaps, { desc = "List [k]ey [m]aps" })
       vim.keymap.set("n", "<leader>?", telescope_builtin.oldfiles, { desc = "List recently opened files" })
       vim.keymap.set("n", "<leader>/", function()
         telescope_builtin.current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
