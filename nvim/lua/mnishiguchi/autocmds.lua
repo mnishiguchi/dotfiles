@@ -17,39 +17,30 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 vim.api.nvim_create_autocmd("TextYankPost", {
   group = mnishiguchi_augroup,
   pattern = "*",
-  callback = function()
-    -- See `:help vim.highlight.on_yank()`
-    vim.highlight.on_yank()
-  end,
+  callback = vim.highlight.on_yank,
 })
 
 -- Open quick fix window on grep
 vim.api.nvim_create_autocmd("QuickFixCmdPost", {
   group = mnishiguchi_augroup,
   pattern = "*grep*",
-  command = [[cwindow]],
+  command = "cwindow",
 })
 
--- Treat Rofi files as SCSS
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-  group = mnishiguchi_augroup,
-  pattern = "*.rasi",
-  command = [[set filetype=scss]],
-})
+-- Dynamically detect filetypes based on filename patterns
+local filetype_patterns = {
+  ["*.rasi"] = "js",
+  ["*.livemd"] = "markdown",
+  ["Gemfile,Rakefile,Vagrantfile,Thorfile,Guardfile,config.ru,*.rake,*.jbuilder"] = "ruby",
+}
 
--- Handle Markdown files without .md
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-  group = mnishiguchi_augroup,
-  pattern = "*.livemd",
-  command = [[set filetype=markdown]],
-})
-
--- Handle Ruby files without .rb
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-  group = mnishiguchi_augroup,
-  pattern = "Gemfile,Rakefile,Vagrantfile,Thorfile,Guardfile,config.ru,*.rake,*.jbuilder",
-  command = [[set filetype=ruby]],
-})
+for pattern, filetype in pairs(filetype_patterns) do
+  vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+    group = mnishiguchi_augroup,
+    pattern = pattern,
+    command = "set filetype=" .. filetype,
+  })
+end
 
 -- Large file optimization (prevent slowdowns)
 vim.api.nvim_create_autocmd("BufReadPre", {
