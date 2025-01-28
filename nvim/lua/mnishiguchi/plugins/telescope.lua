@@ -1,60 +1,62 @@
 return {
   {
-    -- Fuzzy Finder (files, lsp, etc)
+    -- Telescope: Fuzzy Finder for files, LSP, and more
     "nvim-telescope/telescope.nvim",
     config = function()
-      require("telescope").setup({
+      local telescope = require("telescope")
+      telescope.setup({
         defaults = {
-          mappings = {
-            i = {
-              ["<C-u>"] = false,
-              ["<C-d>"] = false,
-            },
-          },
-          -- https://www.reddit.com/r/neovim/comments/ymb8zx/comment/iv412oy/
-          sorting_strategy = "ascending",
+          sorting_strategy = "ascending", -- Show results from top to bottom
           layout_config = {
-            prompt_position = "top",
+            prompt_position = "top",      -- Move prompt to the top
           },
         },
       })
 
       -- Enable telescope fzf native, if installed
-      pcall(require("telescope").load_extension, "fzf")
+      pcall(telescope.load_extension, "fzf")
 
       -- Keybindings
-      local telescope_builtin = require("telescope.builtin")
+      local builtin = require("telescope.builtin")
+      local themes = require("telescope.themes")
+      local opts = { noremap = true, silent = true }
+
+      vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "List open buffers", unpack(opts) })
+      vim.keymap.set("n", "<leader>fc", builtin.commands, { desc = "Search available Vim commands", unpack(opts) })
+      vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "Search LSP diagnostics", unpack(opts) })
+      vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find files in the workspace", unpack(opts) })
       vim.keymap.set("n", "<leader>fg", function()
-        telescope_builtin.grep_string({ search = vim.fn.input("Grep > ") })
-      end, { desc = "[f]ind [g]rep" })
-      vim.keymap.set("n", "<leader>ff", telescope_builtin.find_files, { desc = "[f]ind [f]iles" })
-      vim.keymap.set("n", "<leader>fb", telescope_builtin.buffers, { desc = "[f]ind [b]uffers" })
-      vim.keymap.set("n", "<leader>fm", telescope_builtin.marks, { desc = "[f]ind [m]arks" })
-      vim.keymap.set("n", "<leader>fr", telescope_builtin.registers, { desc = "[f]ind [r]egisters" })
-      vim.keymap.set("n", "<leader>fh", telescope_builtin.help_tags, { desc = "[f]ind [h]elp" })
-      vim.keymap.set("n", "<leader>fq", telescope_builtin.quickfix, { desc = "[f]ind [q]uickfix items" })
-      vim.keymap.set("n", "<leader>km", telescope_builtin.keymaps, { desc = "List [k]ey [m]aps" })
-      vim.keymap.set("n", "<leader><leader>", telescope_builtin.oldfiles, { desc = "List recently opened files" })
+        builtin.grep_string({ search = vim.fn.input("Grep> ") })
+      end, { desc = "Search for text in the workspace", unpack(opts) })
+      vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Search help documentation", unpack(opts) })
+      vim.keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "List all key mappings", unpack(opts) })
+      vim.keymap.set("n", "<leader>fl", builtin.live_grep, { desc = "Live grep across the workspace", unpack(opts) })
+      vim.keymap.set("n", "<leader>fm", builtin.marks, { desc = "Find marks in the workspace", unpack(opts) })
+      vim.keymap.set("n", "<leader>fo", builtin.vim_options, { desc = "Search and tweak Vim options", unpack(opts) })
+      vim.keymap.set("n", "<leader>fq", builtin.quickfix, { desc = "Search the quickfix list", unpack(opts) })
+      vim.keymap.set("n", "<leader>fr", builtin.registers, { desc = "List Vim registers", unpack(opts) })
+      vim.keymap.set("n", "<leader>gb", builtin.git_branches, { desc = "List Git branches", unpack(opts) })
+      vim.keymap.set("n", "<leader>gc", builtin.git_commits, { desc = "View Git commit history", unpack(opts) })
+      vim.keymap.set("n", "<leader>gd", builtin.git_status, { desc = "View Git changes and diffs", unpack(opts) })
+      vim.keymap.set("n", "<leader>gf", builtin.git_files, { desc = "Find files in the Git repository", unpack(opts) })
+      vim.keymap.set("n", "<leader><leader>", builtin.oldfiles, { desc = "Reopen recently used files", unpack(opts) })
       vim.keymap.set("n", "<leader>/", function()
-        telescope_builtin.current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
+        builtin.current_buffer_fuzzy_find(themes.get_dropdown({
           winblend = 10,
           previewer = false,
         }))
-      end, { desc = "[/] fuzzily search in current buffer" })
-      vim.keymap.set("n", "<leader>gf", telescope_builtin.git_files, { desc = "[g]it [f]iles" })
-      vim.keymap.set("n", "<leader>gb", telescope_builtin.git_branches, { desc = "[g]it [b]ranches" })
-      vim.keymap.set("n", "<leader>gc", telescope_builtin.git_commits, { desc = "[g]it [c]ommits" })
+      end, { desc = "Fuzzy search in the current buffer", unpack(opts) })
     end,
-    dependencies = { "nvim-lua/plenary.nvim" },
+    dependencies = {
+      "nvim-lua/plenary.nvim", -- Required dependency for Telescope
+    },
   },
   {
-    -- Fuzzy Finder Algorithm which requires local dependencies to be built.
-    -- Only load if `make` is available. Make sure you have the system
-    -- requirements installed.
+    -- Fuzzy Finder Algorithm using native dependencies
     "nvim-telescope/telescope-fzf-native.nvim",
-    build = "make",
+    build = "make",                         -- Requires `make` to build
     cond = function()
-      return vim.fn.executable("make") == 1
+      return vim.fn.executable("make") == 1 -- Only load if `make` is available
     end,
-  }
+  },
 }
