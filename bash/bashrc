@@ -218,7 +218,9 @@ ELIXIR_EDITOR=$(find_first_command code nvim vim)
 PATH=$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
 
 # Call neofetch to verify .bashrc was loaded
-pcall neofetch
+echo
+echo
+pcall neofetch --off
 
 ## Bash Line Editor (ble.sh)
 
