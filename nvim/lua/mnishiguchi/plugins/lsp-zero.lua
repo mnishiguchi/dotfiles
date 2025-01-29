@@ -130,8 +130,8 @@ return {
           'jsonls',
           'lua_ls',
           'rust_analyzer',
-          'rubocop',
           'ruby_lsp',
+          'standardrb',
           'yamlls',
         },
         -- For default configs nvim-lspconfig defines, see:
@@ -177,24 +177,33 @@ return {
               -- See https://code.visualstudio.com/docs/editor/emmet#_emmet-configuration
               init_options = {
                 includeLanguages = {
-                  html = "html", -- Standard HTML
+                  html = "html",             -- Standard HTML
                   javascript = "javascript", -- Vanilla JS
-                  javascriptreact = "html", -- JSX
+                  javascriptreact = "html",  -- JSX
                   typescript = "typescript", -- TypeScript
-                  typescriptreact = "html", -- TSX
-                  vue = "html", -- Vue templates
-                  ruby = "html", -- Embedded Ruby (ERB files)
-                  eelixir = "html", -- Phoenix templates (.eex, .heex)
-                  heex = "html", -- Phoenix LiveView templates
-                  markdown = "html", -- Markdown with embedded HTML
-                  css = "css", -- CSS
-                  scss = "scss", -- SCSS
-                  sass = "sass", -- SASS
-                  less = "less", -- LESS
+                  typescriptreact = "html",  -- TSX
+                  vue = "html",              -- Vue templates
+                  ruby = "html",             -- Embedded Ruby (ERB files)
+                  eelixir = "html",          -- Phoenix templates (.eex, .heex)
+                  heex = "html",             -- Phoenix LiveView templates
+                  markdown = "html",         -- Markdown with embedded HTML
+                  css = "css",               -- CSS
+                  scss = "scss",             -- SCSS
+                  sass = "sass",             -- SASS
+                  less = "less",             -- LESS
                 },
               },
             })
           end,
+          ruby_lsp = function()
+            -- See https://shopify.github.io/ruby-lsp/editors.html#neovim
+            require('lspconfig').ruby_lsp.setup({
+              init_options = {
+                formatter = 'standard',
+                linters = { 'standard' },
+              },
+            })
+          end
         }
       })
     end
