@@ -34,7 +34,15 @@ return {
         json = require("formatter.defaults").prettierd,
         markdown = require("formatter.defaults").prettierd,
         php = require("formatter.filetypes").php.pint,
-        ruby = require("formatter.defaults").rubocop,
+        ruby = {
+          function()
+            return {
+              exe = "rbprettier",
+              args = { "--write", "--stdin-filepath", vim.fn.fnameescape(vim.api.nvim_buf_get_name(0)) },
+              stdin = true,
+            }
+          end
+        },
         sh = require("formatter.defaults").shfmt,
         toml = require("formatter.defaults").taplo,
         typescript = require("formatter.defaults").prettierd,
