@@ -9,51 +9,6 @@ return {
     config = false,
   },
 
-  -- Autocompletion
-  -- https://github.com/hrsh7th/nvim-cmp
-  {
-    'hrsh7th/nvim-cmp',
-    event = 'InsertEnter',
-    dependencies = {
-      { 'L3MON4D3/LuaSnip' },
-    },
-    config = function()
-      -- Here is where you configure the autocompletion settings.
-      local lsp_zero = require('lsp-zero')
-      lsp_zero.extend_cmp()
-
-      -- And you can configure cmp even more, if you want to.
-      local cmp = require('cmp')
-      local cmp_action = require('lsp-zero').cmp_action()
-
-      cmp.setup({
-        sources = cmp.config.sources({
-          { name = 'nvim_lsp' },
-          { name = 'path' },
-          { name = 'luasnip', keyword_length = 2 },
-          { name = 'buffer',  keyword_length = 5 },
-        }),
-        mapping = cmp.mapping.preset.insert({
-          -- Regular tab complete
-          -- https://lsp-zero.netlify.app/docs/autocomplete.html#regular-tab-complete
-          ['<Tab>'] = cmp_action.tab_complete(),
-          ['<S-Tab>'] = cmp.mapping.select_prev_item({ behavior = 'select' }),
-          -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items
-          ['<CR>'] = cmp.mapping.confirm({ select = false }),
-        }),
-        snippet = {
-          expand = function(args)
-            vim.snippet.expand(args.body)
-          end,
-        },
-        formatting = lsp_zero.cmp_format({ details = true }),
-        window = {
-          completion = cmp.config.window.bordered(),
-          documentation = cmp.config.window.bordered(),
-        },
-      })
-    end
-  },
 
   -- LSP
   -- https://github.com/neovim/nvim-lspconfig
@@ -200,12 +155,61 @@ return {
     end
   },
 
+  -- Autocompletion
+  -- https://github.com/hrsh7th/nvim-cmp
+  {
+    'hrsh7th/nvim-cmp',
+    event = 'InsertEnter',
+    dependencies = {
+      { 'L3MON4D3/LuaSnip' },
+    },
+    config = function()
+      -- Here is where you configure the autocompletion settings.
+      local lsp_zero = require('lsp-zero')
+      lsp_zero.extend_cmp()
+
+      -- And you can configure cmp even more, if you want to.
+      local cmp = require('cmp')
+      local cmp_action = require('lsp-zero').cmp_action()
+
+      cmp.setup({
+        sources = cmp.config.sources({
+          { name = 'nvim_lsp' },
+          { name = 'path' },
+          { name = 'luasnip', keyword_length = 2 },
+          { name = 'buffer',  keyword_length = 5 },
+        }),
+        mapping = cmp.mapping.preset.insert({
+          -- Regular tab complete
+          -- https://lsp-zero.netlify.app/docs/autocomplete.html#regular-tab-complete
+          ['<Tab>'] = cmp_action.tab_complete(),
+          ['<S-Tab>'] = cmp.mapping.select_prev_item({ behavior = 'select' }),
+          -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items
+          ['<CR>'] = cmp.mapping.confirm({ select = false }),
+        }),
+        snippet = {
+          expand = function(args)
+            vim.snippet.expand(args.body)
+          end,
+        },
+        formatting = lsp_zero.cmp_format({ details = true }),
+        window = {
+          completion = cmp.config.window.bordered(),
+          documentation = cmp.config.window.bordered(),
+        },
+      })
+    end
+  },
+
   -- Snippet engine
   -- https://github.com/L3MON4D3/LuaSnip
   {
     'L3MON4D3/LuaSnip',
     version = "v2.*",
     dependencies = {
+      -- bridges LuaSnip with nvim-cmp, making snippets available in completion suggestions
+      "saadparwaiz1/cmp_luasnip",
+      -- provides predefined snippets for many languages
       'rafamadriz/friendly-snippets',
     },
     config = function(_, opts)
