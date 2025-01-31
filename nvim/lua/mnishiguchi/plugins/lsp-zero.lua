@@ -86,7 +86,6 @@ return {
           'lua_ls',
           'rust_analyzer',
           'ruby_lsp',
-          'standardrb',
           'yamlls',
         },
         -- For default configs nvim-lspconfig defines, see:
@@ -154,8 +153,8 @@ return {
             -- See https://shopify.github.io/ruby-lsp/editors.html#neovim
             require('lspconfig').ruby_lsp.setup({
               init_options = {
-                formatter = 'standard',
-                linters = { 'standard' },
+                formatter = 'none',
+                linters = { 'none' },
               },
             })
           end
