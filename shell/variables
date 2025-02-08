@@ -95,13 +95,14 @@ export PHP_INI_SCAN_DIR="/home/mnishiguchi/.config/herd-lite/bin:$PHP_INI_SCAN_D
 
 ## PATH
 
-# append
-export PATH="$PATH:$HOME/.local/bin"
-export PATH="$PATH:$HOME/.cargo/bin"
-export PATH="$PATH:/var/lib/flatpak/exports/bin"
-export PATH="$PATH:$HOME/.local/share/flatpak/exports/bin"
-export PATH="$PATH:$ANDROID_HOME/emulator"
-export PATH="$PATH:$ANDROID_HOME/platform-tools"
-export PATH="$PATH:$XDG_CONFIG_HOME/flutter/bin"
-export PATH="$PATH:$XDG_CONFIG_HOME/herd-lite/bin"
-export PATH="$PATH:/usr/local/go/bin"
+# By prepending paths, the system will prioritize these directories over the
+# default ones when searching for executables.
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="/var/lib/flatpak/exports/bin:$PATH"
+export PATH="$HOME/.local/share/flatpak/exports/bin:$PATH"
+export PATH="$ANDROID_HOME/emulator:$PATH"
+export PATH="$ANDROID_HOME/platform-tools:$PATH"
+export PATH="$XDG_CONFIG_HOME/flutter/bin:$PATH"
+export PATH="$XDG_CONFIG_HOME/herd-lite/bin:$PATH"
+export PATH="/usr/local/go/bin:$PATH"
