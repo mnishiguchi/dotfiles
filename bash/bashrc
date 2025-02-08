@@ -217,6 +217,9 @@ ELIXIR_EDITOR=$(find_first_command code nvim vim)
 # Clean up PATH
 PATH=$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
 
+# Enable vi mode for Bash
+set -o vi
+
 # Call neofetch to verify .bashrc was loaded
 echo
 echo
