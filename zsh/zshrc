@@ -68,17 +68,17 @@ eval "$(zoxide init zsh)"
 
 ## asdf
 
-export ASDF_DIR="$HOME/.asdf"
+export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
 
 # https://asdf-vm.com/guide/getting-started.html
-if [ -f "$ASDF_DIR/asdf.sh" ]; then
+if [ -f "$ASDF_DATA_DIR/asdf.sh" ]; then
   # Load command
-  source "$ASDF_DIR/asdf.sh"
+  source "$ASDF_DATA_DIR/asdf.sh"
 
   # Load completions
-  if [ -f "${ASDF_DIR}/completions/_asdf" ]; then
+  if [ -f "${ASDF_DATA_DIR}/completions/_asdf" ]; then
     # append completions to fpath
-    fpath=(${ASDF_DIR}/completions $fpath)
+    fpath=(${ASDF_DATA_DIR}/completions $fpath)
     # initialise completions with ZSH's compinit
     autoload -Uz compinit && compinit
   fi
