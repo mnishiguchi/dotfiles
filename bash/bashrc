@@ -106,21 +106,45 @@ fi
 
 ## asdf
 
-echo_heading "Setting up asdf..."
-export ASDF_DIR="$HOME/.asdf"
+echo_heading "Initializing asdf version manager..."
+export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
 
-# https://asdf-vm.com/guide/getting-started.html
-if [ -f "$ASDF_DIR/asdf.sh" ]; then
-  source "$ASDF_DIR/asdf.sh"
-  echo_success "asdf initialized."
-
-  if [ -f "$ASDF_DIR/completions/asdf.bash" ]; then
-    source "$ASDF_DIR/completions/asdf.bash"
-    echo_success "asdf completions loaded."
+initialize_asdf() {
+  if command_exists asdf; then
+    echo_success "asdf is already in PATH. Skipping initialization."
+  elif [ -f "$ASDF_DATA_DIR/asdf.sh" ]; then
+    source "$ASDF_DATA_DIR/asdf.sh"
+    echo_success "asdf loaded from $ASDF_DATA_DIR/asdf.sh"
+  else
+    echo_warning "asdf not found and $ASDF_DATA_DIR/asdf.sh is missing. Skipping setup."
+    return
   fi
-else
-  echo_failure "asdf is not installed."
-fi
+
+  if command -v asdf &>/dev/null; then
+    local ASDF_VERSION
+    ASDF_VERSION=$(asdf --version | sed 's/^asdf version //')
+    echo_success "asdf version: $ASDF_VERSION"
+
+    case "$ASDF_VERSION" in
+    v0.13.* | v0.14.* | v0.15.*)
+      if [ -f "$ASDF_DATA_DIR/completions/asdf.bash" ]; then
+        source "$ASDF_DATA_DIR/completions/asdf.bash"
+        echo_success "asdf shell completions enabled using '$ASDF_DATA_DIR/completions/asdf.bash'."
+      else
+        echo_warning "Completion script not found for asdf v$ASDF_VERSION."
+      fi
+      ;;
+    *)
+      . <(asdf completion bash)
+      echo_success "asdf shell completions enabled using 'asdf completion bash'."
+      ;;
+    esac
+  else
+    echo_warning "asdf command is still unavailable after initialization."
+  fi
+}
+
+initialize_asdf
 
 ## direnv
 
