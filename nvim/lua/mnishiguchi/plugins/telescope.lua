@@ -16,6 +16,9 @@ return {
       -- Enable telescope fzf native, if installed
       pcall(telescope.load_extension, "fzf")
 
+      -- https://github.com/ahmedkhalf/project.nvim#telescope-integration
+      pcall(telescope.load_extension, "projects")
+
       -- Keybindings
       local builtin = require("telescope.builtin")
       local themes = require("telescope.themes")
@@ -33,6 +36,7 @@ return {
       vim.keymap.set("n", "<leader>fl", builtin.live_grep, { desc = "Live grep across the workspace", unpack(opts) })
       vim.keymap.set("n", "<leader>fm", builtin.marks, { desc = "Find marks in the workspace", unpack(opts) })
       vim.keymap.set("n", "<leader>fo", builtin.vim_options, { desc = "Search and tweak Vim options", unpack(opts) })
+      vim.keymap.set("n", "<leader>fp", require("telescope").extensions.projects.projects, unpack(opts))
       vim.keymap.set("n", "<leader>fq", builtin.quickfix, { desc = "Search the quickfix list", unpack(opts) })
       vim.keymap.set("n", "<leader>fr", builtin.registers, { desc = "List Vim registers", unpack(opts) })
       vim.keymap.set("n", "<leader>gb", builtin.git_branches, { desc = "List Git branches", unpack(opts) })
