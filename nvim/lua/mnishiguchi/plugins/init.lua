@@ -30,7 +30,6 @@ local plugins = {
   "tpope/vim-eunuch",                                  -- File utilities, like Delete, Move, Rename, Copy, Duplicate, etc
   "tpope/vim-rhubarb",                                 -- GBrowse
   "vim-scripts/ReplaceWithRegister",                   -- Replace text with the contents of a register with [count]["x]gr{motion}
-  "kevinhwang91/nvim-bqf",                             -- Better quickfix window
   require("mnishiguchi.plugins.formatter"),            -- Format code with external commands
   require("mnishiguchi.plugins.fugitive"),             -- Git
   require("mnishiguchi.plugins.git-blame"),            -- Git Blame
