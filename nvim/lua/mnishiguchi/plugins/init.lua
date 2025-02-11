@@ -24,12 +24,12 @@ local plugins = {
   require("mnishiguchi.plugins.colorscheme"),
   "cohama/lexima.vim",                                 -- Add end after if, do, def etc
   "mg979/vim-visual-multi",                            -- Multiple cursors with Ctrl-n and Ctrl-Up/Down
-  "mhinz/vim-startify",                                -- Start screen
   "tpope/vim-abolish",                                 -- Convert text case under the cursor with crp, crs, cru etc
   "tpope/vim-commentary",                              -- Comment out the target of a motion with gc
   "tpope/vim-eunuch",                                  -- File utilities, like Delete, Move, Rename, Copy, Duplicate, etc
   "tpope/vim-rhubarb",                                 -- GBrowse
   "vim-scripts/ReplaceWithRegister",                   -- Replace text with the contents of a register with [count]["x]gr{motion}
+  require("mnishiguchi.plugins.alpha"),                -- Start screen
   require("mnishiguchi.plugins.formatter"),            -- Format code with external commands
   require("mnishiguchi.plugins.fugitive"),             -- Git
   require("mnishiguchi.plugins.git-blame"),            -- Git Blame
