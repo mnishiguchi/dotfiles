@@ -33,7 +33,7 @@ return {
       end, { desc = "Search for text in the workspace", unpack(opts) })
       vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Search help documentation", unpack(opts) })
       vim.keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "List all key mappings", unpack(opts) })
-      vim.keymap.set("n", "<leader>fl", builtin.live_grep, { desc = "Live grep across the workspace", unpack(opts) })
+      vim.keymap.set("n", "<leader>fl", builtin.loclist, { desc = "Search the location list", unpack(opts) })
       vim.keymap.set("n", "<leader>fm", builtin.marks, { desc = "Find marks in the workspace", unpack(opts) })
       vim.keymap.set("n", "<leader>fo", builtin.vim_options, { desc = "Search and tweak Vim options", unpack(opts) })
       vim.keymap.set("n", "<leader>fp", require("telescope").extensions.projects.projects, unpack(opts))
@@ -44,6 +44,7 @@ return {
       vim.keymap.set("n", "<leader>gd", builtin.git_status, { desc = "View Git changes and diffs", unpack(opts) })
       vim.keymap.set("n", "<leader>gf", builtin.git_files, { desc = "Find files in the Git repository", unpack(opts) })
       vim.keymap.set("n", "<leader><leader>", builtin.oldfiles, { desc = "Reopen recently used files", unpack(opts) })
+      vim.keymap.set("n", "<leader>?", builtin.live_grep, { desc = "Live grep across the workspace", unpack(opts) })
       vim.keymap.set("n", "<leader>/", function()
         builtin.current_buffer_fuzzy_find(themes.get_dropdown({
           winblend = 10,
