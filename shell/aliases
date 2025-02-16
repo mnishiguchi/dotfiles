@@ -259,3 +259,9 @@ hexpm() { open "https://hex.pm/packages?search=${1:-}"; }
 
 # PHP
 alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
+
+# Neovim
+alias nv='nvim'
+alias nvi='nvim'
+alias nv.='nvim .'
+alias nv,='nvim ~/.config/nvim/'
