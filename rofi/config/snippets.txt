@@ -1,4 +1,25 @@
-cmd timestamp!date +"%Y-%m-%d %H:%M"
-cmd unix time!date +%s
-git empty commit!git commit --allow-empty -m "empty commit"
-default readme!echo 'Nothing interesting here yet. Try again later.' > README.md
+cmd date/now!date +"%Y-%m-%d"
+cmd date/today!date +"%Y-%m-%d"
+
+cmd hash/md5!echo -n "example" | md5sum | awk '{print $1}'
+cmd hash/sha256!echo -n "example" | sha256sum | awk '{print $1}'
+cmd hash/sha512!echo -n "example" | sha512sum | awk '{print $1}'
+
+cmd password/default!openssl rand -base64 16
+cmd password/hex!openssl rand -hex 16
+cmd password/strong!openssl rand -base64 32
+
+cmd time/ET!TZ=America/New_York date +"%Y-%m-%d %H:%M:%S"
+cmd time/JST!TZ=Asia/Tokyo date +"%Y-%m-%d %H:%M:%S"
+cmd time/UTC!date -u +"%Y-%m-%d %H:%M:%S"
+cmd time/now!date +"%H:%M:%S"
+
+cmd timestamp/db migration!date +"%Y%m%d%H%M%S"
+cmd timestamp/default!date +"%Y-%m-%d %H:%M"
+cmd timestamp/full!date +"%Y-%m-%d %H:%M:%S"
+cmd timestamp/iso8601!date --iso-8601=seconds
+cmd timestamp/rfc2822!date -R
+cmd timestamp/unix!date +%s
+cmd timestamp/utc!date -u +"%Y-%m-%dT%H:%M:%SZ"
+
+cmd uuid!uuidgen

@@ -1,44 +1,119 @@
 #!/usr/bin/env bash
+#
+# Rofi Snippets Modi - A Rofi module for selecting and inserting text snippets.
+#
+# Inspired by: https://github.com/raphaelfournier/rofi-modi-snippets
+#
+# Features:
+# - Reads snippets from `~/.config/rofi/snippets.txt`
+# - Supports executing "cmd snippets" (evaluated commands)
+# - Can insert snippets via `xdotool` or copy them to clipboard
+# - Provides an option to edit the snippets file
+#
+# Workflow:
+# 1. First call (`ROFI_RETV=0`)
+#    - Lists available snippets
+#    - Adds "Quit" as an option
+#
+# 2. User selection (`ROFI_RETV=1`)
+#    - If "cmd snippet", executes it and inserts the result
+#    - Otherwise, inserts the snippet text via `xdotool`
+#
+# 3. Copy to clipboard (`ROFI_RETV=2`)
+#    - When the user selects a snippet and presses Shift+Enter in Rofi,
+#      `ROFI_RETV` is set to `2`, triggering the copy-to-clipboard action.
+#    - The selected snippet is copied to the clipboard instead of being typed.
+#
+# Examples:
+#    - `ROFI_RETV=0 rofi-snippets-modi`
+#    - `ROFI_RETV=1 rofi-snippets-modi "git empty commit"`
+#    - `ROFI_RETV=2 rofi-snippets-modi "git empty commit"` (Copies to clipboard)
 
-# Defines a rofi modi for snippets.
-# Adopted from https://github.com/raphaelfournier/rofi-modi-snippets
-#
-# ## Usage
-#
-#   rofi -modi Snip:path/to/rofi-snippets-modi -show Snip
-#
-
-declare -A MYSNIPPETS
+# Configuration
 SNIPFILE="$HOME/.config/rofi/snippets.txt"
-SEPARATORCHAR='!'
+SEPARATOR='!'
+QUIT_ENTRY="Quit"
 
-# loading snippets from file into array
-while read line; do
-  key=$(echo $line | cut -d $SEPARATORCHAR -f 1)
-  value=$(echo $line | cut -d $SEPARATORCHAR -f 2)
-  MYSNIPPETS["$key"]="$value"
-done <$SNIPFILE
-
-if [ -z "$@" ]; then
-  echo -en "\x00prompt\x1fSnippet\n"
-  echo -en "\0markup-rows\x1ftrue\n"
-  echo -en "\0message\x1fSnippets starting by <i>cmd</i> are eval'd\n"
-
-  for K in "${!MYSNIPPETS[@]}"; do
-    echo $K
-  done
-  echo "quit"
+# Detect clipboard manager (xclip, xsel, or wl-copy)
+if command -v xclip &>/dev/null; then
+  CLIPBOARD_CMD="xclip -selection clipboard"
+elif command -v xsel &>/dev/null; then
+  CLIPBOARD_CMD="xsel --clipboard --input"
+elif command -v wl-copy &>/dev/null; then
+  CLIPBOARD_CMD="wl-copy"
 else
-  snippet=$@
-  if [ $snippet = "quit" ]; then
-    exit 0
-  fi
-  if [ ${MYSNIPPETS[$snippet]+_} ]; then
-    if [[ $snippet = cmd* ]]; then
-      x=$(eval ${MYSNIPPETS[$snippet]})
-      coproc (echo -n "$x" | xdotool type --clearmodifiers --file -)
-    else
-      coproc (echo -n ${MYSNIPPETS[$snippet]} | xdotool type --clearmodifiers --file -)
-    fi
-  fi
+  echo "No clipboard manager found!" >&2
+  exit 1
 fi
+
+# Ensure snippets file exists
+[ -f "$SNIPFILE" ] || {
+  echo "No snippet file found at $SNIPFILE"
+  exit 1
+}
+
+# Print available snippets
+print_snippets() {
+  echo -en "\x00prompt\x1fsnippet\n"
+  echo -en "\0markup-rows\x1ftrue\n"
+  echo -en "\0message\x1fSnippets starting with <i>cmd</i> are executed.\n"
+
+  grep -v '^#' "$SNIPFILE" | grep "$SEPARATOR" | cut -d "$SEPARATOR" -f1
+  echo "$QUIT_ENTRY"
+}
+
+# Copy snippet to clipboard
+copy_to_clipboard() {
+  echo -n "$1" | $CLIPBOARD_CMD
+  notify-send "Snippet copied to clipboard!"
+}
+
+# Insert snippet via xdotool
+insert_snippet() {
+  coproc (echo -n "$1" | xdotool type --clearmodifiers --file -)
+}
+
+# Execute command snippets (cmd snippet)
+execute_snippet() {
+  result=$(eval "$1")
+  insert_snippet "$result"
+}
+
+# Retrieve snippet value
+get_snippet_value() {
+  grep "^$1$SEPARATOR" "$SNIPFILE" | cut -d "$SEPARATOR" -f2-
+}
+
+# Handle user selection
+case "$1" in
+"$QUIT_ENTRY") # Exit immediately if "Quit" is selected
+  exit 0
+  ;;
+"") # No input → Show available snippets and exit
+  print_snippets
+  exit 0
+  ;;
+*)
+  snippet_value=$(get_snippet_value "$1")
+  if [ -z "$snippet_value" ]; then
+    exit 1
+  fi
+  case "$ROFI_RETV" in
+  1)
+    if [[ "$1" == cmd* ]]; then
+      execute_snippet "$snippet_value"
+    else
+      insert_snippet "$snippet_value"
+    fi
+    exit 0
+    ;;
+  2)
+    copy_to_clipboard "$snippet_value"
+    exit 0
+    ;;
+  *)
+    exit 1
+    ;;
+  esac
+  ;;
+esac
