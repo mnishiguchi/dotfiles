@@ -43,7 +43,7 @@ keymap("v", "<leader>d", '"_d', { desc = "Delete without yanking" })
 keymap("n", "x", '"_x', { desc = "Delete character without yanking" })
 
 -- Find and Replace
-keymap("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/cgI<Left><Left><Left><Left>]], {
+keymap("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/___/cgI<Left><Left><Left><Left>]], {
   desc = "Substitute word under cursor",
 })
 
