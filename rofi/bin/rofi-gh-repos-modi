@@ -26,7 +26,7 @@
 #    - `ROFI_RETV=1 rofi-gh-repos-modi "Clear cache"`
 
 # Define constants
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/mnishiguchi/rofi-gh-repos"
+CACHE_DIR="/tmp/$USER/rofi-gh-repos"
 MENU_ENTRIES="$CACHE_DIR/menu_entries.txt"
 CLEAR_CACHE_ENTRY="Clear cache"
 
@@ -35,10 +35,9 @@ CLEAR_CACHE_ENTRY="Clear cache"
 
 # Extract GitHub repository names from local `.git/config` files
 find_git_repos() {
-  find "$HOME" -maxdepth 5 -type f -name config -print0 |
-    xargs -0 grep -hoP 'github\.com[:/]\K[^ ]+\.git' |
-    sed 's/\.git$//' |
-    sort -u
+  locate .git/config 2>/dev/null | while IFS= read -r file; do
+    [ -f "$file" ] && grep -hoP 'github\.com[:/]\K[^ ]+\.git' "$file"
+  done | sed 's/\.git$//' | sort -u
 }
 
 # Print Rofi menu entries (cached list of repositories + "Clear cache" option)
