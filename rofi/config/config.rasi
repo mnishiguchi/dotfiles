@@ -13,5 +13,105 @@ configuration {
 // --- Theme ---
 // https://github.com/davatorium/rofi/blob/next/doc/rofi-theme.5.markdown
 // https://github.com/davatorium/rofi/blob/next/doc/default_theme.rasi
+// https://github.com/newmanls/rofi-themes-collection
 
-@theme "DarkBlue"
+* {
+    font:   "Montserrat 12";
+
+    bg0:    #282a36E6;  /* Dracula background with slight transparency */
+    bg1:    #44475A80;  /* Darker Dracula accent with transparency */
+    bg2:    #BD93F9E6;  /* Dracula purple highlight */
+
+    fg0:    #F8F8F2;    /* Dracula foreground */
+    fg1:    #FFFFFF;    /* Pure white (for input text) */
+    fg2:    #F8F8F2BF;  /* Slightly dimmed foreground for placeholders */
+
+    background-color:   transparent;
+    text-color:         @fg0;
+
+    margin:     0;
+    padding:    0;
+    spacing:    0;
+}
+
+window {
+    background-color:   @bg0;
+
+    location:       center;
+    width:          640;
+    border-radius:  8;
+}
+
+inputbar {
+    font:       "Montserrat 20";
+    padding:    12px;
+    spacing:    12px;
+    children:   [ icon-search, entry ];
+}
+
+icon-search {
+    expand:     false;
+    filename:   "search";
+    size: 28px;
+}
+
+icon-search, entry, element-icon, element-text {
+    vertical-align: 0.5;
+}
+
+entry {
+    font:   inherit;
+
+    text-color:         @fg1;  /* Pure white for better contrast */
+    background-color:   @bg1;  /* Slight contrast from main background */
+
+    placeholder         : "Search";
+    placeholder-color   : @fg2; /* Slightly dimmed for differentiation */
+}
+
+message {
+    border:             2px 0 0;
+    border-color:       @bg1;
+    background-color:   @bg1;
+}
+
+textbox {
+    padding:    8px 24px;
+}
+
+listview {
+    lines:      10;
+    columns:    1;
+
+    fixed-height:   false;
+    border:         1px 0 0;
+    border-color:   @bg1;
+}
+
+element {
+    padding:            8px 16px;
+    spacing:            16px;
+    background-color:   transparent;
+}
+
+element normal active {
+    text-color: @bg2; /* Dracula purple */
+}
+
+element alternate active {
+    text-color: @bg2;
+}
+
+element selected normal, element selected active {
+    background-color:   @bg2;
+    text-color:         @fg1;
+}
+
+element-icon {
+    size:   1em;
+}
+
+element-text {
+    text-color: inherit;
+}
+
