@@ -1,55 +1,75 @@
 #!/usr/bin/env bash
-
-# A rofi modi that lists locally used Github repos. The selected repo will be
+#
+# A rofi modi that lists locally used GitHub repos. The selected repo will be
 # opened in a browser based on the user preference.
 #
-# The gh-repos excutable is used for printing the list of local Github repos.
+# This script includes `gh-repos` functionality to extract GitHub repositories
+# from local `.git/config` files.
 #
 # See rofi manpage: https://github.com/davatorium/rofi/blob/next/doc/rofi-script.5.markdown
 #
-# ## Examples
+# ## Rofi Workflow
 #
-#     ROFI_RETV=0 rofi-gh-repos-modi
-#     ROFI_RETV=1 rofi-gh-repos-modi mnishiguchi/dotfiles
+# 1. Initial Call (ROFI_RETV=0)
+#    - Prints the cached repo list or generates and caches it if missing.
+#    - Adds `$CLEAR_CACHE_ENTRY` as an option.
 #
+# 2. User Selects a Repository (ROFI_RETV=1)
+#    - Opens the selected repo in the default browser.
+#
+# 3. User Selects "Clear cache" (ROFI_RETV=1)
+#    - Deletes the cache; the list regenerates on the next run.
+#
+# Examples
+#    - `ROFI_RETV=0 rofi-gh-repos-modi`
+#    - `ROFI_RETV=1 rofi-gh-repos-modi user/repo`
+#    - `ROFI_RETV=1 rofi-gh-repos-modi "Clear cache"`
 
-cache_dir="$HOME/.cache/mnishiguchi/rofi-gh-repos"
-cache_basename="items.txt"
-mkdir -p "$cache_dir"
-cache_file="$cache_dir/$cache_basename"
+# Define constants
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/mnishiguchi/rofi-gh-repos"
+MENU_ENTRIES="$CACHE_DIR/menu_entries.txt"
+CLEAR_CACHE_ENTRY="Clear cache"
 
-function print_items {
-  # Prepare menu items if not yet
-  if [ ! -f "$cache_file" ]; then
-    gh-repos >"$cache_file"
-  fi
+# Ensure cache directory exists only if needed
+[ -f "$MENU_ENTRIES" ] || mkdir -p "$CACHE_DIR"
 
-  # Print menu items
-  while read -r line; do
-    printf "%s\n" "$line"
-  done <"$cache_file"
-
-  # Additional items
-  printf "%s\n" "Clear cache"
+# Extract GitHub repository names from local `.git/config` files
+find_git_repos() {
+  find "$HOME" -maxdepth 5 -type f -name config -print0 |
+    xargs -0 grep -hoP 'github\.com[:/]\K[^ ]+\.git' |
+    sed 's/\.git$//' |
+    sort -u
 }
 
-function open_browser {
-  if command -v xdg-open >/dev/null; then
-    xdg-open "$1" >/dev/null 2>&1 &
-  else
-    printf "%s\n" "xdg-open command does not exist"
+# Print Rofi menu entries (cached list of repositories + "Clear cache" option)
+print_menu_entries() {
+  if [ ! -f "$MENU_ENTRIES" ]; then
+    find_git_repos >"$MENU_ENTRIES" || {
+      echo "Failed to retrieve GitHub repos"
+      exit 1
+    }
   fi
+
+  cat "$MENU_ENTRIES"
+  echo "$CLEAR_CACHE_ENTRY"
 }
 
-if [ "$1" = "Clear cache" ]; then
-  rm -rf "$cache_file"
+# Handle user selection
+case "$1" in
+"$CLEAR_CACHE_ENTRY") # User selected "Clear cache"
+  rm -f "$MENU_ENTRIES"
   exit 0
-fi
-
-if [ -z "$1" ]; then
-  # No argv means it is the initial call
-  print_items
-else
-  # Handle the chosen item
-  open_browser "https://github.com/$1"
-fi
+  ;;
+"") # No argument → Display menu
+  print_menu_entries
+  exit 0
+  ;;
+*) # Otherwise, open the selected repository
+  if command -v xdg-open >/dev/null; then
+    xdg-open "https://github.com/$1" >/dev/null 2>&1
+  else
+    echo "xdg-open command not found"
+  fi
+  exit 0
+  ;;
+esac
