@@ -1,74 +1,126 @@
 #!/usr/bin/env bash
-#
-# A rofi modi that lists locally used GitHub repos. The selected repo will be
-# opened in a browser based on the user preference.
-#
-# This script includes `gh-repos` functionality to extract GitHub repositories
-# from local `.git/config` files.
-#
-# See rofi manpage: https://github.com/davatorium/rofi/blob/next/doc/rofi-script.5.markdown
-#
-# ## Rofi Workflow
-#
-# 1. Initial Call (ROFI_RETV=0)
-#    - Prints the cached repo list or generates and caches it if missing.
-#    - Adds `$CLEAR_CACHE_ENTRY` as an option.
-#
-# 2. User Selects a Repository (ROFI_RETV=1)
-#    - Opens the selected repo in the default browser.
-#
-# 3. User Selects "Clear cache" (ROFI_RETV=1)
-#    - Deletes the cache; the list regenerates on the next run.
-#
-# Examples
-#    - `ROFI_RETV=0 rofi-gh-repos-modi`
-#    - `ROFI_RETV=1 rofi-gh-repos-modi user/repo`
-#    - `ROFI_RETV=1 rofi-gh-repos-modi "Clear cache"`
 
-# Define constants
+# Rofi GitHub Repositories Menu
+# This script lists locally used GitHub repositories and provides actions:
+# - Open repository in a web browser
+# - Open the local repository directory in a file explorer
+# - Return to the main repository list
+
+# Cache configuration
 CACHE_DIR="/tmp/$USER/rofi-gh-repos"
-MENU_ENTRIES="$CACHE_DIR/menu_entries.txt"
-CLEAR_CACHE_ENTRY="Clear cache"
+DATA_REPO_LIST="$CACHE_DIR/repo_list.txt" # Stores the list of repositories
+DATA_REPO_MAP="$CACHE_DIR/repo_map.txt"   # Maps repository names to local paths
+MENU_CLEAR_CACHE="Clear cache"
+MENU_BACK_TO_REPO_LIST="Back to Repository List"
+MENU_OPEN_BROWSER="Open in Browser"
+MENU_OPEN_EXPLORER="Open in File Explorer"
 
-# Ensure cache directory exists only if needed
-[ -f "$MENU_ENTRIES" ] || mkdir -p "$CACHE_DIR"
+# Ensure cache directory exists
+[ -d "$CACHE_DIR" ] || mkdir -p "$CACHE_DIR"
 
-# Extract GitHub repository names from local `.git/config` files
+# Extract GitHub repository names and store their local paths
 find_git_repos() {
+  >"$DATA_REPO_LIST" # Clear cache
+  >"$DATA_REPO_MAP"  # Clear repo map
+
   locate .git/config 2>/dev/null | while IFS= read -r file; do
-    [ -f "$file" ] && grep -hoP 'github\.com[:/]\K[^ ]+\.git' "$file"
-  done | sed 's/\.git$//' | sort -u
+    if [[ -f "$file" ]]; then
+      local_path=$(dirname "$file")      # Path to .git/config
+      repo_root=$(dirname "$local_path") # Move one level up to repo root
+      repo_name=$(grep -hoP 'github\.com[:/]\K[^ ]+' "$file" | awk -F'.git' '{print $1}')
+
+      if [[ -n "$repo_name" ]]; then
+        echo "$repo_name" >>"$DATA_REPO_LIST"           # Store repo name
+        echo "$repo_name $repo_root" >>"$DATA_REPO_MAP" # Store mapping
+      fi
+    fi
+  done
+
+  sort -u "$DATA_REPO_LIST" -o "$DATA_REPO_LIST"
+  sort -u "$DATA_REPO_MAP" -o "$DATA_REPO_MAP"
 }
 
-# Print Rofi menu entries (cached list of repositories + "Clear cache" option)
+# Retrieve the local path of a repository from cache
+find_repo_path() {
+  local repo_name="$1"
+  grep -m 1 "^$repo_name " "$DATA_REPO_MAP" | awk '{print $2}'
+}
+
+# Print the main repository selection menu
 print_menu_entries() {
-  if [ ! -f "$MENU_ENTRIES" ]; then
-    find_git_repos >"$MENU_ENTRIES" || {
-      echo "Failed to retrieve GitHub repos"
+  if [ ! -f "$DATA_REPO_LIST" ]; then
+    find_git_repos || {
+      echo "Failed to retrieve GitHub repositories"
       exit 1
     }
   fi
 
-  cat "$MENU_ENTRIES"
-  echo "$CLEAR_CACHE_ENTRY"
+  cat "$DATA_REPO_LIST"
+  echo "$MENU_CLEAR_CACHE"
 }
 
-# Handle user selection
-case "$1" in
-"$CLEAR_CACHE_ENTRY") # User selected "Clear cache"
-  rm -f "$MENU_ENTRIES"
-  exit 0
-  ;;
-"") # No argument → Display menu
+# Debugging information
+echo "Debug: Script called with args: $*" >&2
+echo "Debug: ROFI_RETV=${ROFI_RETV:-0}, ROFI_INFO=${ROFI_INFO:-<empty>}, ROFI_DATA=${ROFI_DATA:-<empty>}" >&2
+
+# Initial call: Show repository list
+if [[ -z "${1-}" ]]; then
   print_menu_entries
   exit 0
-  ;;
-*) # Otherwise, open the selected repository
-  if command -v xdg-open >/dev/null; then
-    xdg-open "https://github.com/$1" >/dev/null 2>&1
-  else
-    echo "xdg-open command not found"
-  fi
+fi
+
+# Handle special menu options
+if [[ "$1" == "$MENU_CLEAR_CACHE" ]]; then
+  rm -f "$DATA_REPO_LIST" "$DATA_REPO_MAP"
   exit 0
+fi
+
+if [[ "$1" == "$MENU_BACK_TO_REPO_LIST" ]]; then
+  print_menu_entries
+  exit 0
+fi
+
+# First selection: Store repository name and show submenu
+if [[ -z "${ROFI_INFO-}" ]]; then
+  echo -e "$MENU_OPEN_BROWSER\x00info\x1fopen_browser:$1"
+  echo -e "$MENU_OPEN_EXPLORER\x00info\x1fopen_explorer:$1"
+  echo -e "$MENU_BACK_TO_REPO_LIST\x00info\x1fback"
+  exit 0
+fi
+
+# Extract action and repository name from ROFI_INFO
+action="${ROFI_INFO%%:*}"   # Extract action type (open_browser, open_explorer, back)
+repo_name="${ROFI_INFO#*:}" # Extract repository name
+
+# Handle back navigation
+if [[ "$action" == "back" ]]; then
+  print_menu_entries
+  exit 0
+fi
+
+# Get the local repository path
+repo_path=$(find_repo_path "$repo_name")
+
+# Execute the selected action
+case "$action" in
+"open_browser")
+  if command -v xdg-open >/dev/null; then
+    xdg-open "https://github.com/$repo_name" >/dev/null 2>&1 &
+  else
+    notify-send "Error: xdg-open command not found"
+  fi
+  ;;
+"open_explorer")
+  if [[ -d "$repo_path" ]]; then
+    xdg-open "$repo_path" >/dev/null 2>&1 &
+  else
+    notify-send "Error: Local path not found for $repo_name"
+  fi
+  ;;
+*)
+  notify-send "Error: Invalid action selected"
+  exit 1
   ;;
 esac
+
+exit 0
