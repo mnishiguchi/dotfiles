@@ -15,31 +15,39 @@ configuration {
 // https://github.com/davatorium/rofi/blob/next/doc/default_theme.rasi
 // https://github.com/newmanls/rofi-themes-collection
 
+// --- Dracula-Inspired Rofi Theme ---
 * {
-    font:   "Montserrat 12";
+    font: "Montserrat 12";
 
-    bg0:    #282a36E6;  /* Dracula background with slight transparency */
-    bg1:    #44475A80;  /* Darker Dracula accent with transparency */
-    bg2:    #BD93F9E6;  /* Dracula purple highlight */
+    black:          #1E1F29E6;  /* Darker base (better contrast) */
+    dark-gray:      #383A4A80;  /* Darker accent (less transparent for readability) */
+    purple:         #BD93F9E6;  /* Dracula purple highlight */
+    blue-gray:      #6272A4E6;  /* Dracula comment color (for subtle borders) */
+    gray:           #44475A;    /* Extra shade for subtle depth */
 
-    fg0:    #F8F8F2;    /* Dracula foreground */
-    fg1:    #FFFFFF;    /* Pure white (for input text) */
-    fg2:    #F8F8F2BF;  /* Slightly dimmed foreground for placeholders */
+    white:          #F8F8F2;    /* Dracula foreground */
+    light-gray:     #CFCFCF;    /* Slightly brighter placeholder for visibility */
+    green:          #50FA7B;    /* Green (for help text contrast) */
+    pink:           #FF79C6;    /* Dracula pink (for special highlights) */
 
     background-color:   transparent;
-    text-color:         @fg0;
-
-    margin:     0;
-    padding:    0;
-    spacing:    0;
+    text-color:         @white;
+    margin:             0;
+    padding:            0;
+    spacing:            0;
 }
 
 window {
-    background-color:   @bg0;
-
+    background-color: @black;
     location:       center;
     width:          640;
     border-radius:  8;
+    children:       [ mode-switcher, inputbar, listview ];
+}
+
+mode-switcher {
+    text-color: @green;
+    background-color: #ffffff;
 }
 
 inputbar {
@@ -52,7 +60,7 @@ inputbar {
 icon-search {
     expand:     false;
     filename:   "search";
-    size: 28px;
+    size:       28px;
 }
 
 icon-search, entry, element-icon, element-text {
@@ -61,31 +69,29 @@ icon-search, entry, element-icon, element-text {
 
 entry {
     font:   inherit;
-
-    text-color:         @fg1;  /* Pure white for better contrast */
-    background-color:   @bg1;  /* Slight contrast from main background */
-
-    placeholder         : "Search";
-    placeholder-color   : @fg2; /* Slightly dimmed for differentiation */
+    text-color:         #ffffff;
+    background-color:   @dark-gray;
+    placeholder:        "Search";
+    placeholder-color:  @light-gray;
 }
 
 message {
-    border:             2px 0 0;
-    border-color:       @bg1;
-    background-color:   @bg1;
+    text-color: @green;
+    background-color: @blue-gray;
+    padding:    8px;
+    border-radius: 4px;
 }
 
 textbox {
-    padding:    8px 24px;
+    padding: 8px 24px;
 }
 
 listview {
-    lines:      10;
-    columns:    1;
-
+    lines:          10;
+    columns:        1;
     fixed-height:   false;
     border:         1px 0 0;
-    border-color:   @bg1;
+    border-color:   @dark-gray;
 }
 
 element {
@@ -94,24 +100,23 @@ element {
     background-color:   transparent;
 }
 
-element normal active {
-    text-color: @bg2; /* Dracula purple */
-}
-
+element normal active,
 element alternate active {
-    text-color: @bg2;
+    text-color: @purple;
 }
 
-element selected normal, element selected active {
-    background-color:   @bg2;
-    text-color:         @fg1;
+element selected normal,
+element selected active {
+    background-color: @purple;
+    text-color:       #ffffff;
 }
 
 element-icon {
-    size:   1em;
+    size: 1em;
 }
 
 element-text {
     text-color: inherit;
 }
+
 
