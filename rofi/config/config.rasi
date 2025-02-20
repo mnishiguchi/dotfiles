@@ -8,6 +8,7 @@ configuration {
   combi-modes: [ window, drun, run ];
   show-icons: true;
   font: "hack 10";
+  matching: "fuzzy";
 }
 
 // --- Theme ---
