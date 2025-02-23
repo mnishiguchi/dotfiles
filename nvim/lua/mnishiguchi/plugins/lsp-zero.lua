@@ -1,15 +1,6 @@
 -- A starting point to setup some LSP related features
 -- https://lsp-zero.netlify.app/docs/guide/lazy-loading-with-lazy-nvim.html
 return {
-  {
-    -- https://github.com/VonHeikemen/lsp-zero.nvim
-    'VonHeikemen/lsp-zero.nvim',
-    branch = 'v4.x',
-    lazy = true,
-    config = false,
-  },
-
-
   -- LSP
   -- https://github.com/neovim/nvim-lspconfig
   {
@@ -22,65 +13,21 @@ return {
       { 'williamboman/mason-lspconfig.nvim' },
     },
     config = function()
-      local lsp_zero = require('lsp-zero')
+      local lspconfig = require('lspconfig')
+      local capabilities = require('cmp_nvim_lsp').default_capabilities() -- Enable LSP capabilities for completion
 
-      -- this is where you enable features that only work
-      -- if there is a language server active in the file
-      local lsp_attach = function(client, bufnr)
-        local opts = { buffer = bufnr }
+      require('mason').setup({})
 
-        -- create a keymap gq to format the current buffer using all active servers with formatting capabilities
-        vim.keymap.set({ 'n', 'x' }, '<space>gq', function()
-          -- Use the attached language server for formatting if possible
-          if client.server_capabilities.documentFormattingProvider then
-            vim.print("using " .. client.name .. " for formatting")
-            vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
-          else
-            vim.print("using formatter.nvim for formatting")
-            vim.cmd.Format()
-          end
-        end, opts)
-
-        lsp_zero.default_keymaps({
-          buffer = bufnr,
-          -- force lsp-zero's bindings by adding preserve_mappings = false
-          preserve_mappings = false
-        })
-      end
-
-      lsp_zero.extend_lspconfig({
-        sign_text = true,
-        lsp_attach = lsp_attach,
-        capabilities = require('cmp_nvim_lsp').default_capabilities()
-      })
-
-      lsp_zero.ui({
-        sign_text = {
-          error = '✘',
-          warn = '▲',
-          hint = '⚑',
-          info = '»',
-        },
-      })
-
-      require('mason').setup({
-        ui = {
-          icons = {
-            package_installed = '✓',
-            package_pending = '➜',
-            package_uninstalled = '✗'
-          }
-        }
-      })
-
+      -- https://lsp-zero.netlify.app/docs/language-server-configuration.html
       require('mason-lspconfig').setup({
-        -- language servers you want to be installed automatically
+        -- A list of servers to automatically install if they're not already installed.
         -- https://github.com/williamboman/mason-lspconfig.nvim#available-lsp-servers
         ensure_installed = {
           'bashls',
           'cssls',
           'elixirls',
           'emmet_language_server', -- https://github.com/olrtg/emmet-language-server
+          'gopls',
           'html',
           'jsonls',
           'lua_ls',
@@ -89,70 +36,121 @@ return {
           'ruby_lsp',
           'yamlls',
         },
-        -- For default configs nvim-lspconfig defines, see:
-        -- https://github.com/neovim/nvim-lspconfig/tree/28b205ebe73a18f401e040585106f9bafd8ff21f/lua/lspconfig/configs
         handlers = {
-          -- this first function is the "default handler"
-          -- it applies to every language server without a "custom handler"
           function(server_name)
-            require('lspconfig')[server_name].setup({})
-          end,
-          lua_ls = function()
-            -- Configure lua language server for neovim
-            local lua_opts = lsp_zero.nvim_lua_ls()
-            require('lspconfig').lua_ls.setup(lua_opts)
-          end,
-          cssls = function()
-            require('lspconfig').cssls.setup({
-              settings = {
-                -- to suppress warning: "Unknown rule @tailwind @apply"
-                css = { lint = { unknownAtRules = 'ignore' } }
-              },
-            })
-          end,
-          emmet_language_server = function()
-            require('lspconfig').emmet_language_server.setup({
-              filetypes = {
-                "blade",
-                "css",
-                "eelixir",
-                "elixir",
-                "eruby",
-                "heex",
-                "html",
-                "javascript",
-                "javascriptreact",
-                "less",
-                "markdown",
-                "pug",
-                "sass",
-                "scss",
-                "typescriptreact"
-              },
-              -- See https://code.visualstudio.com/docs/editor/emmet#_emmet-configuration
-              init_options = {
-                includeLanguages = {
-                  html = "html", -- Standard HTML
-                  javascript = "javascript", -- Vanilla JS
-                  javascriptreact = "html", -- JSX
-                  typescript = "typescript", -- TypeScript
-                  typescriptreact = "html", -- TSX
-                  vue = "html", -- Vue templates
-                  ruby = "html", -- Embedded Ruby (ERB files)
-                  eelixir = "html", -- Phoenix templates (.eex, .heex)
-                  heex = "html", -- Phoenix LiveView templates
-                  markdown = "html", -- Markdown with embedded HTML
-                  css = "css", -- CSS
-                  scss = "scss", -- SCSS
-                  sass = "sass", -- SASS
-                  less = "less", -- LESS
-                },
-              },
+            lspconfig[server_name].setup({
+              capabilities = capabilities,
             })
           end,
         }
       })
-    end
+
+      lspconfig.lua_ls.setup({
+        settings = {
+          Lua = {
+            diagnostics = { globals = { 'vim' } }, -- Prevent warnings about 'vim' being undefined
+          },
+        },
+      })
+
+      lspconfig.cssls.setup({
+        settings = {
+          css = { lint = { unknownAtRules = 'ignore' } }, -- Suppress warnings for unknown CSS rules
+        },
+      })
+
+      lspconfig.emmet_language_server.setup({
+        filetypes = {
+          "blade",
+          "css",
+          "eelixir",
+          "elixir",
+          "eruby",
+          "heex",
+          "html",
+          "javascript",
+          "javascriptreact",
+          "less",
+          "markdown",
+          "pug",
+          "sass",
+          "scss",
+          "typescriptreact"
+        },
+        init_options = {
+          includeLanguages = {
+            html = "html",
+            javascript = "javascript",
+            javascriptreact = "html",
+            typescript = "typescript",
+            typescriptreact = "html",
+            vue = "html",
+            ruby = "html",
+            eelixir = "html",
+            heex = "html",
+            markdown = "html",
+            css = "css",
+            scss = "scss",
+            sass = "sass",
+            less = "less",
+          },
+        },
+      })
+
+      lspconfig.gopls.setup({
+        settings = {
+          gopls = {
+            usePlaceholders = true, -- Enables placeholders in completion snippets
+            completeUnimported = true, -- Automatically adds imports
+            analyses = {
+              unusedparams = true, -- Warns about unused parameters
+            },
+            staticcheck = true,  -- Enables additional static analysis
+          },
+        },
+      })
+
+      lspconfig.ruby_lsp.setup({
+        init_options = {
+          formatter = 'standard',
+          linters = { 'standard' },
+        },
+      })
+
+      -- Runs when an LSP server attaches to a buffer
+      vim.api.nvim_create_autocmd('LspAttach', {
+        callback = function(event)
+          local id = vim.tbl_get(event, 'data', 'client_id')
+          local client = id and vim.lsp.get_client_by_id(id)
+          if client == nil then
+            return
+          end
+
+          local opts = { buffer = event.buf }
+          -- Navigation
+          vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+          vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+
+          -- Documentation & Signature
+          vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+
+          -- Diagnostic navigation
+          vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
+          vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
+
+          -- Format buffer with LSP
+          vim.keymap.set({ 'n', 'x' }, '<space>gq', function()
+            if client.server_capabilities.documentFormattingProvider then
+              vim.print("Using " .. client.name .. " for formatting")
+              vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
+            else
+              vim.print("Using formatter.nvim for formatting")
+              vim.cmd.Format()
+            end
+          end, opts)
+        end
+      })
+    end,
   },
 
   -- Autocompletion
@@ -164,13 +162,7 @@ return {
       { 'L3MON4D3/LuaSnip' },
     },
     config = function()
-      -- Here is where you configure the autocompletion settings.
-      local lsp_zero = require('lsp-zero')
-      lsp_zero.extend_cmp()
-
-      -- And you can configure cmp even more, if you want to.
       local cmp = require('cmp')
-      local cmp_action = require('lsp-zero').cmp_action()
 
       cmp.setup({
         sources = cmp.config.sources({
@@ -180,19 +172,15 @@ return {
           { name = 'buffer',  keyword_length = 5 },
         }),
         mapping = cmp.mapping.preset.insert({
-          -- Regular tab complete
-          -- https://lsp-zero.netlify.app/docs/autocomplete.html#regular-tab-complete
-          ['<Tab>'] = cmp_action.tab_complete(),
-          ['<S-Tab>'] = cmp.mapping.select_prev_item({ behavior = 'select' }),
-          -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items
-          ['<CR>'] = cmp.mapping.confirm({ select = false }),
+          ['<Tab>'] = cmp.mapping.select_next_item({ behavior = 'select' }),   -- Navigate forward in completion menu
+          ['<S-Tab>'] = cmp.mapping.select_prev_item({ behavior = 'select' }), -- Navigate backward in completion menu
+          ['<CR>'] = cmp.mapping.confirm({ select = false }),                  -- Confirm selection
         }),
         snippet = {
           expand = function(args)
             vim.snippet.expand(args.body)
           end,
         },
-        formatting = lsp_zero.cmp_format({ details = true }),
         window = {
           completion = cmp.config.window.bordered(),
           documentation = cmp.config.window.bordered(),
