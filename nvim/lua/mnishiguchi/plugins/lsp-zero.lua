@@ -27,6 +27,7 @@ return {
           'cssls',
           'elixirls',
           'emmet_language_server', -- https://github.com/olrtg/emmet-language-server
+          'gopls',
           'html',
           'jsonls',
           'lua_ls',
@@ -90,6 +91,19 @@ return {
             scss = "scss",
             sass = "sass",
             less = "less",
+          },
+        },
+      })
+
+      lspconfig.gopls.setup({
+        settings = {
+          gopls = {
+            usePlaceholders = true, -- Enables placeholders in completion snippets
+            completeUnimported = true, -- Automatically adds imports
+            analyses = {
+              unusedparams = true, -- Warns about unused parameters
+            },
+            staticcheck = true,  -- Enables additional static analysis
           },
         },
       })
