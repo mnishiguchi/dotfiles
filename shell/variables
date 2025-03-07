@@ -30,8 +30,9 @@ export GITHUB_USER_NAME="mnishiguchi"
 
 ## Editors
 
-export EDITOR="${EDITOR:-nano}"
+export EDITOR="${EDITOR:-nvim}"
 export VISUAL="$EDITOR"
+export GIT_EDITOR="$EDITOR"
 export ELIXIR_EDITOR="${ELIXIR_EDITOR:-$EDITOR}"
 
 ## Manual pages
