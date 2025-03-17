@@ -217,6 +217,42 @@ else
   echo_failure "SDKMAN init script not found or is empty."
 fi
 
+## yazi
+
+# https://yazi-rs.github.io/docs/quick-start#shell-wrapper
+y() {
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  yazi "$@" --cwd-file="$tmp"
+  if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    builtin cd -- "$cwd"
+  fi
+  rm -f -- "$tmp"
+}
+
+## superfile
+
+# https://superfile.netlify.app/configure/superfile-config/#cd_on_quit
+spf() {
+  os=$(uname -s)
+
+  # Linux
+  if [[ "$os" == "Linux" ]]; then
+    export SPF_LAST_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/superfile/lastdir"
+  fi
+
+  # macOS
+  if [[ "$os" == "Darwin" ]]; then
+    export SPF_LAST_DIR="$HOME/Library/Application Support/superfile/lastdir"
+  fi
+
+  command spf "$@"
+
+  [ ! -f "$SPF_LAST_DIR" ] || {
+    . "$SPF_LAST_DIR"
+    rm -f -- "$SPF_LAST_DIR" >/dev/null
+  }
+}
+
 ## Common shell stuff
 
 echo_heading "Loading aliases..."
