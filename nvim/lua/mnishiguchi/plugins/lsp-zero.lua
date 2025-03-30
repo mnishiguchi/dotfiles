@@ -14,7 +14,39 @@ return {
     },
     config = function()
       local lspconfig = require('lspconfig')
-      local capabilities = require('cmp_nvim_lsp').default_capabilities() -- Enable LSP capabilities for completion
+      local capabilities = require('cmp_nvim_lsp').default_capabilities() -- Enable nvim-cmp completion support
+
+      -- Servers that are enabled using Neovim 0.11's native `vim.lsp.enable()` mechanism.
+      -- These should *not* be configured again via mason-lspconfig handlers.
+      local natively_enabled_servers = {
+        'bashls',
+        'cssls',
+        'gopls',
+        'html',
+        'jsonls',
+        'rubocop',
+        'ruby_lsp',
+        'rust_analyzer',
+        'yamlls',
+      }
+
+      local function list_to_lookup(list)
+        local t = {}
+        for _, v in ipairs(list) do t[v] = true end
+        return t
+      end
+
+      local native_enabled_lookup = list_to_lookup(natively_enabled_servers)
+
+      -- Load and setup a language server with optional custom config from lsp/<server_name>.lua
+      local function setup_lsp(server_name)
+        local ok, opts = pcall(require, "lsp." .. server_name)
+        if not ok then
+          opts = {} -- fallback to empty config
+        end
+        opts.capabilities = capabilities
+        lspconfig[server_name].setup(opts)
+      end
 
       require('mason').setup({})
 
@@ -22,134 +54,64 @@ return {
       require('mason-lspconfig').setup({
         -- A list of servers to automatically install if they're not already installed.
         -- https://github.com/williamboman/mason-lspconfig.nvim#available-lsp-servers
-        ensure_installed = {
-          'bashls',
-          'cssls',
-          'elixirls',
-          'emmet_language_server', -- https://github.com/olrtg/emmet-language-server
-          'gopls',
-          'html',
-          'jsonls',
-          'lua_ls',
-          'rust_analyzer',
-          'rubocop',
-          'ruby_lsp',
-          'yamlls',
-        },
+        ensure_installed = natively_enabled_servers,
         handlers = {
           function(server_name)
-            lspconfig[server_name].setup({
-              capabilities = capabilities,
-            })
-          end,
+            if native_enabled_lookup[server_name] then return end
+            setup_lsp(server_name)
+          end
         }
       })
 
-      lspconfig.lua_ls.setup({
-        settings = {
-          Lua = {
-            diagnostics = { globals = { 'vim' } }, -- Prevent warnings about 'vim' being undefined
-          },
-        },
-      })
-
-      lspconfig.cssls.setup({
-        settings = {
-          css = { lint = { unknownAtRules = 'ignore' } }, -- Suppress warnings for unknown CSS rules
-        },
-      })
-
-      lspconfig.emmet_language_server.setup({
-        filetypes = {
-          "blade",
-          "css",
-          "eelixir",
-          "elixir",
-          "eruby",
-          "heex",
-          "html",
-          "javascript",
-          "javascriptreact",
-          "less",
-          "markdown",
-          "pug",
-          "sass",
-          "scss",
-          "typescriptreact"
-        },
-        init_options = {
-          includeLanguages = {
-            html = "html",
-            javascript = "javascript",
-            javascriptreact = "html",
-            typescript = "typescript",
-            typescriptreact = "html",
-            vue = "html",
-            ruby = "html",
-            eelixir = "html",
-            heex = "html",
-            markdown = "html",
-            css = "css",
-            scss = "scss",
-            sass = "sass",
-            less = "less",
-          },
-        },
-      })
-
-      lspconfig.gopls.setup({
-        settings = {
-          gopls = {
-            usePlaceholders = true, -- Enables placeholders in completion snippets
-            completeUnimported = true, -- Automatically adds imports
-            analyses = {
-              unusedparams = true, -- Warns about unused parameters
-            },
-            staticcheck = true,  -- Enables additional static analysis
-          },
-        },
-      })
-
-      lspconfig.ruby_lsp.setup({
-        init_options = {
-          formatter = 'standard',
-          linters = { 'standard' },
-        },
-      })
+      -- Enable LSP servers using Neovim 0.11's native mechanism
+      for _, server in ipairs(natively_enabled_servers) do
+        setup_lsp(server)      -- apply your custom config
+        vim.lsp.enable(server) -- register with Neovim's LSP manager
+      end
 
       -- Runs when an LSP server attaches to a buffer
       vim.api.nvim_create_autocmd('LspAttach', {
         callback = function(event)
-          local id = vim.tbl_get(event, 'data', 'client_id')
-          local client = id and vim.lsp.get_client_by_id(id)
-          if client == nil then
-            return
-          end
+          local client = vim.lsp.get_clients({ id = event.data.client_id })[1]
+          if not client then return end
+
+          vim.notify('Attached LSP: ' .. client.name, vim.log.levels.INFO)
 
           local opts = { buffer = event.buf }
-          -- Navigation
-          vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-          vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+          local fmt_opts = { async = false, timeout_ms = 3000 }
 
-          -- Documentation & Signature
-          vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-
-          -- Diagnostic navigation
-          vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
-          vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
-
-          -- Format buffer with LSP
-          vim.keymap.set({ 'n', 'x' }, '<space>gq', function()
+          local function lsp_buf_format_with_fallback(client)
             if client.server_capabilities.documentFormattingProvider then
-              vim.print("Using " .. client.name .. " for formatting")
-              vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
+              vim.notify('Using ' .. client.name .. ' for formatting', vim.log.levels.INFO)
+              vim.lsp.buf.format(fmt_opts)
             else
-              vim.print("Using formatter.nvim for formatting")
+              vim.notify('Using formatter.nvim for formatting', vim.log.levels.INFO)
               vim.cmd.Format()
             end
-          end, opts)
+          end
+
+          vim.keymap.set('n', 'gd', vim.lsp.buf.definition, vim.tbl_extend('force', opts, { desc = 'Go to definition' }))
+          vim.keymap.set('n', 'gD', vim.lsp.buf.declaration,
+            vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
+          vim.keymap.set('n', 'gr', vim.lsp.buf.references, vim.tbl_extend('force', opts, { desc = 'Find references' })) -- Documentation & Signature
+          vim.keymap.set('n', 'K', vim.lsp.buf.hover, vim.tbl_extend('force', opts, { desc = 'Show hover doc' }))
+          vim.keymap.set('n', '<F2>', vim.lsp.buf.rename, vim.tbl_extend('force', opts, { desc = 'Rename symbol' }))
+          vim.keymap.set({ 'n', 'x' }, '<F3>', function() vim.lsp.buf.format(fmt_opts) end,
+            vim.tbl_extend('force', opts, { desc = 'Format' }))
+          vim.keymap.set('n', '<F4>', vim.lsp.buf.code_action, vim.tbl_extend('force', opts, { desc = 'Code actions' }))
+
+          vim.keymap.set({ 'n', 'x' }, '<space>gq', function()
+            lsp_buf_format_with_fallback(client)
+          end, vim.tbl_extend('force', opts, { desc = 'Format with fallback' }))
         end
       })
+
+      -- Add dynamic diagnostic signs (icons, colors)
+      local signs = { Error = "", Warn = "", Hint = "", Info = "" }
+      for type, icon in pairs(signs) do
+        local hl = 'DiagnosticSign' .. type
+        vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+      end
     end,
   },
 
