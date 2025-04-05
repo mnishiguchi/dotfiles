@@ -74,12 +74,12 @@ return {
           local opts = { buffer = event.buf }
 
           -- Function to attempt formatting with the LSP server, with a fallback option.
-          local function lsp_buf_format_with_fallback(client)
+          local function lsp_buf_format_with_fallback()
             if client.server_capabilities.documentFormattingProvider then
               vim.notify('Using ' .. client.name .. ' for formatting', vim.log.levels.INFO)
               vim.lsp.buf.format({ async = false, timeout_ms = 3000 })
             else
-              vim.notify('Using formatter.nvim for formatting', vim.log.levels.INFO)
+              vim.notify('Using conform.nvim for formatting', vim.log.levels.INFO)
               vim.cmd.Format()
             end
           end
@@ -95,11 +95,11 @@ return {
             vim.tbl_extend('force', opts, { desc = 'Show hover documentation' }))
           vim.keymap.set('n', '<F2>', vim.lsp.buf.rename,
             vim.tbl_extend('force', opts, { desc = 'Rename symbol' }))
-          vim.keymap.set({ 'n', 'x' }, '<F3>', function() lsp_buf_format_with_fallback(client) end,
+          vim.keymap.set({ 'n', 'x' }, '<F3>', lsp_buf_format_with_fallback,
             vim.tbl_extend('force', opts, { desc = 'Format code' }))
           vim.keymap.set('n', '<F4>', vim.lsp.buf.code_action,
             vim.tbl_extend('force', opts, { desc = 'Code actions' }))
-          vim.keymap.set({ 'n', 'x' }, '<space>gq', function() lsp_buf_format_with_fallback(client) end,
+          vim.keymap.set({ 'n', 'x' }, '<space>gq', lsp_buf_format_with_fallback,
             vim.tbl_extend('force', opts, { desc = 'Format with fallback' }))
         end
       })
