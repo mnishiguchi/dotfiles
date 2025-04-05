@@ -25,7 +25,6 @@ local plugins = {
   "cohama/lexima.vim",                             -- Add end after if, do, def etc
   "tpope/vim-abolish",                             -- Convert text case under the cursor with crp, crs, cru etc
   "tpope/vim-commentary",                          -- Comment out the target of a motion with gc
-  "tpope/vim-eunuch",                              -- File utilities, like Delete, Move, Rename, Copy, Duplicate, etc
   "tpope/vim-rhubarb",                             -- GBrowse
   require("mnishiguchi.plugins.conform"),          -- Format code with external commands
   require("mnishiguchi.plugins.fugitive"),         -- Git
