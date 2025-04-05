@@ -37,7 +37,6 @@ local plugins = {
   require("mnishiguchi.plugins.lualine"),          -- Set lualine as statusline
   require("mnishiguchi.plugins.nvim-surround"),    -- surroundings with ys{motion}{char}, ds{char}, and cs{target}{replacement}
   require("mnishiguchi.plugins.nvim-treesitter"),  -- Highlight, edit, and navigate code
-  require("mnishiguchi.plugins.project"),          -- Automagically cd to project directory
   require("mnishiguchi.plugins.telescope"),        -- Fuzzy Finder (files, lsp, etc)
   require("mnishiguchi.plugins.todo-comments"),    -- Highlight, list and search todo comments
   require("mnishiguchi.plugins.undotree"),         -- Visualize the undo history
