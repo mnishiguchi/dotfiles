@@ -79,7 +79,7 @@ return {
               vim.notify('Using ' .. client.name .. ' for formatting', vim.log.levels.INFO)
               vim.lsp.buf.format({ async = false, timeout_ms = 3000 })
             else
-              vim.notify('Using formatter.nvim for formatting', vim.log.levels.INFO)
+              vim.notify('Using conform.nvim for formatting', vim.log.levels.INFO)
               vim.cmd.Format()
             end
           end
