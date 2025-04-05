@@ -27,7 +27,6 @@ local plugins = {
   "tpope/vim-commentary",                          -- Comment out the target of a motion with gc
   "tpope/vim-eunuch",                              -- File utilities, like Delete, Move, Rename, Copy, Duplicate, etc
   "tpope/vim-rhubarb",                             -- GBrowse
-  require("mnishiguchi.plugins.alpha"),            -- Start screen
   require("mnishiguchi.plugins.conform"),          -- Format code with external commands
   require("mnishiguchi.plugins.fugitive"),         -- Git
   require("mnishiguchi.plugins.git-blame"),        -- Git Blame
