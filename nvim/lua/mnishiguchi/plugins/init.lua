@@ -22,10 +22,10 @@ end
 
 local plugins = {
   require("mnishiguchi.plugins.colorscheme"),
-  "cohama/lexima.vim",                             -- Add end after if, do, def etc
   "tpope/vim-abolish",                             -- Convert text case under the cursor with crp, crs, cru etc
   "tpope/vim-commentary",                          -- Comment out the target of a motion with gc
   "tpope/vim-rhubarb",                             -- GBrowse
+  require("mnishiguchi.plugins.autopairs"),
   require("mnishiguchi.plugins.conform"),          -- Format code with external commands
   require("mnishiguchi.plugins.fugitive"),         -- Git
   require("mnishiguchi.plugins.git-blame"),        -- Git Blame
