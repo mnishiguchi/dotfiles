@@ -71,6 +71,11 @@ return {
           local client = vim.lsp.get_clients({ id = event.data.client_id })[1]
           if not client then return end
 
+          -- Enable inlay hints if supported
+          if client.server_capabilities.inlayHintProvider then
+            vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+          end
+
           local opts = { buffer = event.buf }
 
           -- Function to attempt formatting with the LSP server, with a fallback option.
