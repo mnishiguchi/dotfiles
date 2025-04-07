@@ -2,11 +2,11 @@ return {
   "stevearc/conform.nvim",
   init = function()
     vim.api.nvim_create_user_command("Format", function()
-      require("conform").format({ async = false, lsp_fallback = true })
+      require("conform").format({ async = true, lsp_fallback = true })
     end, { desc = "Format buffer using Conform" })
 
     vim.api.nvim_create_user_command("FormatWrite", function()
-      require("conform").format({ async = false, lsp_fallback = true })
+      require("conform").format({ async = true, lsp_fallback = true })
       vim.cmd.write()
     end, { desc = "Format and write buffer using Conform" })
   end,
