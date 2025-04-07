@@ -165,7 +165,7 @@ return {
         -- Specify the snippet expansion function.
         snippet = {
           expand = function(args)
-            vim.snippet.expand(args.body)
+            require('luasnip').lsp_expand(args.body)
           end,
         },
         -- Configure bordered windows for a polished UI.
