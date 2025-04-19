@@ -12,13 +12,13 @@ return {
     cmd = { 'LspInfo', 'LspInstall', 'LspStart' },
     event = { 'BufReadPre', 'BufNewFile' },
     dependencies = {
-      { 'hrsh7th/cmp-nvim-lsp' },              -- Integration with nvim-cmp for LSP-based completion.
+      { "saghen/blink.cmp",                 version = "1.*" },
       { 'williamboman/mason.nvim' },           -- Mason: Automatic installation of LSP servers.
       { 'williamboman/mason-lspconfig.nvim' }, -- Bridges Mason with nvim-lspconfig.
     },
     config = function()
       local lspconfig = require('lspconfig')
-      local capabilities = require('cmp_nvim_lsp').default_capabilities() -- Enable nvim-cmp LSP completion support
+      local capabilities = require("blink.cmp").get_lsp_capabilities()
 
       -- Define the list of LSP servers to install and configure.
       -- Ensure these identifiers match those used by Mason and lspconfig.
@@ -122,57 +122,43 @@ return {
   },
 
   ------------------------------------------------------------------------------
-  -- Autocompletion & Snippet Configuration Block (nvim-cmp + LuaSnip)
+  -- Autocompletion & Snippet Configuration Block (blink.cmp + LuaSnip)
   ------------------------------------------------------------------------------
   {
-    'hrsh7th/nvim-cmp',
-    event = 'InsertEnter',
-    -- Nesting LuaSnip as a dependency to group completion and snippet configurations.
+    "saghen/blink.cmp",
+    version      = "1.*",
     dependencies = {
-      {
-        'L3MON4D3/LuaSnip',
-        version = "v2.*",
-        dependencies = {
-          -- This plugin bridges LuaSnip with nvim-cmp to make snippets available as completion suggestions.
-          "saadparwaiz1/cmp_luasnip",
-          -- Provides a collection of ready-to-use snippets for various languages.
-          'rafamadriz/friendly-snippets',
-        },
-        config = function(_, opts)
-          if opts then require('luasnip').config.setup(opts) end
-          -- Lazy-load snippets in VSCode snippet format.
-          require('luasnip.loaders.from_vscode').lazy_load()
-        end,
-      },
+      { "L3MON4D3/LuaSnip", version = "v2.*" }, -- snippet engine
+      "rafamadriz/friendly-snippets"            -- snippet collection
     },
-    config = function()
-      local cmp = require('cmp')
+    config       = function(_, opts)
+      local luasnip = require("luasnip")
+      luasnip.setup {
+        history      = true,
+        updateevents = "TextChanged,TextChangedI",
+      }
 
-      cmp.setup({
-        -- Configure the sources for completion suggestions.
-        sources = cmp.config.sources({
-          { name = 'nvim_lsp' },                    -- LSP-based completions.
-          { name = 'path' },                        -- Filesystem paths.
-          { name = 'luasnip', keyword_length = 2 }, -- Snippet completions.
-          { name = 'buffer',  keyword_length = 5 }, -- Buffer text completions.
-        }),
-        -- Define key mappings for navigating and confirming completion items.
-        mapping = cmp.mapping.preset.insert({
-          ['<Tab>'] = cmp.mapping.select_next_item({ behavior = 'select' }),   -- Select next item.
-          ['<S-Tab>'] = cmp.mapping.select_prev_item({ behavior = 'select' }), -- Select previous item.
-          ['<CR>'] = cmp.mapping.confirm({ select = false }),                  -- Confirm selection.
-        }),
-        -- Specify the snippet expansion function.
-        snippet = {
-          expand = function(args)
-            require('luasnip').lsp_expand(args.body)
-          end,
-        },
-        -- Configure bordered windows for a polished UI.
-        window = {
-          completion = cmp.config.window.bordered(),
-          documentation = cmp.config.window.bordered(),
-        },
+      require("luasnip.loaders.from_vscode").lazy_load()
+
+      vim.keymap.set({ "i", "s" }, "<C-k>", function()
+          if luasnip.expand_or_jumpable() then
+            luasnip.expand_or_jump()
+          end
+        end,
+        { silent = true })
+      vim.keymap.set({ "i", "s" }, "<C-j>", function()
+        if luasnip.jumpable(-1) then
+          luasnip.jump(-1)
+        end
+      end, { silent = true })
+
+      require("blink.cmp").setup({
+        keymap     = { preset = "default" },
+        snippets   = { preset = "luasnip" },
+        appearance = { nerd_font_variant = "mono" },
+        completion = { documentation = { auto_show = true } },
+        sources    = { default = { "lsp", "path", "snippets", "buffer" } },
+        fuzzy      = { implementation = "prefer_rust_with_warning" },
       })
     end,
   },
