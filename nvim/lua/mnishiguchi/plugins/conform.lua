@@ -11,28 +11,56 @@ return {
     end, { desc = "Format and write buffer using Conform" })
   end,
   config = function()
+    local util = require("conform.util")
+
+    local prettier_config_file_names = {
+      -- https://prettier.io/docs/en/configuration.html
+      ".prettierrc",
+      ".prettierrc.json",
+      ".prettierrc.yml",
+      ".prettierrc.yaml",
+      ".prettierrc.json5",
+      ".prettierrc.js",
+      ".prettierrc.cjs",
+      ".prettierrc.mjs",
+      ".prettierrc.toml",
+      "prettier.config.js",
+      "prettier.config.cjs",
+      "prettier.config.mjs",
+    }
+
     require("conform").setup({
+      formatters = {
+        rbprettier = {
+          command   = "bundle",
+          args      = { "exec", "rbprettier", "--stdin-filepath", "$FILENAME" },
+          stdin     = true,
+          condition = function()
+            return util.root_file(prettier_config_file_names) ~= nil
+          end,
+        },
+      },
       formatters_by_ft = {
-        blade = { "blade-formatter" },
-        css = { "prettierd" },
-        graphql = { "prettierd" },
-        javascript = { "prettierd" },
+        blade           = { "blade-formatter" },
+        css             = { "prettierd" },
+        dart            = { "dart_format" },
+        elixir          = { "mixformat" },
+        eruby           = { "htmlbeautifier" },
+        graphql         = { "prettierd" },
+        html            = { "htmlbeautifier" },
+        javascript      = { "prettierd" },
         javascriptreact = { "prettierd" },
-        json = { "prettierd" },
-        markdown = { "prettierd" },
-        typescript = { "prettierd" },
+        json            = { "prettierd" },
+        markdown        = { "prettierd" },
+        php             = { "pint" },
+        ruby            = { "rbprettier", "rubocop" },
+        sh              = { "shfmt" },
+        toml            = { "taplo" },
+        typescript      = { "prettierd" },
         typescriptreact = { "prettierd" },
-        yaml = { "prettierd" },
-        dart = { "dart_format" },
-        eruby = { "htmlbeautifier" },
-        html = { "htmlbeautifier" },
-        elixir = { "mixformat" },
-        php = { "pint" },
-        ruby = { "rubocop" },
-        sh = { "shfmt" },
-        toml = { "taplo" },
-        xml = { "xmllint" },
-        ["*"] = { "trim_whitespace" },
+        xml             = { "xmllint" },
+        yaml            = { "prettierd" },
+        ["*"]           = { "trim_whitespace" },
       },
     })
   end,
