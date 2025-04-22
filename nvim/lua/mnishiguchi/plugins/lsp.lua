@@ -25,6 +25,7 @@ return {
       local servers = {
         'bashls',
         'cssls',
+        'emmet_language_server',
         'gopls',
         'html',
         'jsonls',
@@ -153,7 +154,9 @@ return {
       end, { silent = true })
 
       require("blink.cmp").setup({
-        keymap     = { preset = "default" },
+        keymap     = {
+          preset = "super-tab",
+        },
         snippets   = { preset = "luasnip" },
         appearance = { nerd_font_variant = "mono" },
         completion = { documentation = { auto_show = true } },
