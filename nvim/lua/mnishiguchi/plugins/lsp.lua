@@ -38,28 +38,26 @@ return {
       ------------------------------------------------------------------------------
       -- Mason Setup: Automatic LSP Server Installation
       ------------------------------------------------------------------------------
-      require('mason').setup({})
-      require('mason-lspconfig').setup({
-        ensure_installed = servers, -- Automatically install these servers if they are missing.
-      })
-
-      ------------------------------------------------------------------------------
-      -- Mason LSPConfig Handlers: Unified Server Setup
-      ------------------------------------------------------------------------------
       -- This handler is invoked for every LSP server that Mason installs.
       -- It merges default capabilities with any custom configuration found in
       -- 'nvim/lsp/<server>.lua', sets up the server via lspconfig, and then registers
       -- the server with Neovim's native LSP manager.
-      require('mason-lspconfig').setup_handlers({
-        function(server)
-          local opts = { capabilities = capabilities }
-          local has_custom, custom_opts = pcall(require, "lsp." .. server)
-          if has_custom then
-            opts = vim.tbl_deep_extend("force", opts, custom_opts)
-          end
-          lspconfig[server].setup(opts)
-          vim.lsp.enable(server) -- Register the server with Neovim's native LSP manager.
-        end,
+      ------------------------------------------------------------------------------
+      require('mason').setup({})
+      require('mason-lspconfig').setup({
+        ensure_installed = servers,
+        handlers = {
+          -- default handler for all installed servers
+          function(server)
+            local opts = { capabilities = capabilities }
+            local ok, custom = pcall(require, 'lsp.' .. server)
+            if ok then
+              opts = vim.tbl_deep_extend('force', opts, custom)
+            end
+            lspconfig[server].setup(opts)
+            vim.lsp.enable(server)
+          end,
+        },
       })
 
       ------------------------------------------------------------------------------
