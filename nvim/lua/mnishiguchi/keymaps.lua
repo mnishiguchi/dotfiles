@@ -85,5 +85,9 @@ command("Wq", "wq", {})
 command("QA", "qa", {})
 command("Qa", "qa", {})
 
+-- Save Files
+keymap("n", "<leader>w", ":w<CR>", { desc = "Write file" })
+keymap("n", "<leader>W", ":wa<CR>", { desc = "Write all files" })
+
 -- Save and Source
 keymap("n", "<leader><CR>", ":w<CR>:source %<CR>", { desc = "Save and source this file" })
