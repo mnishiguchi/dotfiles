@@ -9,12 +9,11 @@
 # ## Common commit types
 # - fix:      SemVer PATCH
 # - feat:     SemVer MINOR
-# - build:    Changes that affect the build system or external dependencies
-# - ci:       Changes to CI related files and scripts
 # - docs:     Documentation only changes
-# - perf:     Code changes to improve performance
+# - style:    Changes that do not affect the code's meaning, such as formatting
 # - refactor: code changes that neither fix bugs nor add functionality
 # - test:     Add missing tests or modify existing tests
+# - chore:    Routine tasks like updating grunt tasks or performing general maintenance
 #
 # ## BREAKING CHANGES
 # - SemVer MAJOR
@@ -24,3 +23,5 @@
 # - https://www.conventionalcommits.org
 # - https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines
 # - https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional
+# - https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716
+# - https://gist.github.com/tos-kamiya/9b609ac075b120e255d0a731951375be
