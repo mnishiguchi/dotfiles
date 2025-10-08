@@ -7,6 +7,7 @@ return {
       -- A list of parsers that should always be installed
       ensure_installed = {
         "c",
+        "cpp",
         "eex",
         "elixir",
         "heex",

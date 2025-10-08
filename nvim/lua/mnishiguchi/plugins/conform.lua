@@ -31,6 +31,11 @@ return {
 
     require("conform").setup({
       formatters = {
+        ["clang-format"] = {
+          command = "clang-format",
+          args = { "--assume-filename", "$FILENAME" },
+          stdin = true,
+        },
         rbprettier = {
           command   = "bundle",
           args      = { "exec", "rbprettier", "--stdin-filepath", "$FILENAME" },
@@ -41,6 +46,8 @@ return {
         },
       },
       formatters_by_ft = {
+        c               = { "clang-format" },
+        cpp             = { "clang-format" },
         blade           = { "blade-formatter" },
         css             = { "prettierd" },
         dart            = { "dart_format" },

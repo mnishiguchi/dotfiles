@@ -24,6 +24,7 @@ return {
       -- Ensure these identifiers match those used by Mason and lspconfig.
       local servers = {
         'bashls',
+        'clangd',
         'cssls',
         'emmet_language_server',
         'gopls',
