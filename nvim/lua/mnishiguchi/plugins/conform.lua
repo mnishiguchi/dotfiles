@@ -36,6 +36,11 @@ return {
           args = { "--assume-filename", "$FILENAME" },
           stdin = true,
         },
+        mbake = {
+          command = "mbake",
+          args = { "format", "$FILENAME" },
+          stdin = false,
+        },
         rbprettier = {
           command   = "bundle",
           args      = { "exec", "rbprettier", "--stdin-filepath", "$FILENAME" },
@@ -58,6 +63,7 @@ return {
         javascript      = { "prettierd" },
         javascriptreact = { "prettierd" },
         json            = { "prettierd" },
+        make            = { "mbake" },
         markdown        = { "prettierd" },
         php             = { "pint" },
         ruby            = { "rbprettier", "rubocop" },

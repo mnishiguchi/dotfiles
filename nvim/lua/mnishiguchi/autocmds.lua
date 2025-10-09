@@ -44,3 +44,20 @@ vim.api.nvim_create_autocmd("BufReadPre", {
     end
   end,
 })
+
+-- Format Makefiles on save (Conform runs synchronously on BufWritePre)
+vim.api.nvim_create_autocmd("BufWritePre", {
+  group = mnishiguchi_augroup,
+  pattern = { "Makefile", "makefile", "GNUmakefile", "*.mk" },
+  callback = function(args)
+    local ok, conform = pcall(require, "conform")
+    if not ok then return end
+    if vim.bo[args.buf].filetype ~= "make" then return end
+
+    conform.format({
+      bufnr = args.buf,
+      lsp_fallback = true,
+      timeout_ms = 2000,
+    })
+  end,
+})
