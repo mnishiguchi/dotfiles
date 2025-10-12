@@ -191,10 +191,6 @@ do_symlink "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
 do_symlink "${this_dir}/bash/bashrc" "$HOME/.bashrc"
 do_symlink "${this_dir}/bash/starship.toml" "$XDG_CONFIG_HOME/bash/starship.toml"
 
-do_symlink "${this_dir}/zsh/zshenv" "$HOME/.zshenv"
-do_symlink "${this_dir}/zsh/zshrc" "$XDG_CONFIG_HOME/zsh/.zshrc"
-do_symlink "${this_dir}/zsh/starship.toml" "$XDG_CONFIG_HOME/zsh/starship.toml"
-
 ## Other software
 
 do_symlink "${this_dir}/nvim" "$XDG_CONFIG_HOME/nvim"

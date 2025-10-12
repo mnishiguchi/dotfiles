@@ -1,9 +1,0 @@
-#!/usr/bin/env zsh
-
-source "$HOME/.config/shell/variables"
-
-## ZSH-specific variables
-
-export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
-export HISTSIZE=10000
-export SAVEHIST=10000
