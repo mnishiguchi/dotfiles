@@ -1,211 +1,202 @@
 #!/usr/bin/env bash
-set -eu
+set -euo pipefail
+IFS=$'\n\t'
 
-# https://stackoverflow.com/a/246128/3837223
 this_name="$(basename "$0")"
 this_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
-# https://github.com/japaric/trust/blob/08c86c03efb887c33abd4bd5bc3677f81bac98e7/install.sh
 help() {
   cat <<'EOF'
-Install all dotfiles that are defined in this project.
+Install all dotfiles defined in this project.
 
 Usage:
-    install.sh [options]
+  install.sh [options]
 
 Options:
-    --debug         Display debugging information
-    --force, -f     Force overwriting destination files
-    --help, -h      Display this message
+  --debug            Enable shell tracing
+  --force, -f        Overwrite destination files
+  --check            Dry run (show what would change)
+  --only <sections>  Comma-separated list: rofi,shell,nvim,git,other
+  --help, -h         Show help
 EOF
 }
 
-say() {
-  echo "$this_name: $1"
-}
-
-say_err() {
-  say "$1" >&2
-}
-
+say() { echo "$this_name: $*"; }
+say_warn() { printf '%b\n' "\033[33m$this_name: $*\033[0m"; }
+say_err() { printf '%b\n' "\033[31m$this_name: $*\033[0m" >&2; }
 err() {
-  say_err "ERROR $1"
+  say_err "ERROR $*"
   exit 1
 }
 
-## Option parser
-
-debug=
-force=
-while [[ "$#" -gt 0 ]]; do
+# Options
+debug=false
+force=false
+check=false
+only_sections=""
+while [[ $# -gt 0 ]]; do
   case "$1" in
-  --debug)
-    debug=true
-    ;;
-  --force | -f)
-    force=true
+  --debug) debug=true ;;
+  --force | -f) force=true ;;
+  --check) check=true ;;
+  --only)
+    shift
+    only_sections="${1:-}"
     ;;
   --help | -h)
     help
     exit 0
     ;;
-  *) ;;
+  *) say_warn "Ignoring unknown option: $1" ;;
   esac
-  shift
+  shift || true
 done
+[[ "$debug" == true ]] && set -x
 
-## Environment variables
-
+# Env
+# shellcheck source=/dev/null
 source "${this_dir}/shell/variables"
 
-# https://wiki.archlinux.org/title/XDG_Base_Directory
-XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
-XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
-XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
-
-# Git user and email to set up git automatically
-GIT_USER_NAME="${GIT_USER_NAME:-}"
-GIT_USER_EMAIL="${GIT_USER_EMAIL:-}"
-GITHUB_USER_NAME="${GITHUB_USER_NAME:-}"
-
-## Presentation
-
-# color_ok="\033[92m"
-color_error="\033[91m"
-color_warning="\033[93m"
-color_default="\033[39m"
-
-## Symlink helpers
-
-if [[ "$debug" = true ]]; then
-  set -x
-fi
+backup_dir="$HOME/.dotfiles-backup/$(hostname -s)"
+mkdir -p "$backup_dir"
 
 timestamp() { date "+%Y%m%d%H%M%S"; }
 
-basename_no_ext() {
-  local f
-  f="$(basename "$1")" # remove all the higher path segments
-  f="${f#.}"           # remove leading dot
-  echo "${f%%.*}"      # remove extension
+# Resolve absolute, dereferenced path if possible
+abspath() {
+  python3 - "$1" <<'PY'
+import os, sys; print(os.path.realpath(sys.argv[1]))
+PY
 }
-
-get_ext() {
-  local f
-  f="$(basename "$1")" # remove all the higher path segments
-  f="${f#.}"           # remove all the higher path segments
-  local ext="${f#*.}"  # get extension
-  # return extension if detected; else return nothing
-  [[ ! "$ext" = "$f" ]] && echo "$ext" || return 1
-}
-
-backup_dir="$HOME/.dotfiles-backup"
-mkdir -p "$backup_dir"
 
 backup_file() {
-  local new_filename
-  local cp_flags
+  local target="$1"
+  local base ts dest
+  base="$(basename "$target")"
+  ts="$(timestamp)"
+  dest="$backup_dir/${base}~${ts}"
 
-  if get_ext "$1"; then
-    new_filename="$backup_dir/$(basename_no_ext "$1")~$(date "+%Y%m%d").$(get_ext "$1")"
-  else
-    new_filename="$backup_dir/$(basename_no_ext "$1")~$(date "+%Y%m%d")"
-  fi
-
-  if [[ "$(uname)" = Darwin ]]; then
-    cp_flags="-RLv"
-  else
-    # r = recursive
-    # L = follow and expand symlinks
-    cp_flags="-rLv"
-  fi
-
-  # Ignore errors because we want to suppress "cp: directory causes a cycle"
-  cp "$cp_flags" "$1" "$new_filename" &>/dev/null || true
-}
-
-# Symlinks a file to the specified target
-#
-# Usage:
-#   do_symlink file1 file2
-#   do_symlink dir1 dir2
-#
-do_symlink() {
-  local src="$1"
-  local target="$2"
-
-  if [[ "$force" = true ]]; then
-    ln_flags="-sfv"
-  else
-    ln_flags="-sv"
-  fi
-
-  if [[ -e "$src" ]]; then
-    mkdir -p "$(dirname "$target")"
-
-    if [[ -e "$target" ]]; then
-      echo "exists $target -- backing up"
-      backup_file "$target"
+  if [[ -e "$target" || -L "$target" ]]; then
+    say "backup $target -> $dest"
+    [[ "$check" == true ]] && return 0
+    # Follow symlinks and preserve recursively
+    if cp -aL "$target" "$dest" 2>/dev/null; then
+      :
+    else
+      # Fallback for platforms lacking -a
+      cp -RL "$target" "$dest" 2>/dev/null || true
     fi
-
-    # alway exit 0
-    ln "$ln_flags" "$src" "$target" || true
-  else
-    printf "${color_error}✗ source file does not exist: %s\n${color_default}" "$src"
   fi
-
-  echo
 }
 
-# Note: always use absolute path when linking files
-# Note: symlnking a directory can be tricky
+# Idempotent, safe symlink
+do_symlink() {
+  local src="$1" target="$2" ln_flags="-sv"
+  [[ "$force" == true ]] && ln_flags="-sfv"
 
-## Rofi
+  # Ensure parent exists
+  [[ "$check" == true ]] || mkdir -p "$(dirname "$target")"
 
-if command -v rofi >/dev/null; then
-  # bin
+  # If target is already a symlink to src, skip
+  if [[ -L "$target" ]]; then
+    local cur dest
+    cur="$(readlink "$target")" || cur=""
+    dest="$src"
+    # Normalize both if possible
+    if [[ -n "$cur" && "$(abspath "$cur" 2>/dev/null || echo "$cur")" == "$(abspath "$dest" 2>/dev/null || echo "$dest")" ]]; then
+      say "ok     $target already -> $src"
+      return 0
+    fi
+  fi
+
+  # If target exists and is not the right link, back it up
+  if [[ -e "$target" || -L "$target" ]]; then
+    say "exists $target -- backing up"
+    backup_file "$target"
+  fi
+
+  say "link   $target -> $src"
+  [[ "$check" == true ]] && return 0
+  ln $ln_flags "$src" "$target" || true
+}
+
+# Section filter
+wants() {
+  [[ -z "$only_sections" ]] && return 0
+  IFS=',' read -r -a parts <<<"$only_sections"
+  for p in "${parts[@]}"; do
+    [[ "$p" == "$1" ]] && return 0
+  done
+  return 1
+}
+
+# ----------------------
+# Sections
+# ----------------------
+
+section_rofi() {
+  command -v rofi >/dev/null || {
+    say_warn "rofi not found; skipping rofi section"
+    return
+  }
   do_symlink "${this_dir}/rofi/bin/gh-repos" "$HOME/.local/bin/gh-repos"
-
-  # modi
   do_symlink "${this_dir}/rofi/bin/rofi-gh-repos-modi" "$HOME/.local/bin/rofi-gh-repos-modi"
   do_symlink "${this_dir}/rofi/bin/rofi-power-modi" "$HOME/.local/bin/rofi-power-modi"
   do_symlink "${this_dir}/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
-
-  # menu
   do_symlink "${this_dir}/rofi/bin/rofi-combi-menu" "$HOME/.local/bin/rofi-combi-menu"
   do_symlink "${this_dir}/rofi/bin/rofi-power-menu" "$HOME/.local/bin/rofi-power-menu"
-
-  # configuration
   do_symlink "${this_dir}/rofi/config/config.rasi" "$XDG_CONFIG_HOME/rofi/config.rasi"
   do_symlink "${this_dir}/rofi/config/power-theme.rasi" "$XDG_CONFIG_HOME/rofi/power-theme.rasi"
   do_symlink "${this_dir}/rofi/config/snippets.txt" "$XDG_CONFIG_HOME/rofi/snippets.txt"
-fi
+}
 
-## Shells
+section_shell() {
+  do_symlink "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
+  do_symlink "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
+  do_symlink "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
+  do_symlink "${this_dir}/bash/bashrc" "$HOME/.bashrc"
+  do_symlink "${this_dir}/bash/starship.toml" "$XDG_CONFIG_HOME/bash/starship.toml"
+}
 
-do_symlink "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
-do_symlink "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
+section_nvim() {
+  do_symlink "${this_dir}/nvim" "$XDG_CONFIG_HOME/nvim"
+}
 
-do_symlink "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
-do_symlink "${this_dir}/bash/bashrc" "$HOME/.bashrc"
-do_symlink "${this_dir}/bash/starship.toml" "$XDG_CONFIG_HOME/bash/starship.toml"
+section_git() {
+  mkdir -p "$XDG_CONFIG_HOME/git"
+  do_symlink "${this_dir}/git/global-excludes" "$XDG_CONFIG_HOME/git/global-excludes"
+  do_symlink "${this_dir}/git/commit-template" "$XDG_CONFIG_HOME/git/commit-template"
+}
 
-## Other software
+section_other() {
+  do_symlink "${this_dir}/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
+  do_symlink "${this_dir}/editorconfig" "$HOME/.editorconfig"
+  do_symlink "${this_dir}/elixir/default-mix-commands" "$HOME/.default-mix-commands"
+  do_symlink "${this_dir}/elixir/iex.exs" "$HOME/.iex.exs"
+  do_symlink "${this_dir}/nodejs/npmrc" "$HOME/.npmrc"
+  do_symlink "${this_dir}/tmux/tmux.conf" "$HOME/.tmux.conf"
+  do_symlink "${this_dir}/vim/vimrc" "$HOME/.vim/vimrc"
+}
 
-do_symlink "${this_dir}/nvim" "$XDG_CONFIG_HOME/nvim"
-do_symlink "${this_dir}/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
-do_symlink "${this_dir}/editorconfig" "$HOME/.editorconfig"
-do_symlink "${this_dir}/elixir/default-mix-commands" "$HOME/.default-mix-commands"
-do_symlink "${this_dir}/elixir/iex.exs" "$HOME/.iex.exs"
-do_symlink "${this_dir}/nodejs/npmrc" "$HOME/.npmrc"
-do_symlink "${this_dir}/tmux/tmux.conf" "$HOME/.tmux.conf"
-do_symlink "${this_dir}/vim/vimrc" "$HOME/.vim/vimrc"
+main() {
+  trap 'say_err "failed at line $LINENO"; exit 1' ERR
 
-## Git
+  wants rofi && section_rofi
+  wants shell && section_shell
+  wants nvim && section_nvim
+  wants git && section_git
+  wants other && section_other
 
-# https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration
-mkdir -p "$XDG_CONFIG_HOME/git"
+  # Default: run all if --only wasn’t provided
+  if [[ -z "$only_sections" ]]; then
+    section_rofi
+    section_shell
+    section_nvim
+    section_git
+    section_other
+  fi
 
-do_symlink "${this_dir}/git/global-excludes" "$XDG_CONFIG_HOME/git/global-excludes"
-do_symlink "${this_dir}/git/commit-template" "$XDG_CONFIG_HOME/git/commit-template"
+  say "done"
+}
+
+main "$@"
