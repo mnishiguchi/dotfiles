@@ -211,10 +211,10 @@ if [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
   if source "$HOME/.sdkman/bin/sdkman-init.sh"; then
     echo_success "SDKMAN initialized."
   else
-    echo_failure "Failed to initialize SDKMAN."
+    echo_failure "SDKMAN init script found but failed to load."
   fi
 else
-  echo_failure "SDKMAN init script not found or is empty."
+  echo_heading "SDKMAN not found — skipping."
 fi
 
 ## yazi
