@@ -90,10 +90,6 @@ export TMUXP_CONFIGDIR="$XDG_CONFIG_HOME/tmuxp"
 
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 
-## PHP
-
-export PHP_INI_SCAN_DIR="/home/mnishiguchi/.config/herd-lite/bin:$PHP_INI_SCAN_DIR"
-
 ## PATH
 
 # By prepending paths, the system will prioritize these directories over the
