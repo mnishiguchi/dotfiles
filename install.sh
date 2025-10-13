@@ -175,7 +175,6 @@ section_other() {
   do_symlink "${this_dir}/elixir/iex.exs" "$HOME/.iex.exs"
   do_symlink "${this_dir}/nodejs/npmrc" "$HOME/.npmrc"
   do_symlink "${this_dir}/tmux/tmux.conf" "$HOME/.tmux.conf"
-  do_symlink "${this_dir}/vim/vimrc" "$HOME/.vim/vimrc"
 }
 
 main() {
