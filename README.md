@@ -5,7 +5,7 @@ My collection of dotfiles.
 ## Get started
 
 ```bash
-git clone git@github.com:mnishiguchi/dotfiles.git my_dotfiles
+git clone https://github.com/mnishiguchi/dotfiles.git my_dotfiles
 ```
 
 ```bash
@@ -16,15 +16,16 @@ cd my_dotfiles
 ./install.sh --help
 ```
 
-```
-Install all dotfiles that are defined in this project.
+```text
+Install all dotfiles defined in this project.
 
 Usage:
-    install.sh [options]
+  install.sh [options]
 
 Options:
-    -h, --help      Display this message
-    -f, --force     Force overwriting destination files
-    -b, --backup    Rename preexisting destination files as each file is overwritten
-
+  --debug            Enable shell tracing
+  --force, -f        Overwrite destination files
+  --check            Dry run (show what would change)
+  --only <sections>  Comma-separated list: rofi,shell,nvim,git,other
+  --help, -h         Show help
 ```

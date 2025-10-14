@@ -171,7 +171,7 @@ extract() (
   *.zip) unzip "$1" ;;
   *.ZIP) unzip "$1" ;;
   *.pax) pax -r <"$1" ;;
-  *.pax.Z) uncompress "$1" —stdout | pax -r ;;
+  *.pax.Z) uncompress -c "$1" | pax -r ;;
   *.Z) uncompress "$1" ;;
   *.7z) 7z x "$1" ;;
   *.tar.gz.gpg) gpg --decrypt "$1" | tar xvzf - ;;

@@ -172,7 +172,7 @@ export FZF_DEFAULT_OPTS='
 # Default command to use when input is tty
 # https://github.com/junegunn/fzf#environment-variables
 if command_exists rg; then
-  export FZF_DEFAULT_COMMAND="rg --files --hidden --max-filesize 1M --glob '!.git' --ignore-file '$XDG_CONFIG_HOME/git/excludes'"
+  export FZF_DEFAULT_COMMAND="rg --files --hidden --max-filesize 1M --glob '!.git' --ignore-file '$XDG_CONFIG_HOME/git/global-excludes'"
   echo_success "fzf configured to use ripgrep."
 else
   export FZF_DEFAULT_COMMAND="find . -type f ! -path '*git*'"

@@ -61,6 +61,7 @@ backup_dir="$HOME/.dotfiles-backup/$(hostname -s)"
 mkdir -p "$backup_dir"
 
 timestamp() { date "+%Y%m%d%H%M%S"; }
+ensure_dir() { [[ "$check" == true ]] || mkdir -p "$1"; }
 
 # Resolve absolute, dereferenced path if possible
 abspath() {
@@ -89,13 +90,29 @@ backup_file() {
   fi
 }
 
-# Idempotent, safe symlink
+# Move the existing path into backup (used for --force)
+backup_move() {
+  local target="$1"
+  local base ts dest
+  base="$(basename "$target")"
+  ts="$(timestamp)"
+  dest="$backup_dir/${base}~${ts}"
+
+  if [[ -e "$target" || -L "$target" ]]; then
+    say "backup+move $target -> $dest"
+    [[ "$check" == true ]] && return 0
+    mkdir -p "$backup_dir"
+    mv -f "$target" "$dest"
+  fi
+}
+
+# Idempotent, safe symlink (overwrite only with --force)
 do_symlink() {
   local src="$1" target="$2" ln_flags="-sv"
   [[ "$force" == true ]] && ln_flags="-sfv"
 
-  # Ensure parent exists
-  [[ "$check" == true ]] || mkdir -p "$(dirname "$target")"
+  # Ensure parent exists (skipped in --check)
+  ensure_dir "$(dirname "$target")"
 
   # If target is already a symlink to src, skip
   if [[ -L "$target" ]]; then
@@ -109,10 +126,14 @@ do_symlink() {
     fi
   fi
 
-  # If target exists and is not the right link, back it up
+  # Conflict handling
   if [[ -e "$target" || -L "$target" ]]; then
-    say "exists $target -- backing up"
-    backup_file "$target"
+    if [[ "$force" == true ]]; then
+      backup_move "$target"
+    else
+      say_err "conflict: $target exists. Re-run with --force to overwrite (a backup will be saved in $backup_dir)."
+      exit 1
+    fi
   fi
 
   say "link   $target -> $src"
@@ -135,6 +156,9 @@ wants() {
 # ----------------------
 
 section_rofi() {
+  ensure_dir "$HOME/.local/bin"
+  ensure_dir "$XDG_CONFIG_HOME/rofi"
+
   command -v rofi >/dev/null || {
     say_warn "rofi not found; skipping rofi section"
     return
@@ -146,25 +170,31 @@ section_rofi() {
 }
 
 section_shell() {
+  ensure_dir "$XDG_CONFIG_HOME/shell"
   do_symlink "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
   do_symlink "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
+
+  ensure_dir "$XDG_CONFIG_HOME/bash"
   do_symlink "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
   do_symlink "${this_dir}/bash/bashrc" "$HOME/.bashrc"
   do_symlink "${this_dir}/bash/starship.toml" "$XDG_CONFIG_HOME/bash/starship.toml"
 }
 
 section_nvim() {
+  ensure_dir "$XDG_CONFIG_HOME"
   do_symlink "${this_dir}/nvim" "$XDG_CONFIG_HOME/nvim"
 }
 
 section_git() {
-  mkdir -p "$XDG_CONFIG_HOME/git"
+  ensure_dir "$XDG_CONFIG_HOME/git"
   do_symlink "${this_dir}/git/global-excludes" "$XDG_CONFIG_HOME/git/global-excludes"
   do_symlink "${this_dir}/git/commit-template" "$XDG_CONFIG_HOME/git/commit-template"
 }
 
 section_other() {
+  ensure_dir "$XDG_CONFIG_HOME/direnv"
   do_symlink "${this_dir}/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
+
   do_symlink "${this_dir}/editorconfig" "$HOME/.editorconfig"
   do_symlink "${this_dir}/elixir/default-mix-commands" "$HOME/.default-mix-commands"
   do_symlink "${this_dir}/elixir/iex.exs" "$HOME/.iex.exs"
@@ -175,14 +205,14 @@ section_other() {
 main() {
   trap 'say_err "failed at line $LINENO"; exit 1' ERR
 
-  wants rofi && section_rofi
-  wants shell && section_shell
-  wants nvim && section_nvim
-  wants git && section_git
-  wants other && section_other
-
-  # Default: run all if --only wasn’t provided
-  if [[ -z "$only_sections" ]]; then
+  if [[ -n "$only_sections" ]]; then
+    wants rofi && section_rofi
+    wants shell && section_shell
+    wants nvim && section_nvim
+    wants git && section_git
+    wants other && section_other
+  else
+    # Default: run all
     section_rofi
     section_shell
     section_nvim
