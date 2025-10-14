@@ -139,14 +139,9 @@ section_rofi() {
     say_warn "rofi not found; skipping rofi section"
     return
   }
-  do_symlink "${this_dir}/rofi/bin/gh-repos" "$HOME/.local/bin/gh-repos"
-  do_symlink "${this_dir}/rofi/bin/rofi-gh-repos-modi" "$HOME/.local/bin/rofi-gh-repos-modi"
-  do_symlink "${this_dir}/rofi/bin/rofi-power-modi" "$HOME/.local/bin/rofi-power-modi"
   do_symlink "${this_dir}/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
   do_symlink "${this_dir}/rofi/bin/rofi-combi-menu" "$HOME/.local/bin/rofi-combi-menu"
-  do_symlink "${this_dir}/rofi/bin/rofi-power-menu" "$HOME/.local/bin/rofi-power-menu"
   do_symlink "${this_dir}/rofi/config/config.rasi" "$XDG_CONFIG_HOME/rofi/config.rasi"
-  do_symlink "${this_dir}/rofi/config/power-theme.rasi" "$XDG_CONFIG_HOME/rofi/power-theme.rasi"
   do_symlink "${this_dir}/rofi/config/snippets.txt" "$XDG_CONFIG_HOME/rofi/snippets.txt"
 }
 

@@ -1,9 +1,0 @@
-// This is a theme for the power menu.
-
-inputbar {
-  children: [entry];
-}
-
-listview {
-  lines: 5;
-}

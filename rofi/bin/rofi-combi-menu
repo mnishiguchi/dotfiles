@@ -9,9 +9,8 @@
 
 # Use a full path instead of relying on PATH search
 SNIP_MODI="$HOME/.local/bin/rofi-snippets-modi"
-GH_MODI="$HOME/.local/bin/rofi-gh-repos-modi"
 
 rofi \
-  -modi "combi,drun,snip:$SNIP_MODI,gh:$GH_MODI,run" \
+  -modi "combi,snip:$SNIP_MODI,drun,run" \
   -show 'combi' \
-  -combi-modi 'drun,snip,gh'
+  -combi-modi 'snip,drun'
