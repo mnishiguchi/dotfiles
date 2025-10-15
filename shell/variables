@@ -23,10 +23,6 @@ mkdir -p "$XDG_RUNTIME_DIR"
 
 export VIMWIKI_DIR="$HOME/Documents/vimwiki"
 
-export GIT_USER_NAME="Masatoshi Nishiguchi"
-export GIT_USER_EMAIL="7563926+mnishiguchi@users.noreply.github.com"
-export GITHUB_USER_NAME="mnishiguchi"
-
 ## Editors
 
 export EDITOR="${EDITOR:-nvim}"
