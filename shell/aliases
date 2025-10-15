@@ -45,7 +45,6 @@ fi
 alias ..='cd ../'
 alias ...='cd ../../'
 
-alias dot='cd "${DOTFILES_DIR:-$HOME/.dotfiles}"'
 alias memo='cd "${VIMWIKI_DIR:-$HOME/Documents/vimwiki}"'
 
 # ================================

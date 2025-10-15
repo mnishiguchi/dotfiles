@@ -21,7 +21,6 @@ mkdir -p "$XDG_RUNTIME_DIR"
 
 ## User-defined
 
-export DOTFILES_DIR="$HOME/.dotfiles"
 export VIMWIKI_DIR="$HOME/Documents/vimwiki"
 
 export GIT_USER_NAME="Masatoshi Nishiguchi"
