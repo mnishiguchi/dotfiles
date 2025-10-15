@@ -1,0 +1,51 @@
+window:
+  dimensions:
+    columns: 120
+    lines: 40
+
+font:
+  size: 10
+  builtin_box_drawing: true
+  normal:
+    family: "FiraCode Nerd Font Mono"
+    style: "Regular"
+  bold:
+    family: "FiraCode Nerd Font Mono"
+    style: "Bold"
+  italic:
+    family: "FiraCode Nerd Font Mono"
+    style: "Italic"
+  bold_italic:
+    family: "FiraCode Nerd Font Mono"
+    style: "Bold Italic"
+
+colors:
+  primary:
+    background: "#212121"
+    foreground: "#F8F8F2"
+  cursor:
+    text: "#0E1415"
+    cursor: "#ECEFF4"
+  normal:
+    black: "#21222C"
+    red: "#FF5555"
+    green: "#50FA7B"
+    yellow: "#FFCB6B"
+    blue: "#82AAFF"
+    magenta: "#C792EA"
+    cyan: "#8BE9FD"
+    white: "#F8F9F2"
+  bright:
+    black: "#545454"
+    red: "#FF6E6E"
+    green: "#69FF94"
+    yellow: "#FFCB6B"
+    blue: "#D6ACFF"
+    magenta: "#FF92DF"
+    cyan: "#A4FFFF"
+    white: "#F8F8F2"
+
+keyboard:
+  bindings:
+    - { key: C, mods: Control|Shift, action: Copy }
+    - { key: V, mods: Control|Shift, action: Paste }

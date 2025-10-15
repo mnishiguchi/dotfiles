@@ -192,6 +192,10 @@ section_git() {
 }
 
 section_other() {
+  ensure_dir "$XDG_CONFIG_HOME/alacritty"
+  do_symlink "${this_dir}/alacritty/alacritty.toml" "$XDG_CONFIG_HOME/alacritty/alacritty.toml"
+  do_symlink "${this_dir}/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty/alacritty.yml"
+
   ensure_dir "$XDG_CONFIG_HOME/direnv"
   do_symlink "${this_dir}/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
 
