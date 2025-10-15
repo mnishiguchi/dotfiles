@@ -45,8 +45,6 @@ fi
 alias ..='cd ../'
 alias ...='cd ../../'
 
-alias memo='cd "${VIMWIKI_DIR:-$HOME/Documents/vimwiki}"'
-
 # ================================
 # File Operation Enhancements
 # ================================

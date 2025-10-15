@@ -19,10 +19,6 @@ else
 fi
 mkdir -p "$XDG_RUNTIME_DIR"
 
-## User-defined
-
-export VIMWIKI_DIR="$HOME/Documents/vimwiki"
-
 ## Editors
 
 export EDITOR="${EDITOR:-nvim}"
