@@ -232,10 +232,12 @@ PATH=$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; pr
 # Enable vi mode for Bash
 set -o vi
 
-# Call neofetch to verify .bashrc was loaded
+# Call fastfetch to verify .bashrc was loaded
 echo
 echo
-pcall neofetch --off
+if command_exists fastfetch; then
+  pcall fastfetch
+fi
 
 ## Bash Line Editor (ble.sh)
 
