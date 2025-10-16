@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # If not running interactively, don't do anything
-[ -z "$PS1" ] && return
+[[ $- != *i* ]] && return
 
 ## Helpers
 
@@ -40,203 +40,416 @@ find_first_command() {
   echo "$cmd"
 }
 
+# source a file if it exists; be quiet about it
+maybe_source() { [ -f "$1" ] && . "$1" >/dev/null 2>&1; }
+
 ## global bashrc
 
 # Source the global bashrc if it exists
-if [ -f /etc/bashrc ]; then
-  echo_heading "Sourcing global bashrc..."
-  . /etc/bashrc
-  echo_success "Global bashrc sourced."
-else
-  echo_heading "Global bashrc not found. Skipping."
-fi
+maybe_source "/etc/bashrc"
+maybe_source "/etc/bash.bashrc"
 
 ## Common variables
 
-echo_heading "Loading common variables..."
-if [ -f "$HOME/.config/shell/variables" ]; then
-  if source "$HOME/.config/shell/variables"; then
-    echo_success "Common variables loaded."
-  else
-    echo_failure "Failed to load common variables."
-  fi
-else
-  echo_failure "Common variables file not found: $HOME/.config/shell/variables"
-fi
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+mkdir -p "$XDG_CACHE_HOME" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME"
 
-## Bash-specific variables
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 
-export HISTCONTROL=erasedups:ignoredups:ignorespace
-export HISTIGNORE="history:ls:pwd:cd:"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="/var/lib/flatpak/exports/bin:$PATH"
+export PATH="$HOME/.local/share/flatpak/exports/bin:$PATH"
+export PATH="$ANDROID_HOME/emulator:$PATH"
+export PATH="$ANDROID_HOME/platform-tools:$PATH"
+export PATH="$XDG_CONFIG_HOME/flutter/bin:$PATH"
+export PATH="$XDG_CONFIG_HOME/herd-lite/bin:$PATH"
+export PATH="$XDG_DATA_HOME/npm/bin:$PATH"
+export PATH="/usr/local/go/bin:$PATH"
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+
+## Bash settings
+
+export HISTCONTROL=ignoredups:erasedups:ignorespace
+export HISTIGNORE="history:ls:ll:la:l.:pwd:cd:cd -:exit:clear:jobs:bg:fg"
 export HISTFILESIZE=10000
 export HISTSIZE=10000
+shopt -s checkwinsize
+shopt -s cmdhist
 shopt -s histappend
+
+## editors
+
+if [ -z "${EDITOR:-}" ]; then
+  if command -v nvim >/dev/null 2>&1; then
+    EDITOR="nvim"
+  elif command -v vim >/dev/null 2>&1; then
+    EDITOR="vim"
+  else
+    EDITOR="nano"
+  fi
+fi
+
+if [ -z "${VISUAL:-}" ]; then
+  if command -v code >/dev/null 2>&1; then
+    VISUAL="code"
+  else
+    VISUAL="$EDITOR"
+  fi
+fi
+
+if [ -z "${GIT_EDITOR:-}" ]; then
+  GIT_EDITOR="$EDITOR"
+fi
+
+if [ -z "${ELIXIR_EDITOR:-}" ]; then
+  if command -v code >/dev/null 2>&1; then
+    ELIXIR_EDITOR="code --goto"
+  else
+    ELIXIR_EDITOR="$EDITOR"
+  fi
+fi
+
+export EDITOR VISUAL GIT_EDITOR ELIXIR_EDITOR
 
 ## Git completion
 
-echo_heading "Setting up Git completion..."
-# https://git-scm.com/book/en/v2/Appendix-A:-Git-in-Other-Environments-Git-in-Bash
-mkdir -p "$XDG_CONFIG_HOME/git"
-git_completion_script="$XDG_CONFIG_HOME/git/git-completion.bash"
-
-if [ ! -f "$git_completion_script" ]; then
-  if curl -L https://raw.github.com/git/git/master/contrib/completion/git-completion.bash >"$git_completion_script"; then
-    echo_success "Git completion script downloaded."
+if maybe_source "/usr/share/bash-completion/completions/git" ||
+  maybe_source "/etc/bash_completion.d/git" ||
+  maybe_source "/opt/homebrew/etc/bash_completion.d/git-completion.bash" ||
+  maybe_source "/usr/local/etc/bash_completion.d/git-completion.bash" ||
+  maybe_source "$XDG_CONFIG_HOME/git/git-completion.bash"; then
+  : # quiet on success
+else
+  mkdir -p "$XDG_CONFIG_HOME/git"
+  if command -v curl >/dev/null 2>&1 &&
+    curl -fsSL https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash \
+      >"$XDG_CONFIG_HOME/git/git-completion.bash" &&
+    maybe_source "$XDG_CONFIG_HOME/git/git-completion.bash"; then
+    echo_success "git completion (downloaded)"
   else
-    echo_failure "Failed to download Git completion script."
+    echo_failure "git completion skipped"
   fi
 fi
 
-if source "$git_completion_script"; then
-  echo_success "Git completion initialized."
-else
-  echo_failure "Failed to source Git completion."
+## asdf (0.16+)
+
+if [ -z "${ASDF_DATA_DIR:-}" ]; then
+  export ASDF_DATA_DIR="$HOME/.asdf"
 fi
 
-## zoxide
-
-echo_heading "Setting up zoxide..."
-# https://github.com/ajeetdsouza/zoxide
-if command_exists zoxide; then
-  eval "$(zoxide init bash)"
-  echo_success "zoxide initialized."
+if [ -f "$ASDF_DATA_DIR/asdf.sh" ]; then
+  pcall . "$ASDF_DATA_DIR/asdf.sh"
 else
-  echo_failure "zoxide is not installed."
+  # fallback: add to PATH; your later PATH de-dup will clean duplicates
+  PATH="$ASDF_DATA_DIR/bin:$ASDF_DATA_DIR/shims:$PATH"
 fi
 
-## asdf
-
-echo_heading "Setting up asdf..."
-export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
-ASDF_BIN="$ASDF_DATA_DIR/bin/asdf"
-
-# Ensure asdf is on PATH (binary install layout)
-if [[ -x "$ASDF_BIN" ]] && [[ ":$PATH:" != *":$ASDF_DATA_DIR/bin:"* ]]; then
-  PATH="$ASDF_DATA_DIR/bin:$PATH"
+if command_exists asdf; then
+  if asdf help completion >/dev/null 2>&1; then
+    pcall eval "$(asdf completion bash)"
+  fi
 fi
 
-if command -v asdf >/dev/null 2>&1; then
-  echo_success "asdf detected ($(asdf --version))"
-  eval "$(asdf completion bash)" && echo_success "asdf completion enabled"
+## fzf
+
+if command_exists fzf; then
+  echo_heading "Setting up fzf..."
+  # fzf >= 0.48: official Bash integration (key-bindings + completion)
+  if eval "$(fzf --bash)" >/dev/null 2>&1; then
+    echo_success "fzf integration initialized"
+  else
+    echo_failure "fzf present but failed to initialize"
+  fi
+
+  # https://github.com/junegunn/fzf/wiki/Color-schemes#dracula
+  export FZF_DEFAULT_OPTS='
+  --reverse
+  --color=dark
+  --color=fg:-1,bg:-1,hl:#5fff87,fg+:-1,bg+:-1,hl+:#ffaf5f
+  --color=info:#af87ff,prompt:#5fff87,pointer:#ff87d7,marker:#ff87d7,spinner:#ff87d7
+  '
+
+  # Default command to use when input is tty
+  # https://github.com/junegunn/fzf#environment-variables
+  if command_exists rg; then
+    FZF_DEFAULT_COMMAND_BASE="rg --files --hidden --max-filesize 1M --glob '!.git'"
+    if [ -f "$XDG_CONFIG_HOME/git/global-excludes" ]; then
+      export FZF_DEFAULT_COMMAND="${FZF_DEFAULT_COMMAND_BASE} --ignore-file '$XDG_CONFIG_HOME/git/global-excludes'"
+    else
+      export FZF_DEFAULT_COMMAND="${FZF_DEFAULT_COMMAND_BASE}"
+    fi
+  else
+    export FZF_DEFAULT_COMMAND="find . -type f ! -path '*git*'"
+  fi
 else
-  echo_failure "asdf not found. Install to $ASDF_DATA_DIR or add it to PATH."
+  echo_failure "fzf is not installed or not on PATH"
 fi
 
 ## direnv
 
-echo_heading "Setting up direnv..."
-# https://direnv.net/docs/hook.html
 if command_exists direnv; then
-  eval "$(direnv hook bash)"
-  echo_success "direnv initialized."
-else
-  echo_failure "direnv is not installed."
+  pcall eval "$(direnv hook bash)"
 fi
 
-## Shell prompt
+## starship
 
-echo_heading "Setting up Starship prompt..."
-# https://starship.rs/config/
-export STARSHIP_CONFIG="$XDG_CONFIG_HOME/bash/starship.toml"
-
-# https://starship.rs
 if command_exists starship; then
-  eval "$(starship init bash)"
-  echo_success "Starship prompt initialized."
-else
-  echo_failure "Starship is not installed."
+  pcall eval "$(starship init bash)"
 fi
 
-## fuzzy finder
+## zoxide
 
-echo_heading "Setting up fzf..."
-export FZF_DIR="$XDG_CONFIG_HOME/fzf"
-
-# https://github.com/junegunn/fzf
-# Source the fzf.bash script if available
-if [[ -f "$FZF_DIR/fzf.bash" ]]; then
-  source "$FZF_DIR/fzf.bash"
-  echo_success "fzf initialized."
-else
-  echo_failure "fzf.bash not found in $FZF_DIR. Ensure fzf is properly installed."
-fi
-
-# https://github.com/junegunn/fzf/wiki/Color-schemes#dracula
-export FZF_DEFAULT_OPTS='
---reverse
---color=dark
---color=fg:-1,bg:-1,hl:#5fff87,fg+:-1,bg+:-1,hl+:#ffaf5f
---color=info:#af87ff,prompt:#5fff87,pointer:#ff87d7,marker:#ff87d7,spinner:#ff87d7
-'
-
-# Default command to use when input is tty
-# https://github.com/junegunn/fzf#environment-variables
-if command_exists rg; then
-  export FZF_DEFAULT_COMMAND="rg --files --hidden --max-filesize 1M --glob '!.git' --ignore-file '$XDG_CONFIG_HOME/git/global-excludes'"
-  echo_success "fzf configured to use ripgrep."
-else
-  export FZF_DEFAULT_COMMAND="find . -type f ! -path '*git*'"
-  echo_success "fzf configured to use find."
-fi
-
-## sdkman
-
-echo_heading "Setting up SDKMAN..."
-# https://sdkman.io/install
-if [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
-  if source "$HOME/.sdkman/bin/sdkman-init.sh"; then
-    echo_success "SDKMAN initialized."
-  else
-    echo_failure "SDKMAN init script found but failed to load."
-  fi
-else
-  echo_heading "SDKMAN not found — skipping."
+if command_exists zoxide; then
+  pcall eval "$(zoxide init bash)"
 fi
 
 ## yazi
 
-# https://yazi-rs.github.io/docs/quick-start#shell-wrapper
 y() {
-  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  local tmp cwd
+  tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
   yazi "$@" --cwd-file="$tmp"
-  if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-    builtin cd -- "$cwd"
+  if cwd="$(command cat -- "$tmp")"; then
+    if [ -n "$cwd" ]; then
+      if [ "$cwd" != "$PWD" ]; then
+        builtin cd -- "$cwd"
+      fi
+    fi
   fi
   rm -f -- "$tmp"
 }
 
-## Common shell stuff
+## aliases
 
-echo_heading "Loading aliases..."
-if [ -f "$XDG_CONFIG_HOME/shell/aliases" ]; then
-  if source "$XDG_CONFIG_HOME/shell/aliases"; then
-    echo_success "Aliases loaded."
-  else
-    echo_failure "Failed to load aliases."
-  fi
-else
-  echo_failure "Aliases file not found: $XDG_CONFIG_HOME/shell/aliases"
+alias path='echo -e ${PATH//:/\\n}'
+
+if ! command_exists open; then
+  open() { nohup xdg-open "$@" >/dev/null 2>&1 & }
 fi
 
-## Editors
+if command_exists eza; then
+  # https://github.com/eza-community/eza
+  alias ls='eza --group-directories-first --classify --time-style="+%Y-%m-%d %H:%M"'
+  alias ll='ls --long'
+  alias la='ls --long --all'
+  alias lt='ls --long --time modified'
+  alias lr='ls --recurse'
+  alias l.='ls --long --list-dirs .*'
+elif command_exists exa; then
+  alias ls='exa --group-directories-first --classify'
+  alias ll='ls --long'
+  alias la='ls --long --all'
+  alias lt='ls --long --time modified'
+  alias lr='ls --recurse'
+  alias l.='ls --long --list-dirs .*'
+else
+  alias ls='ls -Fh'
+  alias ll='ls -l'
+  alias la='ls -lA'
+  alias lt='ls -lt'
+  alias lr='ls -R'
+  alias l.='ls -ld .*'
+fi
+alias ..='cd ../'
+alias ...='cd ../../'
+alias cp='cp -iv'
+alias grep='grep --color=always'
+alias mv='mv -iv'
+alias rm='rm -vI'
+alias wget='wget --continue'
 
-EDITOR=$(find_first_command nvim vim)
-ELIXIR_EDITOR=$(find_first_command code nvim vim)
-[ "$ELIXIR_EDITOR" = "code" ] && ELIXIR_EDITOR="$ELIXIR_EDITOR --goto"
+alias ga='git add'
+alias gaa='git add --all'
+alias gb='git branch'
+alias gba='git branch --all'
+alias gc='git commit --verbose'
+alias gc!='git commit --verbose --amend'
+alias gcn!='git commit --verbose --no-edit --amend'
+alias gc0='git commit --allow-empty -m "empty commit"'
+alias gco='git checkout'
+alias gd='git diff'
+alias gdca='git diff --cached'
+alias gf='git fetch'
+alias glog='git log --oneline --decorate --graph'
+alias gloga='git log --oneline --decorate --graph --all'
+alias gp='git push'
+alias gpf='git push --force-with-lease --force-if-includes'
+alias gpf!='git push --force'
+
+## grep
+
+# findtext PATTERN [PATH=.]
+# - prefers ripgrep (rg), falls back to grep
+# - shows line numbers, filenames, and color
+# - pipes to less (keeps colors)
+findtext() {
+  if [ $# -lt 1 ]; then
+    echo "usage: findtext <pattern> [path]" >&2
+    return 2
+  fi
+
+  local pattern="$1"
+  local root="${2:-.}"
+  local status=0
+
+  if command -v rg >/dev/null 2>&1; then
+    (
+      set -o pipefail
+      set -x
+      rg --with-filename \
+        --ignore-case \
+        --line-number \
+        --color=always \
+        "${pattern}" "${root}" | less --raw-control-chars
+    )
+    status="${PIPESTATUS[0]}"
+  else
+    (
+      set -o pipefail
+      set -x
+      grep -H \
+        --ignore-case \
+        --binary-files=without-match \
+        --line-number \
+        --color=always \
+        --recursive \
+        "${pattern}" "${root}" | less --raw-control-chars
+    )
+    status="${PIPESTATUS[0]}"
+  fi
+
+  if [ "$status" -ne 0 ]; then
+    echo "No matches for '${pattern}' in '${root}'." >&2
+  fi
+  return "$status"
+}
+
+## archive
+
+mkarchive() (
+  set -euo pipefail
+  set -x
+  if [ $# -lt 2 ]; then
+    echo "usage: mkarchive <output> <files/dirs...>" >&2
+    return 2
+  fi
+  local out="$1"
+  shift
+  case "$out" in
+  *.tar) tar -cvf "$out" -- "$@" ;;
+  *.tar.gz | *.tgz) tar -cvf - -- "$@" | gzip -c >"$out" ;;
+  *.zip) zip -r -X -- "$out" "$@" ;;
+  *)
+    echo "mkarchive: unsupported extension: $out" >&2
+    echo "supported: .tar .tar.gz(.tgz) .zip" >&2
+    return 1
+    ;;
+  esac
+)
+
+mkgpg() (
+  set -euo pipefail
+  set -x
+  if [ $# -lt 2 ]; then
+    echo "usage: mkgpg <basename> <files/dirs...>" >&2
+    return 2
+  fi
+  local base="$1"
+  shift
+  local tarball="${base}.tar.gz"
+  local enc="${base}.tar.gz.gpg"
+  tar -cvf - -- "$@" | gzip -c >"$tarball"
+  if gpg --symmetric --cipher-algo AES256 --output "$enc" --quiet --batch "$tarball"; then
+    if [ "${KEEP_PLAINTEXT:-0}" = "1" ]; then :; else rm -f -- "$tarball"; fi
+  else
+    echo_failure "gpg encryption failed"
+  fi
+)
+
+extract() (
+  set -euo pipefail
+  set -x
+  if [ $# -lt 1 ]; then
+    echo "usage: extract <archive>" >&2
+    return 2
+  fi
+  local f="$1"
+  case "$f" in
+  *.tar) tar xvf "$f" ;;
+  *.tar.gz | *.tgz) tar xvzf "$f" ;;
+  *.zip | *.ZIP) unzip -- "$f" ;;
+  *.gz) gunzip --keep -- "$f" ;;
+  *)
+    echo "extract: unsupported archive: $f" >&2
+    echo "supported: .tar .tar.gz(.tgz) .zip [.gz single-file]" >&2
+    return 1
+    ;;
+  esac
+)
+
+## caps lock
+
+alias caps="capslock"
+alias nocaps="capslock off"
+capslock() {
+  if [ "$(uname)" = "Darwin" ]; then
+    echo "capslock() does not support 'Darwin'"
+    return 1
+  fi
+  if [ -z "$1" ]; then
+    setxkbmap -option
+  else
+    setxkbmap -option ctrl:nocaps
+  fi
+  setxkbmap -print -verbose 10
+}
+
+## misc
+
+alias timestamp='date "+%Y%m%d%H%M%S"'
+alias 2desk='tee ${HOME}/Desktop/terminal-output-$(timestamp).txt'
+alias serve='npx serve || python3 -m http.server'
+
+mkreadme() {
+  if [ -f README.md ]; then
+    echo "README.md already exists"
+    return 1
+  fi
+  echo 'Nothing interesting here yet. Try again later.' >README.md
+}
+
+alias be='bundle exec'
+
+install_bundler() {
+  if [ -z "${1:-}" ]; then
+    gem install bundler
+  else
+    if gem uninstall -xI bundler; then
+      gem install bundler --version "$1"
+    else
+      echo_failure "failed to uninstall existing bundler"
+    fi
+  fi
+}
+
+hexdocs() { mix hex.docs online "${1:-elixir}"; }
+
+hexpm() { open "https://hex.pm/packages?search=${1:-}"; }
 
 ## Wrapping up
 
-# Clean up PATH
-PATH=$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
-
-# Enable vi mode for Bash
-set -o vi
+# path de-dup
+PATH="$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')"
 
 # Call fastfetch to verify .bashrc was loaded
-echo
-echo
 if command_exists fastfetch; then
-  pcall fastfetch
+  echo
+  pcall fastfetch --logo none
+  echo
 fi
 
 ## Bash Line Editor (ble.sh)
@@ -246,19 +459,19 @@ ble_data_dir="$XDG_DATA_HOME/blesh"
 ble_script="$ble_data_dir/ble.sh"
 ble_rc="$ble_config_dir/init.sh"
 
-# https://github.com/akinomyoga/ble.sh#14-user-settings-blerc
-if [[ -f "$ble_script" ]]; then
-  if [ -z "$BLE_VERSION" ]; then
+if [ -f "$ble_script" ]; then
+  if [ -z "${BLE_VERSION:-}" ]; then
     echo_heading "loading ${ble_script}..."
-    source "$ble_script" --noattach
-    echo_success "ble.sh loaded successfully."
+    if source "$ble_script" --noattach; then
+      echo_success "ble.sh loaded successfully."
+    else
+      echo_failure "ble.sh present but failed to load."
+    fi
   else
     echo_success "ble.sh is already loaded."
   fi
 
-  # Note: Be sure to attach or reload ble.sh at the end of .bashrc
-  # https://github.com/akinomyoga/ble.sh
-  if [ -z "$BLE_ATTACHED" ]; then
+  if [ -z "${BLE_ATTACHED:-}" ]; then
     echo_heading "attaching ble.sh ${BLE_VERSION}"
     ble-attach
   else
@@ -266,5 +479,5 @@ if [[ -f "$ble_script" ]]; then
     ble-reload
   fi
 else
-  echo_failure "ble.sh is not installed or the required script ($ble_script) is missing."
+  echo_failure "ble.sh is not installed or missing at $ble_script."
 fi

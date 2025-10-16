@@ -53,10 +53,6 @@ while [[ $# -gt 0 ]]; do
 done
 [[ "$debug" == true ]] && set -x
 
-# Env
-# shellcheck source=/dev/null
-source "${this_dir}/shell/variables"
-
 backup_dir="$HOME/.dotfiles-backup/$(hostname -s)"
 mkdir -p "$backup_dir"
 
@@ -170,14 +166,11 @@ section_rofi() {
 }
 
 section_shell() {
-  ensure_dir "$XDG_CONFIG_HOME/shell"
-  do_symlink "${this_dir}/shell/aliases" "$XDG_CONFIG_HOME/shell/aliases"
-  do_symlink "${this_dir}/shell/variables" "$XDG_CONFIG_HOME/shell/variables"
+  do_symlink "${this_dir}/starship.toml" "$XDG_CONFIG_HOME/starship.toml"
 
   ensure_dir "$XDG_CONFIG_HOME/bash"
   do_symlink "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
   do_symlink "${this_dir}/bash/bashrc" "$HOME/.bashrc"
-  do_symlink "${this_dir}/bash/starship.toml" "$XDG_CONFIG_HOME/bash/starship.toml"
 }
 
 section_nvim() {
