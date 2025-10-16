@@ -58,6 +58,7 @@ return {
         dart            = { "dart_format" },
         elixir          = { "mixformat" },
         eruby           = { "htmlbeautifier" },
+        fish            = { "fish_indent" },
         graphql         = { "prettierd" },
         html            = { "htmlbeautifier" },
         javascript      = { "prettierd" },
