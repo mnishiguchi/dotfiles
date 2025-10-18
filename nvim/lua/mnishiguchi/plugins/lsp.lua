@@ -30,10 +30,25 @@ return {
         'gopls',
         'html',
         'jsonls',
-        'rubocop',
+        'lua_ls',
         'ruby_lsp',
         'rust_analyzer',
+        'tailwindcss',
+        'taplo',
+        'ts_ls',
         'yamlls',
+      }
+
+      -- optional: prefer LSP formatting only for servers you want, else fall back to Conform
+      -- here we disable formatting for ts/css/html/json/yaml (prettier-land) and ruby (rbprettier/rubocop)
+      local disable_fmt = {
+        cssls = true,
+        html = true,
+        jsonls = true,
+        ruby_lsp = true,
+        ts_ls = true,
+        tsserver = true,
+        yamlls = true,
       }
 
       ------------------------------------------------------------------------------
@@ -51,10 +66,6 @@ return {
           -- default handler for all installed servers
           function(server)
             local opts = { capabilities = capabilities }
-            local ok, custom = pcall(require, 'lsp.' .. server)
-            if ok then
-              opts = vim.tbl_deep_extend('force', opts, custom)
-            end
             lspconfig[server].setup(opts)
             vim.lsp.enable(server)
           end,
@@ -70,6 +81,12 @@ return {
         callback = function(event)
           local client = vim.lsp.get_clients({ id = event.data.client_id })[1]
           if not client then return end
+
+          -- Prefer LSP formatting only for servers you want, else fall back to Conform
+          if disable_fmt[client.name] then
+            client.server_capabilities.documentFormattingProvider = false
+            client.server_capabilities.documentRangeFormattingProvider = false
+          end
 
           -- Enable inlay hints if supported
           if client.server_capabilities.inlayHintProvider then
@@ -100,13 +117,21 @@ return {
             vim.tbl_extend('force', opts, { desc = 'Show hover documentation' }))
           vim.keymap.set('n', '<F2>', vim.lsp.buf.rename,
             vim.tbl_extend('force', opts, { desc = 'Rename symbol' }))
-          vim.keymap.set({ 'n', 'x' }, '<F3>', lsp_buf_format_with_fallback,
-            vim.tbl_extend('force', opts, { desc = 'Format code' }))
           vim.keymap.set('n', '<F4>', vim.lsp.buf.code_action,
             vim.tbl_extend('force', opts, { desc = 'Code actions' }))
-          vim.keymap.set({ 'n', 'x' }, '<space>gq', lsp_buf_format_with_fallback,
+          vim.keymap.set({ 'n', 'x' }, '<space>lf', lsp_buf_format_with_fallback,
             vim.tbl_extend('force', opts, { desc = 'Format with fallback' }))
         end
+      })
+
+      ------------------------------------------------------------------------------
+      -- Diagnostic Config: global behavior for virtual text, sorting, updates
+      ------------------------------------------------------------------------------
+      vim.diagnostic.config({
+        underline = true,
+        update_in_insert = false,
+        severity_sort = true,
+        virtual_text = { spacing = 2, prefix = "●" },
       })
 
       ------------------------------------------------------------------------------

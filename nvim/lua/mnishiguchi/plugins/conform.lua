@@ -2,11 +2,15 @@ return {
   "stevearc/conform.nvim",
   init = function()
     vim.api.nvim_create_user_command("Format", function()
-      require("conform").format({ async = true, lsp_fallback = true })
+      require("conform").format({ async = true, lsp_fallback = false })
     end, { desc = "Format buffer using Conform" })
 
+    -- Global keymap: Conform first, then LSP (via lsp_fallback)
+    vim.keymap.set({ "n", "x" }, "<leader>lf", "<cmd>Format<CR>",
+      { desc = "Format buffer using Conform" })
+
     vim.api.nvim_create_user_command("FormatWrite", function()
-      require("conform").format({ async = true, lsp_fallback = true })
+      require("conform").format({ async = true, lsp_fallback = false })
       vim.cmd.write()
     end, { desc = "Format and write buffer using Conform" })
   end,
@@ -56,8 +60,9 @@ return {
         blade           = { "blade-formatter" },
         css             = { "prettierd" },
         dart            = { "dart_format" },
-        elixir          = { "mixformat" },
+        elixir          = { "mix" },
         eruby           = { "htmlbeautifier" },
+        fish            = { "fish_indent" },
         graphql         = { "prettierd" },
         html            = { "htmlbeautifier" },
         javascript      = { "prettierd" },
