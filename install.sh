@@ -166,12 +166,6 @@ section_rofi() {
 }
 
 section_shell() {
-  do_symlink "${this_dir}/starship.toml" "$XDG_CONFIG_HOME/starship.toml"
-
-  ensure_dir "$XDG_CONFIG_HOME/bash"
-  do_symlink "${this_dir}/bash/bash_profile" "$HOME/.bash_profile"
-  do_symlink "${this_dir}/bash/bashrc" "$HOME/.bashrc"
-
   ensure_dir "$XDG_CONFIG_HOME/fish"
   do_symlink "${this_dir}/fish/config.fish" "$XDG_CONFIG_HOME/fish/config.fish"
 }
