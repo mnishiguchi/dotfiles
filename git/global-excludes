@@ -172,6 +172,11 @@ jspm_packages/
 node_modules/
 web_modules/
 
+mise.local.toml
+.mise.*.env
+.mise.lock
+.mise/tasks.local/**
+
 # misc
 *.local
 foo.*

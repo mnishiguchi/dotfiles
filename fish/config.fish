@@ -15,7 +15,6 @@ if not set -q ANDROID_HOME
 end
 
 for p in \
-    "$HOME/.asdf/shims" \
     "$HOME/.local/bin" \
     "$HOME/.cargo/bin" \
     "$XDG_DATA_HOME/npm/bin" \
@@ -29,6 +28,10 @@ for p in \
 end
 
 alias paths='printf "%s\n" $PATH'
+
+## Mise (make tools available early)
+
+mise activate fish | source
 
 ## Editors
 
@@ -120,27 +123,7 @@ alias be='bundle exec'
 
 ## Integrations
 
-function asdf_setup
-    # Resolve base dir (respects ASDF_DATA_DIR)
-    set -l data (set -q ASDF_DATA_DIR; and echo $ASDF_DATA_DIR; or echo $HOME/.asdf)
-    set -l bin "$data/bin"
-    set -l shims "$data/shims"
 
-    # Ensure asdf binary and shims are on PATH
-    contains -- "$bin" $PATH; or set -gx PATH "$bin" $PATH
-    contains -- "$shims" $PATH; or set -gx PATH "$shims" $PATH
-
-    # Generate fish completions once
-    if type -q asdf
-        set -l comp "$XDG_CONFIG_HOME/fish/completions/asdf.fish"
-        test -f "$comp"; or begin
-            mkdir -p (dirname "$comp")
-            asdf completion fish >"$comp"
-        end
-    end
-end
-
-asdf_setup
 
 if type -q fzf
     set -l fzf_opts \
