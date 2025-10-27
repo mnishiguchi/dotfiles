@@ -6,27 +6,17 @@ return {
   ------------------------------------------------------------------------------
   -- LSP Configuration Block
   ------------------------------------------------------------------------------
-  {
-    'neovim/nvim-lspconfig',
-    -- These commands and events allow lazy-loading of the LSP configuration.
-    cmd = { 'LspInfo', 'LspInstall', 'LspStart' },
-    event = { 'BufReadPre', 'BufNewFile' },
-    dependencies = {
-      { "saghen/blink.cmp",                 version = "1.*" },
-      { 'williamboman/mason.nvim' },           -- Mason: Automatic installation of LSP servers.
-      { 'williamboman/mason-lspconfig.nvim' }, -- Bridges Mason with nvim-lspconfig.
-    },
-    config = function()
-      local lspconfig = require('lspconfig')
-      local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-      -- Define the list of LSP servers to install and configure.
-      -- Ensure these identifiers match those used by Mason and lspconfig.
-      local servers = {
+  -- https://github.com/mason-org/mason-lspconfig.nvim
+  {
+    "mason-org/mason-lspconfig.nvim",
+    opts = {
+      ensure_installed = {
         'bashls',
         'clangd',
         'cssls',
         'emmet_language_server',
+        'expert',
         'gopls',
         'html',
         'jsonls',
@@ -37,8 +27,29 @@ return {
         'taplo',
         'ts_ls',
         'yamlls',
-      }
-
+      },
+    },
+    dependencies = {
+      -- https://github.com/mason-org/mason.nvim
+      {
+        "mason-org/mason.nvim",
+        opts = {
+          ui = {
+            icons = {
+              package_installed = "✓",
+              package_pending = "➜",
+              package_uninstalled = "✗"
+            }
+          }
+        }
+      },
+      -- https://github.com/neovim/nvim-lspconfig
+      "neovim/nvim-lspconfig",
+    },
+  },
+  {
+    'neovim/nvim-lspconfig',
+    config = function()
       -- optional: prefer LSP formatting only for servers you want, else fall back to Conform
       -- here we disable formatting for ts/css/html/json/yaml (prettier-land) and ruby (rbprettier/rubocop)
       local disable_fmt = {
@@ -50,27 +61,6 @@ return {
         tsserver = true,
         yamlls = true,
       }
-
-      ------------------------------------------------------------------------------
-      -- Mason Setup: Automatic LSP Server Installation
-      ------------------------------------------------------------------------------
-      -- This handler is invoked for every LSP server that Mason installs.
-      -- It merges default capabilities with any custom configuration found in
-      -- 'nvim/lsp/<server>.lua', sets up the server via lspconfig, and then registers
-      -- the server with Neovim's native LSP manager.
-      ------------------------------------------------------------------------------
-      require('mason').setup({})
-      require('mason-lspconfig').setup({
-        ensure_installed = servers,
-        handlers = {
-          -- default handler for all installed servers
-          function(server)
-            local opts = { capabilities = capabilities }
-            lspconfig[server].setup(opts)
-            vim.lsp.enable(server)
-          end,
-        },
-      })
 
       ------------------------------------------------------------------------------
       -- Autocommand: LspAttach for Buffer-local Keymaps and Notifications
