@@ -4,5 +4,15 @@ require("mnishiguchi.options")
 require("mnishiguchi.keymaps")
 require("mnishiguchi.autocmds")
 
-local plugin_manager = require("mnishiguchi.plugins")
-plugin_manager.setup()
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git", "clone", "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({
+  { import = "mnishiguchi.plugins" },
+})
