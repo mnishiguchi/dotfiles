@@ -74,13 +74,6 @@ if type -q eza
     alias lt='ls --long --time modified'
     alias lr='ls --recurse'
     alias l.='ls --long --list-dirs .*'
-else if type -q exa
-    alias ls='exa --classify'
-    alias ll='exa --long --classify'
-    alias la='exa --long --all --classify'
-    alias lt='exa --long --classify --sort=time'
-    alias lr='exa --recurse --classify'
-    alias l.='exa --long --classify --all --group-directories-first --ignore-glob="*/*"'
 else
     alias ls='ls -Fh --color=auto'
     alias ll='ls -l'
@@ -97,8 +90,8 @@ alias gaa='git add --all'
 alias gb='git branch'
 alias gba='git branch --all'
 alias gc='git commit --verbose'
-alias 'gc!'='git commit --verbose --amend'
-alias 'gcn!'='git commit --verbose --no-edit --amend'
+alias gC='git commit --verbose --amend'
+alias gcn='git commit --verbose --no-edit --amend'
 alias gc0='git commit --allow-empty -m "empty commit"'
 alias gco='git checkout'
 alias gd='git diff'
@@ -108,6 +101,9 @@ alias glog='git log --oneline --decorate --graph'
 alias gloga='git log --oneline --decorate --graph --all'
 alias gp='git push'
 alias gpf='git push --force-with-lease --force-if-includes'
+alias gpF='git push --force'
+alias 'gc!'='git commit --verbose --amend'
+alias 'gcn!'='git commit --verbose --no-edit --amend'
 alias 'gpf!'='git push --force'
 
 ## Misc aliases
@@ -122,8 +118,6 @@ alias wget='wget --continue'
 alias be='bundle exec'
 
 ## Integrations
-
-
 
 if type -q fzf
     set -l fzf_opts \
@@ -204,13 +198,31 @@ function findtext
         set roots .
     end
 
+    set -l pager less --quit-if-one-screen --no-init --RAW-CONTROL-CHARS
+
     if type -q rg
-        command rg --smart-case -n --with-filename --hidden --glob '!.git' --color=always -- \
-            $pattern $roots
+        command rg \
+            --smart-case \
+            --line-number \
+            --hidden \
+            --glob '!.git' \
+            --color=always \
+            -- \
+            $pattern \
+            $roots
     else
-        command grep -R -n --ignore-case --binary-files=without-match --with-filename --color=always -- \
-            $pattern $roots
-    end
+        command grep \
+            -R \
+            --line-number \
+            --ignore-case \
+            --binary-files=without-match \
+            --with-filename \
+            --color=always \
+            --exclude-dir=.git \
+            -- \
+            $pattern \
+            $roots
+    end | $pager
 end
 
 function mkarchive
