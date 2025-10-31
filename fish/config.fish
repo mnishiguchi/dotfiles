@@ -31,7 +31,9 @@ alias paths='printf "%s\n" $PATH'
 
 ## Mise (make tools available early)
 
-mise activate fish | source
+if type -q mise
+    mise activate fish | source
+end
 
 ## Editors
 
