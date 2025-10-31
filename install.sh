@@ -53,11 +53,20 @@ while [[ $# -gt 0 ]]; do
 done
 [[ "$debug" == true ]] && set -x
 
+# --------------------------------------------------
+# XDG defaults (fresh machines often don't have these)
+# --------------------------------------------------
+: "${XDG_CONFIG_HOME:=$HOME/.config}"
+: "${XDG_CACHE_HOME:=$HOME/.cache}"
+: "${XDG_DATA_HOME:=$HOME/.local/share}"
+: "${XDG_STATE_HOME:=$HOME/.local/state}"
+mkdir -p "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME"
+
 backup_dir="$HOME/.dotfiles-backup/$(hostname -s)"
 mkdir -p "$backup_dir"
 
 timestamp() { date "+%Y%m%d%H%M%S"; }
-ensure_dir() { [[ "$check" == true ]] || mkdir -p "$1"; }
+ensure_dir() { [[ -z "${1:-}" ]] && err "ensure_dir: empty path" || [[ "$check" == true ]] || mkdir -p "$1"; }
 
 # Resolve absolute, dereferenced path if possible
 abspath() {
@@ -152,13 +161,14 @@ wants() {
 # ----------------------
 
 section_rofi() {
+  if ! command -v rofi >/dev/null; then
+    say_warn "rofi not found; skipping rofi section"
+    return
+  fi
+
   ensure_dir "$HOME/.local/bin"
   ensure_dir "$XDG_CONFIG_HOME/rofi"
 
-  command -v rofi >/dev/null || {
-    say_warn "rofi not found; skipping rofi section"
-    return
-  }
   do_symlink "${this_dir}/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
   do_symlink "${this_dir}/rofi/bin/rofi-combi-menu" "$HOME/.local/bin/rofi-combi-menu"
   do_symlink "${this_dir}/rofi/config/config.rasi" "$XDG_CONFIG_HOME/rofi/config.rasi"
@@ -200,15 +210,14 @@ main() {
   trap 'say_err "failed at line $LINENO"; exit 1' ERR
 
   if [[ -n "$only_sections" ]]; then
-    wants rofi && section_rofi
     wants shell && section_shell
+    wants rofi && section_rofi
     wants nvim && section_nvim
     wants git && section_git
     wants other && section_other
   else
-    # Default: run all
-    section_rofi
     section_shell
+    section_rofi
     section_nvim
     section_git
     section_other
