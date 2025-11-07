@@ -114,7 +114,8 @@ alias ...='cd ../../'
 alias cp='cp -iv'
 alias mv='mv -iv'
 alias rm='rm -vI'
-alias grep='grep --color=always'
+alias grep='grep --color=auto'
+alias rg='rg --color=auto --smart-case'
 alias wget='wget --continue'
 alias be='bundle exec'
 
@@ -185,45 +186,6 @@ end
 
 function hexpm
     open "https://hex.pm/packages?search="(string join ' ' $argv)
-end
-
-function findtext
-    if test (count $argv) -lt 1
-        echo "usage: findtext <pattern> [path ...]" >&2
-        return 2
-    end
-
-    set -l pattern $argv[1]
-    set -l roots $argv[2..-1]
-    if test (count $roots) -eq 0
-        set roots .
-    end
-
-    set -l pager less --quit-if-one-screen --no-init --RAW-CONTROL-CHARS
-
-    if type -q rg
-        command rg \
-            --smart-case \
-            --line-number \
-            --hidden \
-            --glob '!.git' \
-            --color=always \
-            -- \
-            $pattern \
-            $roots
-    else
-        command grep \
-            -R \
-            --line-number \
-            --ignore-case \
-            --binary-files=without-match \
-            --with-filename \
-            --color=always \
-            --exclude-dir=.git \
-            -- \
-            $pattern \
-            $roots
-    end | $pager
 end
 
 function mkarchive
