@@ -175,6 +175,7 @@ function timestamp
 end
 
 abbr --add 2desk 'tee $HOME/Desktop/terminal-output-(date "+%Y%m%d%H%M%S").txt'
+abbr --add codium "flatpak run com.vscodium.codium"
 
 function hexdocs
     if test (count $argv) -ge 1
