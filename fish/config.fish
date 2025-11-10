@@ -189,6 +189,17 @@ function hexpm
     open "https://hex.pm/packages?search="(string join ' ' $argv)
 end
 
+function mkreadme
+    set -l file README.md
+
+    if test -f $file
+        echo "$file already exists"
+        return 1
+    end
+
+    echo 'Nothing interesting here yet. Try again later.' > $file
+end
+
 function mkarchive
     if test (count $argv) -lt 2
         echo "usage: mkarchive <output> <files/dirs...>" >&2
