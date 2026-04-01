@@ -1,6 +1,6 @@
--- A starting point for setting up LSP, completion, and snippet features in Neovim.
+-- LSP, completion, and snippets for Neovim 0.12.
 -- This configuration leverages Mason for automatic LSP server installation,
--- uses Neovim 0.11's native LSP manager, and combines nvim-cmp with LuaSnip for
+-- uses Neovim's built-in LSP client, and combines blink.cmp with LuaSnip for
 -- completion and snippet support.
 return {
   ------------------------------------------------------------------------------
@@ -14,18 +14,11 @@ return {
       ensure_installed = {
         'bashls',
         'clangd',
-        'cssls',
-        'emmet_language_server',
         'expert',
-        'gopls',
-        'html',
         'jsonls',
         'lua_ls',
         'ruby_lsp',
-        'rust_analyzer',
-        'tailwindcss',
         'taplo',
-        'ts_ls',
         'yamlls',
       },
     },
@@ -62,14 +55,19 @@ return {
         yamlls = true,
       }
 
+      local lsp_attach_augroup = vim.api.nvim_create_augroup("mnishiguchi_lsp_attach", {
+        clear = true,
+      })
+
       ------------------------------------------------------------------------------
       -- Autocommand: LspAttach for Buffer-local Keymaps and Notifications
       ------------------------------------------------------------------------------
       -- When an LSP server attaches to a buffer, this autocommand sets up helpful key
       -- mappings and displays a notification indicating which server has been attached.
       vim.api.nvim_create_autocmd('LspAttach', {
+        group = lsp_attach_augroup,
         callback = function(event)
-          local client = vim.lsp.get_clients({ id = event.data.client_id })[1]
+          local client = vim.lsp.get_client_by_id(event.data.client_id)
           if not client then return end
 
           -- Prefer LSP formatting only for servers you want, else fall back to Conform
@@ -89,7 +87,7 @@ return {
           local function lsp_buf_format_with_fallback()
             if client.server_capabilities.documentFormattingProvider then
               vim.notify('Using ' .. client.name .. ' for formatting', vim.log.levels.INFO)
-              vim.lsp.buf.format({ async = false, timeout_ms = 3000 })
+              vim.lsp.buf.format({ bufnr = event.buf, async = false, timeout_ms = 3000 })
             else
               vim.notify('Using conform.nvim for formatting', vim.log.levels.INFO)
               vim.cmd.Format()
@@ -150,7 +148,7 @@ return {
       { "L3MON4D3/LuaSnip", version = "v2.*" }, -- snippet engine
       "rafamadriz/friendly-snippets"            -- snippet collection
     },
-    config       = function(_, opts)
+    config       = function()
       local luasnip = require("luasnip")
       luasnip.setup {
         history      = true,
