@@ -83,7 +83,7 @@ return {
             vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
           end
 
-          local opts = { buffer = event.buf }
+          local opts = { buf = event.buf }
 
           -- Function to attempt formatting with the LSP server, with a fallback option.
           local function lsp_buf_format_with_fallback()
