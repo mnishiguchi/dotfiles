@@ -44,22 +44,38 @@ keymap("n", "x", '"_x', { desc = "Delete character without yanking" })
 
 -- Find and Replace
 keymap("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/cgI<Left><Left><Left><Left>]], {
-  desc = "Substitute word under cursor",
+	desc = "Substitute word under cursor",
 })
+
+-- Diagnostics
+keymap("n", "gK", function()
+	local virtual_lines_enabled = not vim.diagnostic.config().virtual_lines
+
+	vim.diagnostic.config({
+		virtual_lines = virtual_lines_enabled,
+		virtual_text = false,
+	})
+end, { desc = "Toggle diagnostic virtual lines" })
 
 -- Tag Management
 keymap("n", "<leader>ct", function()
-  local output = vim.fn.system("ctags -R .")
-  if vim.v.shell_error == 0 then
-    vim.notify("Tags generated", vim.log.levels.INFO)
-  else
-    vim.notify("Error generating tags: " .. output, vim.log.levels.ERROR)
-  end
+	local output = vim.fn.system("ctags -R .")
+	if vim.v.shell_error == 0 then
+		vim.notify("Tags generated", vim.log.levels.INFO)
+	else
+		vim.notify("Error generating tags: " .. output, vim.log.levels.ERROR)
+	end
 end, { desc = "Generate tags (ctags)" })
 keymap("n", "tt", "<C-]>", { desc = "Jump to tag definition" })
 
 -- Buffer Management
 keymap("n", "<leader>q", ":<C-u>bdelete!<CR>", { desc = "Close current buffer" })
+
+-- Undo History
+keymap("n", "<leader>u", function()
+	vim.cmd.packadd("nvim.undotree")
+	vim.cmd.Undotree()
+end, { desc = "Open undo tree" })
 
 -- Git Integration
 keymap("n", "<leader>v", ":.GBrowse!<CR>", { desc = "Copy Git link to current line" })

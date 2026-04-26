@@ -8,29 +8,6 @@ local mnishiguchi_augroup = vim.api.nvim_create_augroup("mnishiguchi_augroup", {
   clear = true,
 })
 
--- Dynamically detect filetypes based on filename patterns
-local filetype_patterns = {
-  ["*.livemd"] = "markdown",
-  ["Gemfile"] = "ruby",
-  ["Rakefile"] = "ruby",
-  ["Vagrantfile"] = "ruby",
-  ["Thorfile"] = "ruby",
-  ["Guardfile"] = "ruby",
-  ["config.ru"] = "ruby",
-  ["*.rake"] = "ruby",
-  ["*.jbuilder"] = "ruby",
-}
-
-for pattern, filetype in pairs(filetype_patterns) do
-  vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-    group = mnishiguchi_augroup,
-    pattern = pattern,
-    callback = function(args)
-      vim.bo[args.buf].filetype = filetype
-    end,
-  })
-end
-
 -- Large file optimization (prevent slowdowns)
 vim.api.nvim_create_autocmd("BufReadPre", {
   group = mnishiguchi_augroup,
@@ -57,22 +34,5 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
       vim.opt_local.foldmethod = "manual" -- Disable folding to avoid parsing
       vim.notify_once("Large file detected. Performance settings applied.", vim.log.levels.WARN)
     end
-  end,
-})
-
--- Format Makefiles on save (Conform runs synchronously on BufWritePre)
-vim.api.nvim_create_autocmd("BufWritePre", {
-  group = mnishiguchi_augroup,
-  pattern = { "Makefile", "makefile", "GNUmakefile", "*.mk" },
-  callback = function(args)
-    local ok, conform = pcall(require, "conform")
-    if not ok then return end
-    if vim.bo[args.buf].filetype ~= "make" then return end
-
-    conform.format({
-      bufnr = args.buf,
-      lsp_fallback = true,
-      timeout_ms = 2000,
-    })
   end,
 })
