@@ -1,0 +1,48 @@
+# Window
+window-width = 120
+window-height = 40
+window-decoration = server
+
+# Font
+font-family = "FiraCode Nerd Font Mono"
+font-family-bold = "FiraCode Nerd Font Mono"
+font-family-italic = "FiraCode Nerd Font Mono"
+font-family-bold-italic = "FiraCode Nerd Font Mono"
+
+font-style = Regular
+font-style-bold = Bold
+font-style-italic = Italic
+font-style-bold-italic = Bold Italic
+
+font-size = 10
+
+# Colors
+background = #212121
+foreground = #F8F8F2
+
+cursor-color = #ECEFF4
+cursor-text = #0E1415
+
+# Normal ANSI colors
+palette = 0=#21222C
+palette = 1=#FF5555
+palette = 2=#50FA7B
+palette = 3=#FFCB6B
+palette = 4=#82AAFF
+palette = 5=#C792EA
+palette = 6=#8BE9FD
+palette = 7=#F8F9F2
+
+# Bright ANSI colors
+palette = 8=#545454
+palette = 9=#FF6E6E
+palette = 10=#69FF94
+palette = 11=#FFCB6B
+palette = 12=#D6ACFF
+palette = 13=#FF92DF
+palette = 14=#A4FFFF
+palette = 15=#F8F8F2
+
+# Keybindings
+keybind = ctrl+shift+c=copy_to_clipboard
+keybind = ctrl+shift+v=paste_from_clipboard
