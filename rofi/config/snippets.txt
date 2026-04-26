@@ -1,9 +1,31 @@
+# Format:
+#
+#   name!value
+#
+# Examples:
+#
+#   greeting/hello!Hello
+#   cmd uuid!uuidgen
+#
+# Lines whose names start with `cmd ` are executed as shell commands.
+# Treat this file as executable code.
+#
+# Key behavior:
+#
+#   Enter
+#     Insert the value.
+#     For `cmd ` snippets, execute the command and insert its output.
+#
+#   Shift+Enter
+#     Copy the value to the clipboard.
+#     For `cmd ` snippets, execute the command and copy its output.
+
 cmd date/now!date +"%Y-%m-%d"
 cmd date/today!date +"%Y-%m-%d"
 
-cmd hash/md5!echo -n "example" | md5sum | awk '{print $1}'
-cmd hash/sha256!echo -n "example" | sha256sum | awk '{print $1}'
-cmd hash/sha512!echo -n "example" | sha512sum | awk '{print $1}'
+cmd hash/md5!printf '%s' "example" | md5sum | awk '{print $1}'
+cmd hash/sha256!printf '%s' "example" | sha256sum | awk '{print $1}'
+cmd hash/sha512!printf '%s' "example" | sha512sum | awk '{print $1}'
 
 cmd password/default!openssl rand -base64 16
 cmd password/hex!openssl rand -hex 16

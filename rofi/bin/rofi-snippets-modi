@@ -29,82 +29,101 @@
 #    - `ROFI_RETV=1 rofi-snippets-modi "git empty commit"`
 #    - `ROFI_RETV=2 rofi-snippets-modi "git empty commit"` (Copies to clipboard)
 
+set -euo pipefail
+
 # Configuration
 SNIPFILE="$HOME/.config/rofi/snippets.txt"
 SEPARATOR='!'
 QUIT_ENTRY="Quit"
 
-# Detect clipboard manager (xclip, xsel, or wl-copy)
-if command -v xclip &>/dev/null; then
-  CLIPBOARD_CMD="xclip -selection clipboard"
-elif command -v xsel &>/dev/null; then
-  CLIPBOARD_CMD="xsel --clipboard --input"
-elif command -v wl-copy &>/dev/null; then
-  CLIPBOARD_CMD="wl-copy"
+# Detect clipboard manager.
+if [ -n "${WAYLAND_DISPLAY:-}" ] && command -v wl-copy >/dev/null 2>&1; then
+  CLIPBOARD_CMD=(wl-copy)
+elif command -v xclip >/dev/null 2>&1; then
+  CLIPBOARD_CMD=(xclip -selection clipboard)
+elif command -v xsel >/dev/null 2>&1; then
+  CLIPBOARD_CMD=(xsel --clipboard --input)
 else
-  echo "No clipboard manager found!" >&2
+  echo "No clipboard manager found" >&2
   exit 1
 fi
 
-# Ensure snippets file exists
-[ -f "$SNIPFILE" ] || {
-  echo "No snippet file found at $SNIPFILE"
+# Ensure snippets file exists.
+if [ ! -f "$SNIPFILE" ]; then
+  echo "No snippet file found at $SNIPFILE" >&2
   exit 1
-}
+fi
 
-# Print available snippets
+# Print available snippets.
 print_snippets() {
-  echo -en "\x00prompt\x1fsnippet\n"
-  echo -en "\0markup-rows\x1ftrue\n"
-  echo -en "\0message\x1fSnippets starting with <i>cmd</i> are executed.\n"
+  printf '\0prompt\x1fsnippet\n'
+  printf '\0markup-rows\x1ftrue\n'
+  printf '\0message\x1fSnippets starting with <i>cmd</i> are executed.\n'
 
-  grep -v '^#' "$SNIPFILE" | grep "$SEPARATOR" | cut -d "$SEPARATOR" -f1
-  echo "$QUIT_ENTRY"
+  awk -v separator="$SEPARATOR" '
+    $0 !~ /^#/ && index($0, separator) > 0 {
+      print substr($0, 1, index($0, separator) - 1)
+    }
+  ' "$SNIPFILE"
+
+  printf '%s\n' "$QUIT_ENTRY"
 }
 
-# Copy snippet to clipboard
+# Copy snippet to clipboard.
 copy_to_clipboard() {
-  echo -n "$1" | $CLIPBOARD_CMD
-  notify-send "Snippet copied to clipboard!"
+  printf '%s' "$1" | "${CLIPBOARD_CMD[@]}"
+  notify-send "Snippet copied to clipboard"
 }
 
-# Insert snippet via xdotool
+# Insert snippet via xdotool.
 insert_snippet() {
-  coproc (echo -n "$1" | xdotool type --clearmodifiers --file -)
+  coproc (printf '%s' "$1" | xdotool type --clearmodifiers --file -)
 }
 
-# Execute command snippets (cmd snippet)
+# Execute command snippets.
 execute_snippet() {
-  result=$(eval "$1")
+  local result
+
+  result=$(bash -c "$1")
   insert_snippet "$result"
 }
 
-# Retrieve snippet value
+# Retrieve snippet value.
 get_snippet_value() {
-  grep "^$1$SEPARATOR" "$SNIPFILE" | cut -d "$SEPARATOR" -f2-
+  local snippet_name="$1"
+
+  awk -v name="$snippet_name" -v separator="$SEPARATOR" '
+    index($0, name separator) == 1 {
+      print substr($0, length(name separator) + 1)
+      exit
+    }
+  ' "$SNIPFILE"
 }
 
-# Handle user selection
-case "$1" in
-"$QUIT_ENTRY") # Exit immediately if "Quit" is selected
+# Handle user selection.
+case "${1:-}" in
+"$QUIT_ENTRY")
   exit 0
   ;;
-"") # No input → Show available snippets and exit
+"")
   print_snippets
   exit 0
   ;;
 *)
   snippet_value=$(get_snippet_value "$1")
+
   if [ -z "$snippet_value" ]; then
     exit 1
   fi
-  case "$ROFI_RETV" in
+
+  case "${ROFI_RETV:-0}" in
   1)
     if [[ "$1" == cmd* ]]; then
       execute_snippet "$snippet_value"
     else
       insert_snippet "$snippet_value"
     fi
+
     exit 0
     ;;
   2)

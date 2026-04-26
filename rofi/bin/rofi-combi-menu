@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # Launches the combi menu.
 #
 # Usage
@@ -11,6 +13,6 @@
 SNIP_MODI="$HOME/.local/bin/rofi-snippets-modi"
 
 rofi \
-  -modi "combi,snip:$SNIP_MODI,drun,run" \
-  -show 'combi' \
-  -combi-modi 'snip,drun'
+  -modi "combi,snip:$SNIP_MODI,drun" \
+  -show combi \
+  -combi-modi "snip,drun"
