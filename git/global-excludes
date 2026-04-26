@@ -58,7 +58,7 @@ Temporary Items
 
 # Swap
 [._]*.s[a-v][a-z]
-!*.svg  # comment out if you don't need vector files
+!*.svg
 [._]*.sw[a-p]
 [._]s[a-rt-v][a-z]
 [._]ss[a-gi-z]
@@ -71,11 +71,33 @@ Sessionx.vim
 # Temporary
 .netrwhist
 *~
+
 # Auto-generated tag files
 tags
+
 # Persistent undo
 [._]*.un~
 
+##############################################################################
+# AI assistants / Codex
+##############################################################################
+
+# Ignore transient Codex repo-local state if it appears,
+# but keep project configuration/hooks/rules versionable.
+.codex
+.codex/*
+!.codex/
+!.codex/config.toml
+!.codex/hooks.json
+!.codex/rules/
+!.codex/rules/**
+
+# Keep Codex instruction files versionable
+!.agents/
+!.agents/skills/
+!.agents/skills/**
+!AGENTS.md
+!AGENTS.override.md
 
 ##############################################################################
 # etc
@@ -104,9 +126,13 @@ tags
 *.tar
 *.zip
 
-# direnv secrets
+# direnv secrets / local env files
 .envrc
 .env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
 
 # log and temporary files
 log/*
@@ -179,4 +205,3 @@ mise.local.toml
 
 # misc
 *.local
-foo.*

@@ -1,27 +1,20 @@
 
-
 # <type>(<scope>): <subject>
-#------- max 50 charcters wide ----------------->|
+# -------- max 50 characters ------------------->|
 
-
-#------- max 72 charcters wide --------------------------------------->|
-
-# ## Common commit types
-# - fix:      SemVer PATCH
-# - feat:     SemVer MINOR
-# - docs:     Documentation only changes
-# - style:    Changes that do not affect the code's meaning, such as formatting
-# - refactor: code changes that neither fix bugs nor add functionality
-# - test:     Add missing tests or modify existing tests
-# - chore:    Routine tasks like updating grunt tasks or performing general maintenance
+# Why:
 #
-# ## BREAKING CHANGES
-# - SemVer MAJOR
-# - can be part of commits of any type
+# What:
+#
+# -------- max 72 characters ----------------------------------------->|
 
-# ## Resources
-# - https://www.conventionalcommits.org
-# - https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines
-# - https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional
-# - https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716
-# - https://gist.github.com/tos-kamiya/9b609ac075b120e255d0a731951375be
+# Types:
+# - fix:      patch a bug
+# - feat:     add user-facing behavior
+# - docs:     change documentation only
+# - style:    change formatting only
+# - refactor: restructure without behavior change
+# - test:     add or update tests
+# - chore:    maintain tooling, config, or dependencies
+#
+# Breaking: use "BREAKING CHANGE:"
