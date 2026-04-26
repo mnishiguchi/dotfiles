@@ -43,12 +43,7 @@ window {
     location:       center;
     width:          640;
     border-radius:  8;
-    children:       [ mode-switcher, inputbar, listview ];
-}
-
-mode-switcher {
-    text-color: @green;
-    background-color: #ffffff;
+    children:       [ inputbar, listview ];
 }
 
 inputbar {
@@ -69,8 +64,10 @@ icon-search, entry, element-icon, element-text {
 }
 
 entry {
-    font:   inherit;
-    text-color:         #ffffff;
+    font:               inherit;
+    padding:            8px 12px;
+    border-radius:      6px;
+    text-color:         @white;
     background-color:   @dark-gray;
     placeholder:        "Search";
     placeholder-color:  @light-gray;
@@ -107,9 +104,10 @@ element alternate active {
 }
 
 element selected normal,
-element selected active {
+element selected active,
+element selected urgent {
     background-color: @purple;
-    text-color:       #ffffff;
+    text-color:       @white;
 }
 
 element-icon {
@@ -119,5 +117,3 @@ element-icon {
 element-text {
     text-color: inherit;
 }
-
-
