@@ -291,10 +291,12 @@ section_git() {
 section_other() {
   ensure_dir "$XDG_CONFIG_HOME/alacritty"
   ensure_dir "$XDG_CONFIG_HOME/direnv"
+  ensure_dir "$XDG_CONFIG_HOME/ghostty"
 
   link_path "$script_dir/alacritty/alacritty.toml" "$XDG_CONFIG_HOME/alacritty/alacritty.toml"
   link_path "$script_dir/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty/alacritty.yml"
   link_path "$script_dir/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
+  link_path "$script_dir/ghostty/config" "$XDG_CONFIG_HOME/ghostty/config"
 
   link_path "$script_dir/editorconfig" "$HOME/.editorconfig"
   link_path "$script_dir/elixir/default-mix-commands" "$HOME/.default-mix-commands"
