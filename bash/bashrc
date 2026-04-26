@@ -1,0 +1,536 @@
+# Return early for non-interactive shells.
+case "$-" in
+*i*)
+  ;;
+*)
+  return
+  ;;
+esac
+
+## Bash behavior
+
+HISTCONTROL=ignoreboth
+HISTSIZE=10000
+HISTFILESIZE=20000
+
+shopt -s histappend
+shopt -s checkwinsize
+
+## XDG & common dirs
+
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+
+mkdir -p \
+  "$XDG_CACHE_HOME" \
+  "$XDG_CONFIG_HOME" \
+  "$XDG_DATA_HOME" \
+  "$XDG_STATE_HOME"
+
+## PATHs
+
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+
+path_prepend() {
+  local directory
+
+  for directory in "$@"; do
+    if [[ -d "$directory" ]]; then
+      case ":$PATH:" in
+      *":$directory:"*)
+        ;;
+      *)
+        PATH="$directory:$PATH"
+        ;;
+      esac
+    fi
+  done
+
+  export PATH
+}
+
+path_prepend \
+  "$HOME/.local/bin" \
+  "$HOME/.cargo/bin" \
+  "$XDG_DATA_HOME/npm/bin" \
+  "/usr/local/go/bin" \
+  "$XDG_CONFIG_HOME/flutter/bin" \
+  "$ANDROID_HOME/platform-tools" \
+  "$ANDROID_HOME/emulator" \
+  "/var/lib/flatpak/exports/bin" \
+  "$HOME/.local/share/flatpak/exports/bin"
+
+paths() {
+  tr ':' '\n' <<<"$PATH"
+}
+
+## Mise
+
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate bash)"
+fi
+
+## Editors
+
+if [[ -z "${EDITOR:-}" ]]; then
+  if command -v nvim >/dev/null 2>&1; then
+    export EDITOR="nvim"
+  elif command -v vim >/dev/null 2>&1; then
+    export EDITOR="vim"
+  else
+    export EDITOR="nano"
+  fi
+fi
+
+if [[ -z "${VISUAL:-}" ]]; then
+  if command -v code >/dev/null 2>&1; then
+    export VISUAL="code"
+  else
+    export VISUAL="$EDITOR"
+  fi
+fi
+
+if [[ -z "${GIT_EDITOR:-}" ]]; then
+  export GIT_EDITOR="$EDITOR"
+fi
+
+if [[ -z "${ELIXIR_EDITOR:-}" ]]; then
+  if command -v code >/dev/null 2>&1; then
+    export ELIXIR_EDITOR="code --goto"
+  else
+    export ELIXIR_EDITOR="$EDITOR"
+  fi
+fi
+
+## GNU colors
+
+if [[ -x /usr/bin/dircolors ]]; then
+  if [[ -r "$HOME/.dircolors" ]]; then
+    eval "$(dircolors -b "$HOME/.dircolors")"
+  else
+    eval "$(dircolors -b)"
+  fi
+fi
+
+## ls aliases
+
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --group-directories-first --classify --time-style="+%Y-%m-%d %H:%M"'
+  alias ll='ls --long'
+  alias la='ls --long --all'
+  alias lt='ls --long --time modified'
+  alias lr='ls --recurse'
+  alias l.='ls --long --list-dirs .*'
+else
+  alias ls='ls -Fh --color=auto'
+  alias ll='ls -l'
+  alias la='ls -lA'
+  alias lt='ls -lt'
+  alias lr='ls -R'
+  alias l.='ls -ld .*'
+fi
+
+## Git shortcuts
+
+alias ga='git add'
+alias gaa='git add --all'
+alias gb='git branch'
+alias gba='git branch --all'
+alias gc='git commit --verbose'
+alias gC='git commit --verbose --amend'
+alias gcn='git commit --verbose --no-edit --amend'
+alias gc0='git commit --allow-empty -m "empty commit"'
+alias gco='git checkout'
+alias gd='git diff'
+alias gdca='git diff --cached'
+alias gf='git fetch'
+alias glog='git log --oneline --decorate --graph'
+alias gloga='git log --oneline --decorate --graph --all'
+alias gp='git push'
+alias gpf='git push --force-with-lease --force-if-includes'
+alias gpF='git push --force'
+alias 'gc!'='git commit --verbose --amend'
+alias 'gpf!'='git push --force'
+
+## Misc aliases
+
+alias ..='cd ../'
+alias ...='cd ../../'
+alias cp='cp -iv'
+alias mv='mv -iv'
+alias rm='rm -vI'
+alias grep='grep --color=auto'
+alias rg='rg --color=auto --smart-case'
+alias wget='wget --continue'
+alias be='bundle exec'
+alias 2desk='tee "$HOME/Desktop/terminal-output-$(date "+%Y%m%d%H%M%S").txt'
+alias codium='flatpak run com.vscodium.codium'
+
+## Bash completion
+
+if ! shopt -oq posix; then
+  if [[ -r /usr/share/bash-completion/bash_completion ]]; then
+    source /usr/share/bash-completion/bash_completion
+  elif [[ -r /etc/bash_completion ]]; then
+    source /etc/bash_completion
+  fi
+fi
+
+## Integrations
+
+if command -v fzf >/dev/null 2>&1; then
+  fzf_default_opts=(
+    "--reverse"
+    "--color=dark"
+    "--color=fg:-1,bg:-1"
+    "--color=fg+:-1,bg+:-1"
+    "--color=hl:#5fff87,hl+:#ffaf5f"
+    "--color=info:#af87ff"
+    "--color=prompt:#5fff87"
+    "--color=pointer:#ff87d7,marker:#ff87d7,spinner:#ff87d7"
+  )
+
+  if [[ -n "${FZF_DEFAULT_OPTS:-}" ]]; then
+    export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS ${fzf_default_opts[*]}"
+  else
+    export FZF_DEFAULT_OPTS="${fzf_default_opts[*]}"
+  fi
+
+  if fzf --bash >/dev/null 2>&1; then
+    eval "$(fzf --bash)"
+  else
+    if [[ -r /usr/share/doc/fzf/examples/key-bindings.bash ]]; then
+      source /usr/share/doc/fzf/examples/key-bindings.bash
+    fi
+
+    if [[ -r /usr/share/doc/fzf/examples/completion.bash ]]; then
+      source /usr/share/doc/fzf/examples/completion.bash
+    fi
+  fi
+fi
+
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook bash)"
+fi
+
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init bash)"
+fi
+
+y() {
+  local tmp
+  local newcwd
+  local cd_status
+
+  if ! command -v yazi >/dev/null 2>&1; then
+    echo "y: yazi not found" >&2
+    return 127
+  fi
+
+  tmp="$(mktemp -t yazi-cwd.XXXXXX)"
+
+  command yazi "$@" --cwd-file="$tmp"
+
+  if [[ -f "$tmp" ]]; then
+    newcwd="$(sed 's/^[[:space:]]*//; s/[[:space:]]*$//' "$tmp")"
+
+    if [[ -n "$newcwd" ]]; then
+      if [[ "$newcwd" != "$PWD" ]]; then
+        cd -- "$newcwd"
+        cd_status="$?"
+        rm -f -- "$tmp"
+        return "$cd_status"
+      fi
+    fi
+
+    rm -f -- "$tmp"
+  fi
+}
+
+## Utilities
+
+if ! command -v open >/dev/null 2>&1; then
+  open() {
+    if command -v xdg-open >/dev/null 2>&1; then
+      nohup command xdg-open "$@" >/dev/null 2>/dev/null &
+    else
+      echo "open: xdg-open not found" >&2
+      return 127
+    fi
+  }
+fi
+
+timestamp() {
+  date "+%Y%m%d%H%M%S"
+}
+
+hexdocs() {
+  if [[ "$#" -ge 1 ]]; then
+    mix hex.docs online "$1"
+  else
+    mix hex.docs online elixir
+  fi
+}
+
+hexpm() {
+  open "https://hex.pm/packages?search=$*"
+}
+
+mkreadme() {
+  local file
+
+  file="README.md"
+
+  if [[ -f "$file" ]]; then
+    echo "$file already exists"
+    return 1
+  fi
+
+  echo "Nothing interesting here yet. Try again later." >"$file"
+}
+
+mkarchive() {
+  local output
+  local files
+
+  if [[ "$#" -lt 2 ]]; then
+    echo "usage: mkarchive <output> <files/dirs...>" >&2
+    return 2
+  fi
+
+  output="$1"
+  shift
+  files=("$@")
+
+  case "$output" in
+  *.tar)
+    tar -cvf "$output" -- "${files[@]}"
+    ;;
+  *.tar.gz | *.tgz)
+    tar -cvf - -- "${files[@]}" | gzip -c >"$output"
+    ;;
+  *.zip)
+    zip -r -X -- "$output" "${files[@]}"
+    ;;
+  *)
+    echo "mkarchive: unsupported extension: $output" >&2
+    echo "supported: .tar .tar.gz(.tgz) .zip" >&2
+    return 1
+    ;;
+  esac
+}
+
+mkgpg() {
+  local base
+  local files
+  local tarball
+  local encrypted_file
+
+  if [[ "$#" -lt 2 ]]; then
+    echo "usage: mkgpg <basename> <files/dirs...>" >&2
+    return 2
+  fi
+
+  base="$1"
+  shift
+  files=("$@")
+
+  tarball="$base.tar.gz"
+  encrypted_file="$base.tar.gz.gpg"
+
+  tar -cvf - -- "${files[@]}" | gzip -c >"$tarball"
+
+  if gpg --symmetric --cipher-algo AES256 --output "$encrypted_file" --quiet --batch "$tarball"; then
+    rm -f -- "$tarball"
+  else
+    echo "gpg encryption failed (leaving plaintext: $tarball)" >&2
+    return 1
+  fi
+}
+
+extract() {
+  local archive
+
+  if [[ "$#" -lt 1 ]]; then
+    echo "usage: extract <archive>" >&2
+    return 2
+  fi
+
+  archive="$1"
+
+  case "$archive" in
+  *.tar)
+    tar xvf "$archive"
+    ;;
+  *.tar.gz | *.tgz)
+    tar xvzf "$archive"
+    ;;
+  *.zip | *.ZIP)
+    unzip -- "$archive"
+    ;;
+  *.gz)
+    gunzip --keep -- "$archive"
+    ;;
+  *)
+    echo "extract: unsupported archive: $archive" >&2
+    echo "supported: .tar .tar.gz(.tgz) .zip [.gz single-file]" >&2
+    return 1
+    ;;
+  esac
+}
+
+capslock() {
+  local mode
+
+  if ! command -v setxkbmap >/dev/null 2>&1; then
+    echo "capslock: setxkbmap not found" >&2
+    return 1
+  fi
+
+  if [[ "$#" -lt 1 ]]; then
+    echo "usage: capslock on|off" >&2
+    return 2
+  fi
+
+  mode="${1,,}"
+
+  case "$mode" in
+  on)
+    setxkbmap -option
+    ;;
+  off)
+    setxkbmap -option ctrl:nocaps
+    ;;
+  *)
+    echo "usage: capslock on|off" >&2
+    return 2
+    ;;
+  esac
+}
+
+## Prompt
+
+if [[ -z "${debian_chroot:-}" ]]; then
+  if [[ -r /etc/debian_chroot ]]; then
+    debian_chroot="$(cat /etc/debian_chroot)"
+  fi
+fi
+
+git_branch_prompt() {
+  local branch
+
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    return 0
+  fi
+
+  branch="$(git symbolic-ref --quiet --short HEAD 2>/dev/null)"
+
+  if [[ -z "$branch" ]]; then
+    branch="$(git rev-parse --short HEAD 2>/dev/null)"
+  fi
+
+  if [[ -n "$branch" ]]; then
+    printf " (%s)" "$branch"
+  fi
+}
+
+bash_prompt() {
+  local last_status
+  local normal
+  local bold_red
+  local bold_green
+  local magenta
+  local green
+  local bold_blue
+  local user_color
+  local prompt_color
+  local chroot_part
+  local title_part
+  local git_part
+
+  last_status="$?"
+
+  normal="\[\e[0m\]"
+  bold_red="\[\e[1;31m\]"
+  bold_green="\[\e[1;32m\]"
+  magenta="\[\e[35m\]"
+  green="\[\e[32m\]"
+  bold_blue="\[\e[1;34m\]"
+
+  chroot_part=""
+  title_part=""
+  git_part=""
+
+  if [[ -n "${debian_chroot:-}" ]]; then
+    chroot_part="($debian_chroot)"
+  fi
+
+  case "$TERM" in
+  xterm* | rxvt*)
+    title_part="\[\e]0;${chroot_part}\u@\h: \w\a\]"
+    ;;
+  *)
+    ;;
+  esac
+
+  if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+    user_color="$bold_red"
+  else
+    user_color="$magenta"
+  fi
+
+  if [[ "$last_status" -eq 0 ]]; then
+    prompt_color="$bold_green"
+  else
+    prompt_color="$bold_red"
+  fi
+
+  git_part="$(git_branch_prompt)"
+
+  PS1="${title_part}${chroot_part}${user_color}\u${normal}@${green}\h${normal}:${bold_blue}\w${normal}${git_part}"$'\n'"${prompt_color}$ ${normal}"
+
+  return "$last_status"
+}
+
+prepend_prompt_command() {
+  local command_to_add
+  local prompt_command_declaration
+  local existing_command
+
+  command_to_add="$1"
+  prompt_command_declaration="$(declare -p PROMPT_COMMAND 2>/dev/null || true)"
+
+  if [[ "$prompt_command_declaration" == declare\ -a* ]] || [[ "$prompt_command_declaration" == declare\ -ax* ]]; then
+    for existing_command in "${PROMPT_COMMAND[@]}"; do
+      if [[ "$existing_command" == "$command_to_add" ]]; then
+        return 0
+      fi
+    done
+
+    PROMPT_COMMAND=("$command_to_add" "${PROMPT_COMMAND[@]}")
+  else
+    if [[ -z "${PROMPT_COMMAND:-}" ]]; then
+      PROMPT_COMMAND="$command_to_add"
+    else
+      case ";$PROMPT_COMMAND;" in
+      *";$command_to_add;"*)
+        ;;
+      *)
+        PROMPT_COMMAND="$command_to_add; $PROMPT_COMMAND"
+        ;;
+      esac
+    fi
+  fi
+}
+
+prepend_prompt_command bash_prompt
+
+## Message of the Day
+
+if command -v fastfetch >/dev/null 2>&1; then
+  echo
+  fastfetch --logo none 2>/dev/null
+  echo
+fi

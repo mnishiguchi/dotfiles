@@ -2,166 +2,266 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-this_name="$(basename "$0")"
-this_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+script_name="$(basename "$0")"
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd -P)"
+
+debug=false
+force=false
+check=false
+only_sections=""
 
 help() {
   cat <<'EOF'
-Install all dotfiles defined in this project.
+Install dotfiles from this repository.
 
 Usage:
   install.sh [options]
 
 Options:
-  --debug            Enable shell tracing
-  --force, -f        Overwrite destination files
-  --check            Dry run (show what would change)
-  --only <sections>  Comma-separated list: rofi,shell,nvim,git,other
-  --help, -h         Show help
+  --check            Dry run. Show what would change.
+  --force, -f        Replace existing files after backing them up.
+  --only <sections>  Install only selected sections.
+                     Available: shell,rofi,nvim,git,other
+  --debug            Enable shell tracing.
+  --help, -h         Show this help.
 EOF
 }
 
-say() { echo "$this_name: $*"; }
-say_warn() { printf '%b\n' "\033[33m$this_name: $*\033[0m"; }
-say_err() { printf '%b\n' "\033[31m$this_name: $*\033[0m" >&2; }
+say() {
+  printf '%s\n' "$script_name: $*"
+}
+
+say_warn() {
+  printf '\033[33m%s: %s\033[0m\n' "$script_name" "$*" >&2
+}
+
+say_err() {
+  printf '\033[31m%s: ERROR %s\033[0m\n' "$script_name" "$*" >&2
+}
+
 err() {
-  say_err "ERROR $*"
+  say_err "$*"
   exit 1
 }
 
-# Options
-debug=false
-force=false
-check=false
-only_sections=""
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-  --debug) debug=true ;;
-  --force | -f) force=true ;;
-  --check) check=true ;;
-  --only)
-    shift
-    only_sections="${1:-}"
-    ;;
-  --help | -h)
-    help
-    exit 0
-    ;;
-  *) say_warn "Ignoring unknown option: $1" ;;
-  esac
-  shift || true
-done
-[[ "$debug" == true ]] && set -x
-
-# --------------------------------------------------
-# XDG defaults (fresh machines often don't have these)
-# --------------------------------------------------
-: "${XDG_CONFIG_HOME:=$HOME/.config}"
-: "${XDG_CACHE_HOME:=$HOME/.cache}"
-: "${XDG_DATA_HOME:=$HOME/.local/share}"
-: "${XDG_STATE_HOME:=$HOME/.local/state}"
-mkdir -p "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME"
-
-backup_dir="$HOME/.dotfiles-backup/$(hostname -s)"
-mkdir -p "$backup_dir"
-
-timestamp() { date "+%Y%m%d%H%M%S"; }
-ensure_dir() { [[ -z "${1:-}" ]] && err "ensure_dir: empty path" || [[ "$check" == true ]] || mkdir -p "$1"; }
-
-# Resolve absolute, dereferenced path if possible
-abspath() {
-  python3 - "$1" <<'PY'
-import os, sys; print(os.path.realpath(sys.argv[1]))
-PY
+timestamp() {
+  date "+%Y%m%d%H%M%S"
 }
 
-backup_file() {
+host_name() {
+  hostname -s 2>/dev/null || hostname
+}
+
+backup_dir="$HOME/.dotfiles-backup/$(host_name)"
+
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    --check)
+      check=true
+      shift
+      ;;
+
+    --force | -f)
+      force=true
+      shift
+      ;;
+
+    --only)
+      if [[ $# -lt 2 ]]; then
+        err "--only requires a comma-separated section list"
+      fi
+
+      only_sections="$2"
+      shift 2
+      ;;
+
+    --debug)
+      debug=true
+      shift
+      ;;
+
+    --help | -h)
+      help
+      exit 0
+      ;;
+
+    *)
+      err "unknown option: $1"
+      ;;
+    esac
+  done
+
+  if [[ "$debug" == true ]]; then
+    set -x
+  fi
+}
+
+ensure_dir() {
+  local path="${1:-}"
+
+  if [[ -z "$path" ]]; then
+    err "ensure_dir received an empty path"
+  fi
+
+  if [[ "$check" == true ]]; then
+    say "mkdir  $path"
+    return
+  fi
+
+  mkdir -p -- "$path"
+}
+
+backup_path_for() {
   local target="$1"
-  local base ts dest
-  base="$(basename "$target")"
-  ts="$(timestamp)"
-  dest="$backup_dir/${base}~${ts}"
+  local backup_name
 
-  if [[ -e "$target" || -L "$target" ]]; then
-    say "backup $target -> $dest"
-    [[ "$check" == true ]] && return 0
-    # Follow symlinks and preserve recursively
-    if cp -aL "$target" "$dest" 2>/dev/null; then
-      :
-    else
-      # Fallback for platforms lacking -a
-      cp -RL "$target" "$dest" 2>/dev/null || true
-    fi
+  if [[ "$target" == "$HOME/"* ]]; then
+    backup_name="${target#"$HOME"/}"
+  else
+    backup_name="${target#/}"
   fi
+
+  backup_name="${backup_name//\//__}"
+
+  printf '%s/%s~%s' "$backup_dir" "$backup_name" "$(timestamp)"
 }
 
-# Move the existing path into backup (used for --force)
-backup_move() {
+backup_existing_path() {
   local target="$1"
-  local base ts dest
-  base="$(basename "$target")"
-  ts="$(timestamp)"
-  dest="$backup_dir/${base}~${ts}"
+  local destination
 
-  if [[ -e "$target" || -L "$target" ]]; then
-    say "backup+move $target -> $dest"
-    [[ "$check" == true ]] && return 0
-    mkdir -p "$backup_dir"
-    mv -f "$target" "$dest"
+  if [[ ! -e "$target" && ! -L "$target" ]]; then
+    return
   fi
+
+  destination="$(backup_path_for "$target")"
+
+  say "backup $target -> $destination"
+
+  if [[ "$check" == true ]]; then
+    return
+  fi
+
+  mkdir -p -- "$backup_dir"
+  mv -- "$target" "$destination"
 }
 
-# Idempotent, safe symlink (overwrite only with --force)
-do_symlink() {
-  local src="$1" target="$2" ln_flags="-sv"
-  [[ "$force" == true ]] && ln_flags="-sfv"
+same_symlink_target() {
+  local source="$1"
+  local target="$2"
+  local current_source
+  local desired_source
 
-  # Ensure parent exists (skipped in --check)
-  ensure_dir "$(dirname "$target")"
-
-  # If target is already a symlink to src, skip
-  if [[ -L "$target" ]]; then
-    local cur dest
-    cur="$(readlink "$target")" || cur=""
-    dest="$src"
-    # Normalize both if possible
-    if [[ -n "$cur" && "$(abspath "$cur" 2>/dev/null || echo "$cur")" == "$(abspath "$dest" 2>/dev/null || echo "$dest")" ]]; then
-      say "ok     $target already -> $src"
-      return 0
-    fi
+  if [[ ! -L "$target" ]]; then
+    return 1
   fi
 
-  # Conflict handling
+  current_source="$(readlink -f -- "$target" 2>/dev/null || true)"
+  desired_source="$(readlink -f -- "$source" 2>/dev/null || true)"
+
+  if [[ -z "$current_source" || -z "$desired_source" ]]; then
+    return 1
+  fi
+
+  [[ "$current_source" == "$desired_source" ]]
+}
+
+link_path() {
+  local source="$1"
+  local target="$2"
+
+  if [[ ! -e "$source" && ! -L "$source" ]]; then
+    err "missing source: $source"
+  fi
+
+  ensure_dir "$(dirname -- "$target")"
+
+  if same_symlink_target "$source" "$target"; then
+    say "ok     $target already -> $source"
+    return
+  fi
+
   if [[ -e "$target" || -L "$target" ]]; then
     if [[ "$force" == true ]]; then
-      backup_move "$target"
+      backup_existing_path "$target"
     else
-      say_err "conflict: $target exists. Re-run with --force to overwrite (a backup will be saved in $backup_dir)."
-      exit 1
+      err "conflict: $target exists. Re-run with --force to replace it."
     fi
   fi
 
-  say "link   $target -> $src"
-  [[ "$check" == true ]] && return 0
-  ln $ln_flags "$src" "$target" || true
+  say "link   $target -> $source"
+
+  if [[ "$check" == true ]]; then
+    return
+  fi
+
+  ln -s -- "$source" "$target"
 }
 
-# Section filter
-wants() {
-  [[ -z "$only_sections" ]] && return 0
-  IFS=',' read -r -a parts <<<"$only_sections"
-  for p in "${parts[@]}"; do
-    [[ "$p" == "$1" ]] && return 0
+section_enabled() {
+  local requested_section="$1"
+  local section
+
+  if [[ -z "$only_sections" ]]; then
+    return 0
+  fi
+
+  IFS=',' read -r -a selected_sections <<<"$only_sections"
+
+  for section in "${selected_sections[@]}"; do
+    if [[ "$section" == "$requested_section" ]]; then
+      return 0
+    fi
   done
+
   return 1
 }
 
-# ----------------------
-# Sections
-# ----------------------
+validate_only_sections() {
+  local section
+
+  if [[ -z "$only_sections" ]]; then
+    return
+  fi
+
+  IFS=',' read -r -a selected_sections <<<"$only_sections"
+
+  for section in "${selected_sections[@]}"; do
+    case "$section" in
+    shell | rofi | nvim | git | other)
+      ;;
+
+    "")
+      err "--only contains an empty section"
+      ;;
+
+    *)
+      err "unknown section for --only: $section"
+      ;;
+    esac
+  done
+}
+
+run_section() {
+  local section="$1"
+
+  if section_enabled "$section"; then
+    "section_$section"
+  fi
+}
+
+## Sections
+
+section_shell() {
+  ensure_dir "$XDG_CONFIG_HOME/fish"
+
+  link_path "$script_dir/bash/bashrc" "$HOME/.bashrc"
+  link_path "$script_dir/fish/config.fish" "$XDG_CONFIG_HOME/fish/config.fish"
+}
 
 section_rofi() {
-  if ! command -v rofi >/dev/null; then
+  if ! command -v rofi >/dev/null 2>&1; then
     say_warn "rofi not found; skipping rofi section"
     return
   fi
@@ -169,59 +269,62 @@ section_rofi() {
   ensure_dir "$HOME/.local/bin"
   ensure_dir "$XDG_CONFIG_HOME/rofi"
 
-  do_symlink "${this_dir}/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
-  do_symlink "${this_dir}/rofi/bin/rofi-combi-menu" "$HOME/.local/bin/rofi-combi-menu"
-  do_symlink "${this_dir}/rofi/config/config.rasi" "$XDG_CONFIG_HOME/rofi/config.rasi"
-  do_symlink "${this_dir}/rofi/config/snippets.txt" "$XDG_CONFIG_HOME/rofi/snippets.txt"
-}
-
-section_shell() {
-  ensure_dir "$XDG_CONFIG_HOME/fish"
-  do_symlink "${this_dir}/fish/config.fish" "$XDG_CONFIG_HOME/fish/config.fish"
+  link_path "$script_dir/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
+  link_path "$script_dir/rofi/bin/rofi-combi-menu" "$HOME/.local/bin/rofi-combi-menu"
+  link_path "$script_dir/rofi/config/config.rasi" "$XDG_CONFIG_HOME/rofi/config.rasi"
+  link_path "$script_dir/rofi/config/snippets.txt" "$XDG_CONFIG_HOME/rofi/snippets.txt"
 }
 
 section_nvim() {
   ensure_dir "$XDG_CONFIG_HOME"
-  do_symlink "${this_dir}/nvim" "$XDG_CONFIG_HOME/nvim"
+
+  link_path "$script_dir/nvim" "$XDG_CONFIG_HOME/nvim"
 }
 
 section_git() {
   ensure_dir "$XDG_CONFIG_HOME/git"
-  do_symlink "${this_dir}/git/global-excludes" "$XDG_CONFIG_HOME/git/global-excludes"
-  do_symlink "${this_dir}/git/commit-template" "$XDG_CONFIG_HOME/git/commit-template"
+
+  link_path "$script_dir/git/global-excludes" "$XDG_CONFIG_HOME/git/global-excludes"
+  link_path "$script_dir/git/commit-template" "$XDG_CONFIG_HOME/git/commit-template"
 }
 
 section_other() {
   ensure_dir "$XDG_CONFIG_HOME/alacritty"
-  do_symlink "${this_dir}/alacritty/alacritty.toml" "$XDG_CONFIG_HOME/alacritty/alacritty.toml"
-  do_symlink "${this_dir}/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty/alacritty.yml"
-
   ensure_dir "$XDG_CONFIG_HOME/direnv"
-  do_symlink "${this_dir}/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
 
-  do_symlink "${this_dir}/editorconfig" "$HOME/.editorconfig"
-  do_symlink "${this_dir}/elixir/default-mix-commands" "$HOME/.default-mix-commands"
-  do_symlink "${this_dir}/elixir/iex.exs" "$HOME/.iex.exs"
-  do_symlink "${this_dir}/nodejs/npmrc" "$HOME/.npmrc"
-  do_symlink "${this_dir}/tmux/tmux.conf" "$HOME/.tmux.conf"
+  link_path "$script_dir/alacritty/alacritty.toml" "$XDG_CONFIG_HOME/alacritty/alacritty.toml"
+  link_path "$script_dir/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty/alacritty.yml"
+  link_path "$script_dir/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
+
+  link_path "$script_dir/editorconfig" "$HOME/.editorconfig"
+  link_path "$script_dir/elixir/default-mix-commands" "$HOME/.default-mix-commands"
+  link_path "$script_dir/elixir/iex.exs" "$HOME/.iex.exs"
+  link_path "$script_dir/nodejs/npmrc" "$HOME/.npmrc"
+  link_path "$script_dir/tmux/tmux.conf" "$HOME/.tmux.conf"
 }
 
 main() {
-  trap 'say_err "failed at line $LINENO"; exit 1' ERR
+  trap 'say_err "failed at line $LINENO"' ERR
 
-  if [[ -n "$only_sections" ]]; then
-    wants shell && section_shell
-    wants rofi && section_rofi
-    wants nvim && section_nvim
-    wants git && section_git
-    wants other && section_other
-  else
-    section_shell
-    section_rofi
-    section_nvim
-    section_git
-    section_other
-  fi
+  parse_args "$@"
+
+  : "${XDG_CONFIG_HOME:=$HOME/.config}"
+  : "${XDG_CACHE_HOME:=$HOME/.cache}"
+  : "${XDG_DATA_HOME:=$HOME/.local/share}"
+  : "${XDG_STATE_HOME:=$HOME/.local/state}"
+
+  ensure_dir "$XDG_CONFIG_HOME"
+  ensure_dir "$XDG_CACHE_HOME"
+  ensure_dir "$XDG_DATA_HOME"
+  ensure_dir "$XDG_STATE_HOME"
+
+  validate_only_sections
+
+  run_section shell
+  run_section rofi
+  run_section nvim
+  run_section git
+  run_section other
 
   say "done"
 }
