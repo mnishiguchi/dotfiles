@@ -1,0 +1,620 @@
+scriptencoding utf-8
+
+" ============================================================================
+" Core defaults
+" ============================================================================
+
+set nocompatible
+set encoding=utf-8
+
+syntax enable
+filetype plugin indent on
+
+set number
+set cursorline
+set scrolloff=8
+set nowrap
+
+set backspace=indent,eol,start
+set mouse=a
+set hidden
+set autoread
+set history=1000
+
+" Avoid auto-wrapping while typing.
+set formatoptions-=t
+
+" Search
+set ignorecase
+set smartcase
+set incsearch
+set nohlsearch
+
+" Tabs / indent
+set tabstop=2
+set softtabstop=2
+set shiftwidth=2
+set expandtab
+set autoindent
+set smartindent
+
+if exists('+breakindent')
+  set breakindent
+endif
+
+" UI / appearance
+set background=dark
+
+if exists('+termguicolors')
+  set termguicolors
+endif
+
+if exists('+colorcolumn')
+  set colorcolumn=80
+endif
+
+if exists('+signcolumn')
+  set signcolumn=yes
+endif
+
+" netrw
+let g:netrw_banner = 0
+
+" Clipboard
+if has('clipboard')
+  set clipboard=unnamedplus
+endif
+
+" Diff defaults
+set diffopt+=vertical
+
+" Command-line completion
+set path+=**
+set wildmenu
+set wildmode=longest:full,full
+
+if exists('+completeopt')
+  set completeopt=menuone,noselect
+endif
+
+" Responsiveness
+set updatetime=300
+set timeoutlen=500
+set lazyredraw
+
+if exists('+synmaxcol')
+  set synmaxcol=200
+endif
+
+if exists('+redrawtime')
+  set redrawtime=10000
+endif
+
+" Filename / keyword tweaks
+set isfname+=@-@
+set iskeyword+=-
+
+" Persistent undo
+if has('persistent_undo')
+  set undofile
+
+  let s:undo_dir = expand('~/.vim/undo')
+
+  if !isdirectory(s:undo_dir)
+    call mkdir(s:undo_dir, 'p')
+  endif
+
+  let &undodir = s:undo_dir
+endif
+
+" ============================================================================
+" Plugin bootstrap
+" ============================================================================
+
+let s:plug_vim = expand('~/.vim/autoload/plug.vim')
+
+if empty(glob(s:plug_vim))
+  silent execute '!curl -fLo ' . shellescape(s:plug_vim) . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+" Vimwiki reads these during startup, so define them before plug#end.
+let g:vimwiki_list = [
+      \ {
+      \   'path': '~/Documents/vimwiki/',
+      \   'syntax': 'markdown',
+      \   'ext': '.md'
+      \ }
+      \ ]
+
+let g:vimwiki_global_ext = 0
+
+call plug#begin('~/.vim/plugged')
+
+" Theme / UI
+Plug 'kaicataldo/material.vim'
+Plug 'itchyny/lightline.vim'
+Plug 'Yggdroot/indentLine'
+
+" Editing helpers
+Plug 'jiangmiao/auto-pairs'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-abolish'
+Plug 'mbbill/undotree'
+
+" Git
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rhubarb'
+Plug 'mhinz/vim-signify'
+Plug 'APZelos/blamer.nvim'
+
+" LSP
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+
+" Formatting
+Plug 'sbdchd/neoformat'
+
+" Fuzzy finder
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+
+" Notes
+Plug 'vimwiki/vimwiki'
+
+call plug#end()
+
+" ============================================================================
+" Plugin configuration
+" ============================================================================
+
+" Theme
+let g:material_theme_style = 'darker'
+silent! colorscheme material
+
+" Lightline, roughly replacing lualine.
+set laststatus=2
+
+let g:lightline = {
+      \ 'colorscheme': 'wombat',
+      \ 'active': {
+      \   'left': [
+      \     ['mode', 'paste'],
+      \     ['gitbranch', 'readonly', 'filename', 'modified']
+      \   ],
+      \   'right': [
+      \     ['lineinfo'],
+      \     ['percent'],
+      \     ['fileformat', 'fileencoding', 'filetype']
+      \   ]
+      \ },
+      \ 'component_function': {
+      \   'gitbranch': 'FugitiveHead'
+      \ }
+      \ }
+
+" Indent guides
+let g:indentLine_char = '┊'
+let g:indentLine_fileTypeExclude = ['help', 'terminal', 'fzf']
+
+" Git signs
+let g:signify_sign_add = '+'
+let g:signify_sign_change = '~'
+let g:signify_sign_delete = '_'
+let g:signify_sign_delete_first_line = '‾'
+let g:signify_sign_change_delete = '~'
+
+" Git blame
+let g:blamer_enabled = 0
+let g:blamer_date_format = '%r'
+
+" fzf.vim defaults
+if executable('rg')
+  let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --glob "!.git/*"'
+  let g:fzf_vim = {
+        \ 'grep_command': 'rg --column --line-number --no-heading --color=always --smart-case'
+        \ }
+endif
+
+" Neoformat
+let g:neoformat_only_msg_on_error = 1
+let g:neoformat_try_node_exe = 1
+let g:neoformat_run_all_formatters = 0
+
+" Prefer a simple winbar when available.
+if exists('+winbar')
+  set winbar=%=%m\ %f
+endif
+
+" ============================================================================
+" Large file behavior
+" ============================================================================
+
+function! s:ApplyLargeFileDefaults() abort
+  let l:file_path = expand('<afile>:p')
+
+  if l:file_path ==# ''
+    return
+  endif
+
+  if getfsize(l:file_path) > 1024 * 1024
+    setlocal noswapfile
+
+    if has('persistent_undo')
+      setlocal noundofile
+    endif
+
+    let b:large_file = 1
+  endif
+endfunction
+
+function! s:ApplyLargeFileWindowDefaults() abort
+  if get(b:, 'large_file', 0)
+    setlocal syntax=
+    setlocal foldmethod=manual
+    echo 'Large file detected. Performance settings applied.'
+  endif
+endfunction
+
+augroup vimrc_large_files
+  autocmd!
+  autocmd BufReadPre * call <SID>ApplyLargeFileDefaults()
+  autocmd BufWinEnter * call <SID>ApplyLargeFileWindowDefaults()
+augroup END
+
+" ============================================================================
+" Auto-reload files changed outside Vim
+" ============================================================================
+
+augroup vimrc_autoread
+  autocmd!
+  autocmd FocusGained,BufEnter * checktime
+augroup END
+
+" ============================================================================
+" Filetype tweaks
+" ============================================================================
+
+augroup vimrc_filetypes
+  autocmd!
+
+  " Markdown-ish
+  autocmd BufRead,BufNewFile *.livemd setfiletype markdown
+  autocmd BufRead,BufNewFile *.mdx setfiletype markdown
+
+  " Rails / ERB
+  autocmd BufRead,BufNewFile *.erb setfiletype eruby
+
+  " Go templates
+  autocmd BufRead,BufNewFile *.gotmpl setfiletype gotmpl
+
+  " Ruby
+  autocmd BufRead,BufNewFile Gemfile,Rakefile,Vagrantfile,Thorfile,Guardfile,config.ru setfiletype ruby
+  autocmd BufRead,BufNewFile *.rake,*.jbuilder setfiletype ruby
+
+  " YAML variants
+  autocmd BufRead,BufNewFile docker-compose.yml,docker-compose.yaml,.gitlab-ci.yml setfiletype yaml
+  autocmd BufRead,BufNewFile */values.yml,*/values.yaml,*/values.*.yml,*/values.*.yaml setfiletype yaml
+augroup END
+
+" ============================================================================
+" Leader
+" ============================================================================
+
+nnoremap <Space> <Nop>
+vnoremap <Space> <Nop>
+
+let mapleader = " "
+let maplocalleader = " "
+
+" ============================================================================
+" File explorer
+" ============================================================================
+
+nnoremap <leader>e :Ex<CR>
+
+" ============================================================================
+" Fuzzy finder mappings
+" ============================================================================
+
+nnoremap <leader>fb :Buffers<CR>
+nnoremap <leader>fc :Commands<CR>
+nnoremap <leader>ff :Files<CR>
+nnoremap <leader>fg :Rg<Space>
+nnoremap <leader>fh :Helptags<CR>
+nnoremap <leader>fk :Maps<CR>
+nnoremap <leader>fm :Marks<CR>
+nnoremap <leader>fr :Registers<CR>
+nnoremap <leader><leader> :History<CR>
+nnoremap <leader>/ :BLines<CR>
+nnoremap <leader>? :Rg<CR>
+
+" Git-flavored fzf mappings
+nnoremap <leader>gf :GFiles<CR>
+nnoremap <leader>gd :GFiles?<CR>
+nnoremap <leader>gc :Commits<CR>
+nnoremap <leader>gb :Branches<CR>
+
+" ============================================================================
+" Neovim-like convenience mappings
+" ============================================================================
+
+" Add blank lines above/below without entering insert mode.
+function! s:AddBlankLinesAbove(count) abort
+  let l:count = a:count > 0 ? a:count : 1
+  let l:view = winsaveview()
+
+  call append(line('.') - 1, repeat([''], l:count))
+
+  let l:view.lnum += l:count
+  call winrestview(l:view)
+endfunction
+
+function! s:AddBlankLinesBelow(count) abort
+  let l:count = a:count > 0 ? a:count : 1
+  let l:view = winsaveview()
+
+  call append(line('.'), repeat([''], l:count))
+
+  call winrestview(l:view)
+endfunction
+
+nnoremap <silent> [<Space> :<C-u>call <SID>AddBlankLinesAbove(v:count1)<CR>
+nnoremap <silent> ]<Space> :<C-u>call <SID>AddBlankLinesBelow(v:count1)<CR>
+
+" Approximate Neovim LSP-style references.
+" This uses fzf.vim + ripgrep when available.
+function! s:SearchReferencesUnderCursor() abort
+  let l:word = expand('<cword>')
+
+  if l:word ==# ''
+    return
+  endif
+
+  if exists(':Rg') == 2
+    execute 'Rg ' . shellescape(l:word)
+  elseif executable('rg')
+    execute 'grep! ' . shellescape(l:word)
+    copen
+  else
+    execute 'vimgrep /\V' . escape(l:word, '/\') . '/gj **/*'
+    copen
+  endif
+endfunction
+
+nnoremap <silent> gr :<C-u>call <SID>SearchReferencesUnderCursor()<CR>
+
+" Yank to the end of the line, matching Neovim's friendlier default.
+nnoremap Y y$
+
+" Repeat substitute with the same flags.
+nnoremap & :&&<CR>
+xnoremap & :&&<CR>
+
+" Clear search highlighting and redraw.
+nnoremap <C-l> :nohlsearch<CR><C-l>
+
+" ============================================================================
+" Visual mode line movement
+" ============================================================================
+
+vnoremap J :move '>+1<CR>gv=gv
+vnoremap K :move '<-2<CR>gv=gv
+vnoremap H <gv
+vnoremap L >gv
+vnoremap < <gv
+vnoremap > >gv
+
+" ============================================================================
+" Cursor management
+" ============================================================================
+
+" Join lines but keep cursor position.
+nnoremap J mzJ`z
+
+" Center movement, but preserve counts for macros and repeated commands.
+nnoremap <expr> j (v:count ? 'j' : 'jzz')
+nnoremap <expr> k (v:count ? 'k' : 'kzz')
+nnoremap <Up>   <Up>zz
+nnoremap <Down> <Down>zz
+nnoremap <C-u>  <C-u>zz
+nnoremap <C-d>  <C-d>zz
+
+" Search next/previous centered.
+nnoremap n nzzzv
+nnoremap N Nzzzv
+
+" ============================================================================
+" Yank / paste / delete behavior
+" ============================================================================
+
+" Disable accidental leader paste.
+nnoremap <leader>p <Nop>
+vnoremap <leader>p <Nop>
+
+" Paste over selection without yanking replaced text.
+vnoremap p "_dP
+
+" Delete without yanking.
+nnoremap <leader>d "_d
+vnoremap <leader>d "_d
+nnoremap x "_x
+
+" ============================================================================
+" Find and replace
+" ============================================================================
+
+nnoremap <leader>s :%s/\<<C-r><C-w>\>/<C-r><C-w>/cgI<Left><Left><Left><Left>
+
+" ============================================================================
+" Tags
+" ============================================================================
+
+function! s:GenerateTags() abort
+  let l:output = system('ctags -R .')
+
+  if v:shell_error
+    echohl ErrorMsg
+    echom 'ctags failed: ' . l:output
+    echohl None
+  else
+    echom 'Tags generated'
+  endif
+endfunction
+
+nnoremap <leader>ct :call <SID>GenerateTags()<CR>
+nnoremap tt <C-]>
+
+" ============================================================================
+" Git integration
+" ============================================================================
+
+nnoremap <leader>gs :Git<CR>
+nnoremap <leader>gw :Gwrite<CR>
+nnoremap <leader>gr :Gread<CR>
+
+" Copy GitHub link to current line / selection.
+nnoremap <leader>v :.GBrowse!<CR>
+xnoremap <leader>v :GBrowse!<CR>
+
+" Toggle inline git blame.
+nnoremap <leader>gB :BlamerToggle<CR>
+
+" ============================================================================
+" Undo history
+" ============================================================================
+
+nnoremap <leader>u :UndotreeToggle<CR>
+
+" ============================================================================
+" Buffer management
+" ============================================================================
+
+nnoremap <leader>q :bd!<CR>
+
+" ============================================================================
+" Increment / decrement
+" ============================================================================
+
+nnoremap <leader>= <C-a>
+nnoremap <leader>- <C-x>
+
+" ============================================================================
+" Insert mode
+" ============================================================================
+
+inoremap jk <Esc>
+inoremap kj <Esc>
+
+" ============================================================================
+" Splits
+" ============================================================================
+
+nnoremap <C-w>\ :vsplit<CR>
+nnoremap <C-w>- :split<CR>
+
+" ============================================================================
+" Formatting helpers
+" ============================================================================
+
+function! s:FormatWithPrettier() abort
+  if executable('prettier')
+    execute '%!prettier --stdin-filepath ' . shellescape(expand('%:p'))
+    return
+  endif
+
+  if executable('npx')
+    execute '%!npx --no-install prettier --stdin-filepath ' . shellescape(expand('%:p'))
+    return
+  endif
+
+  echo 'prettier is not available'
+endfunction
+
+command! FormatRuby     silent execute '%!bundle exec rubocop -A --stdin ' . shellescape(expand('%:p'))
+command! FormatJson     call <SID>FormatWithPrettier()
+command! FormatMarkdown call <SID>FormatWithPrettier()
+command! FormatYaml     call <SID>FormatWithPrettier()
+command! FormatXml      silent execute '%!xmllint --format -'
+command! FormatSh       silent execute '%!shfmt -i 2 -ci'
+
+function! s:FormatCurrentBuffer() abort
+  " Prefer LSP formatting when an LSP plugin provides the command.
+  if exists(':LspDocumentFormatSync') == 2
+    silent! LspDocumentFormatSync
+    return
+  endif
+
+  if exists(':LspDocumentFormat') == 2
+    silent! LspDocumentFormat
+    return
+  endif
+
+  " coc.nvim compatibility, in case this .vimrc is used with coc later.
+  if exists(':CocCommand') == 2
+    silent! CocCommand editor.action.formatDocument
+    return
+  endif
+
+  " Direct fallback by filetype.
+  " Put these before Neoformat so important common filetypes work reliably.
+  if &filetype ==# 'ruby'
+    FormatRuby
+    return
+  endif
+
+  if &filetype ==# 'json' || &filetype ==# 'jsonc'
+    FormatJson
+    return
+  endif
+
+  if &filetype ==# 'markdown'
+    FormatMarkdown
+    return
+  endif
+
+  if &filetype ==# 'yaml'
+    FormatYaml
+    return
+  endif
+
+  if &filetype ==# 'xml'
+    FormatXml
+    return
+  endif
+
+  if &filetype ==# 'sh' || &filetype ==# 'bash' || &filetype ==# 'zsh'
+    FormatSh
+    return
+  endif
+
+  " General formatter plugin fallback.
+  if exists(':Neoformat') == 2
+    silent! Neoformat
+    return
+  endif
+
+  echo 'No formatter configured for filetype: ' . &filetype
+endfunction
+
+nnoremap <leader>lf :call <SID>FormatCurrentBuffer()<CR>
+
+" ============================================================================
+" Command aliases
+" ============================================================================
+
+command! Q  q
+command! W  w
+command! WQ wq
+command! Wq wq
+command! QA qa
+command! Qa qa
+
+" ============================================================================
+" Save helpers
+" ============================================================================
+
+nnoremap <leader>w :w<CR>
+nnoremap <leader>W :wa<CR>
+nnoremap <leader><CR> :w<CR>:source %<CR>
