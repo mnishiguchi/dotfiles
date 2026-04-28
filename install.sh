@@ -303,6 +303,7 @@ section_other() {
   link_path "$script_dir/elixir/iex.exs" "$HOME/.iex.exs"
   link_path "$script_dir/nodejs/npmrc" "$HOME/.npmrc"
   link_path "$script_dir/tmux/tmux.conf" "$HOME/.tmux.conf"
+  link_path "$script_dir/vim/vimrc" "$HOME/.vimrc"
 }
 
 main() {
