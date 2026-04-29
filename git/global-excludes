@@ -99,6 +99,19 @@ tags
 !AGENTS.md
 !AGENTS.override.md
 
+# Copilot / assistant generated files
+.copilot/
+.copilot-*
+.copilot_*
+.copilot-session/
+.copilot-session-*
+*.copilot
+.copilot-cache/
+.copilot_cache/
+.copilot_history
+.copilot_logs
+.copilot-temp/
+
 ##############################################################################
 # etc
 ##############################################################################
