@@ -197,7 +197,7 @@ function mkreadme
         return 1
     end
 
-    echo 'Nothing interesting here yet. Try again later.' > $file
+    echo 'Nothing interesting here yet. Try again later.' >$file
 end
 
 function mkarchive
@@ -347,12 +347,4 @@ function fish_prompt
     end
     printf '$ '
     set_color normal
-end
-
-## Message of the Day
-
-if type -q fastfetch
-    echo
-    fastfetch --logo none 2>/dev/null
-    echo
 end

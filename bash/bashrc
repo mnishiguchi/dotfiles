@@ -526,11 +526,3 @@ prepend_prompt_command() {
 }
 
 prepend_prompt_command bash_prompt
-
-## Message of the Day
-
-if command -v fastfetch >/dev/null 2>&1; then
-  echo
-  fastfetch --logo none 2>/dev/null
-  echo
-fi
