@@ -300,6 +300,7 @@ return {
 				"css",
 				"eex",
 				"elixir",
+				"embedded_template",
 				"heex",
 				"html",
 				"javascript",
@@ -323,7 +324,7 @@ return {
 
 			ts.install(languages)
 
-			vim.treesitter.language.register("html", { "blade", "eruby" })
+			vim.treesitter.language.register("html", "blade")
 			vim.treesitter.language.register("bash", { "sh", "tmux" })
 
 			vim.api.nvim_create_autocmd("FileType", {
@@ -467,7 +468,7 @@ return {
 					make = { "mbake" },
 					markdown = { "prettierd" },
 					python = { "ruff_format", "ruff_organize_imports" },
-					ruby = { "rbprettier", "rubocop" },
+					ruby = { "rbprettier", lsp_format = "fallback" },
 					sh = { "shfmt" },
 					toml = { "taplo" },
 					typescript = { "prettierd" },
