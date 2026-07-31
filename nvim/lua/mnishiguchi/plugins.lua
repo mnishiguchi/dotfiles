@@ -90,6 +90,7 @@ return {
 	{
 		"lukas-reineke/indent-blankline.nvim",
 		main = "ibl",
+		event = { "BufReadPost", "BufNewFile" },
 		config = function()
 			local highlight = {
 				"RainbowBrown",
@@ -132,6 +133,7 @@ return {
 	},
 	{
 		"folke/todo-comments.nvim",
+		event = { "BufReadPost", "BufNewFile" },
 		config = function()
 			require("todo-comments").setup()
 		end,
@@ -171,6 +173,7 @@ return {
 	},
 	{
 		"lewis6991/gitsigns.nvim",
+		event = { "BufReadPre", "BufNewFile" },
 		opts = {
 			signs = {
 				add = { text = "+" },
@@ -179,13 +182,9 @@ return {
 				topdelete = { text = "‾" },
 				changedelete = { text = "~" },
 			},
+			current_line_blame = true,
+			current_line_blame_formatter = " <author> • <author_time:%R> • <summary>",
 		},
-	},
-	{
-		"f-person/git-blame.nvim",
-		config = function()
-			vim.g.gitblame_date_format = "%r"
-		end,
 	},
 
 	------------------------------------------------------------------------------
@@ -194,6 +193,13 @@ return {
 	{
 		"ThePrimeagen/harpoon",
 		branch = "harpoon2",
+		keys = {
+			"<leader>a",
+			"<C-e>",
+			"<C-h>",
+			"<C-t>",
+			"<C-n>",
+		},
 		config = function()
 			local harpoon = require("harpoon")
 
@@ -376,6 +382,8 @@ return {
 	------------------------------------------------------------------------------
 	{
 		"stevearc/conform.nvim",
+		event = { "BufWritePre" },
+		cmd = { "ConformInfo" },
 		init = function()
 			local function format(options)
 				require("conform").format(vim.tbl_extend("force", {
@@ -501,11 +509,6 @@ return {
 				"ruff",
 				"taplo",
 				"yamlls",
-			},
-			automatic_enable = {
-				exclude = {
-					"stylua",
-				},
 			},
 		},
 		dependencies = {
@@ -647,7 +650,6 @@ return {
 				appearance = { nerd_font_variant = "mono" },
 				completion = { documentation = { auto_show = true } },
 				sources = { default = { "lsp", "path", "snippets", "buffer" } },
-				fuzzy = { implementation = "prefer_rust_with_warning" },
 			})
 		end,
 	},
