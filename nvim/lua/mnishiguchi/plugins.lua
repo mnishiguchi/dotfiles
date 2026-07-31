@@ -296,6 +296,7 @@ return {
 			local languages = {
 				"bash",
 				"c",
+				"cmake",
 				"cpp",
 				"css",
 				"eex",
@@ -330,6 +331,7 @@ return {
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = {
 					"c",
+					"cmake",
 					"cpp",
 					"css",
 					"eelixir",
@@ -427,11 +429,6 @@ return {
 					}
 				end,
 				formatters = {
-					["clang-format"] = {
-						command = "clang-format",
-						args = { "--assume-filename", "$FILENAME" },
-						stdin = true,
-					},
 					mbake = {
 						command = "mbake",
 						args = { "format", "$FILENAME" },
