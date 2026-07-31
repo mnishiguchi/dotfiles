@@ -306,6 +306,7 @@ return {
 				"lua",
 				"markdown",
 				"markdown_inline",
+				"python",
 				"ruby",
 				"rust",
 				"toml",
@@ -338,6 +339,7 @@ return {
 					"lua",
 					"markdown",
 					"markdown.mdx",
+					"python",
 					"ruby",
 					"rust",
 					"sh",
@@ -462,6 +464,7 @@ return {
 					lua = { "stylua" },
 					make = { "mbake" },
 					markdown = { "prettierd" },
+					python = { "ruff_format", "ruff_organize_imports" },
 					ruby = { "rbprettier", "rubocop" },
 					sh = { "shfmt" },
 					toml = { "taplo" },
@@ -484,6 +487,7 @@ return {
 		"mason-org/mason-lspconfig.nvim",
 		opts = {
 			ensure_installed = {
+				"basedpyright",
 				"bashls",
 				"clangd",
 				"expert",
@@ -491,6 +495,7 @@ return {
 				"jsonls",
 				"lua_ls",
 				"ruby_lsp",
+				"ruff",
 				"taplo",
 				"yamlls",
 			},
@@ -553,6 +558,11 @@ return {
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 					if not client then
 						return
+					end
+
+					if client.name == "ruff" then
+						-- Prefer BasedPyright's richer hover information.
+						client.server_capabilities.hoverProvider = false
 					end
 
 					local opts = { buffer = event.buf }
