@@ -302,6 +302,7 @@ return {
 				"eex",
 				"elixir",
 				"embedded_template",
+				"fish",
 				"heex",
 				"html",
 				"javascript",
@@ -336,6 +337,7 @@ return {
 					"css",
 					"eelixir",
 					"elixir",
+					"fish",
 					"heex",
 					"html",
 					"javascript",
@@ -491,6 +493,7 @@ return {
 				"bashls",
 				"clangd",
 				"expert",
+				"fish_lsp",
 				"gopls",
 				"jsonls",
 				"lua_ls",
@@ -533,6 +536,9 @@ return {
 				"mbake",
 				"htmlbeautifier",
 				"shfmt",
+
+				-- Linters used by language servers
+				"shellcheck",
 
 				-- Go
 				"gofumpt",
