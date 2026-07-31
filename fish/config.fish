@@ -174,6 +174,38 @@ function timestamp
     date "+%Y%m%d%H%M%S"
 end
 
+function bashpaste --description 'Review and run a Bash snippet from the clipboard'
+    if not command -sq bash
+        echo "bashpaste: bash not found" >&2
+        return 1
+    end
+
+    set -l script (command mktemp -t bash-snippet.XXXXXX)
+    or return 1
+
+    if not fish_clipboard_paste >"$script"
+        echo "bashpaste: clipboard is empty or unavailable" >&2
+        command rm -f -- "$script"
+        return 1
+    end
+
+    if not $EDITOR "$script"
+        command rm -f -- "$script"
+        return 1
+    end
+
+    command bash -n -- "$script"
+    set -l exit_status $status
+
+    if test $exit_status -eq 0
+        command bash -- "$script" $argv
+        set exit_status $status
+    end
+
+    command rm -f -- "$script"
+    return $exit_status
+end
+
 abbr --add 2desk 'tee $HOME/Desktop/terminal-output-(date "+%Y%m%d%H%M%S").txt'
 abbr --add codium "flatpak run com.vscodium.codium"
 
