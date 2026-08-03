@@ -174,38 +174,6 @@ function timestamp
     date "+%Y%m%d%H%M%S"
 end
 
-function bashpaste --description 'Review and run a Bash snippet from the clipboard'
-    if not command -sq bash
-        echo "bashpaste: bash not found" >&2
-        return 1
-    end
-
-    set -l script (command mktemp -t bash-snippet.XXXXXX)
-    or return 1
-
-    if not fish_clipboard_paste >"$script"
-        echo "bashpaste: clipboard is empty or unavailable" >&2
-        command rm -f -- "$script"
-        return 1
-    end
-
-    if not $EDITOR "$script"
-        command rm -f -- "$script"
-        return 1
-    end
-
-    command bash -n -- "$script"
-    set -l exit_status $status
-
-    if test $exit_status -eq 0
-        command bash -- "$script" $argv
-        set exit_status $status
-    end
-
-    command rm -f -- "$script"
-    return $exit_status
-end
-
 abbr --add 2desk 'tee $HOME/Desktop/terminal-output-(date "+%Y%m%d%H%M%S").txt'
 abbr --add codium "flatpak run com.vscodium.codium"
 
@@ -230,73 +198,6 @@ function mkreadme
     end
 
     echo 'Nothing interesting here yet. Try again later.' >$file
-end
-
-function mkarchive
-    if test (count $argv) -lt 2
-        echo "usage: mkarchive <output> <files/dirs...>" >&2
-        return 2
-    end
-
-    set -l out $argv[1]
-    set -l files $argv[2..-1]
-
-    switch $out
-        case '*.tar'
-            tar -cvf $out -- $files
-        case '*.tar.gz' '*.tgz'
-            tar -cvf - -- $files | gzip -c >$out
-        case '*.zip'
-            zip -r -X -- $out $files
-        case '*'
-            echo "mkarchive: unsupported extension: $out" >&2
-            echo "supported: .tar .tar.gz(.tgz) .zip" >&2
-            return 1
-    end
-end
-
-function mkgpg
-    if test (count $argv) -lt 2
-        echo "usage: mkgpg <basename> <files/dirs...>" >&2
-        return 2
-    end
-
-    set -l base $argv[1]
-    set -l files $argv[2..-1]
-    set -l tarball "$base.tar.gz"
-    set -l enc "$base.tar.gz.gpg"
-
-    tar -cvf - -- $files | gzip -c >$tarball
-
-    if gpg --symmetric --cipher-algo AES256 --output $enc --quiet --batch $tarball
-        rm -f -- $tarball
-    else
-        echo "gpg encryption failed (leaving plaintext: $tarball)" >&2
-    end
-end
-
-function extract
-    if test (count $argv) -lt 1
-        echo "usage: extract <archive>" >&2
-        return 2
-    end
-
-    set -l f $argv[1]
-
-    switch $f
-        case '*.tar'
-            tar xvf $f
-        case '*.tar.gz' '*.tgz'
-            tar xvzf $f
-        case '*.zip' '*.ZIP'
-            unzip -- $f
-        case '*.gz'
-            gunzip --keep -- $f
-        case '*'
-            echo "extract: unsupported archive: $f" >&2
-            echo "supported: .tar .tar.gz(.tgz) .zip [.gz single-file]" >&2
-            return 1
-    end
 end
 
 function capslock

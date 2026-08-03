@@ -263,7 +263,11 @@ section_shell() {
 section_bin() {
   ensure_dir "$HOME/.local/bin"
 
+  link_path "$script_dir/bin/bashpaste" "$HOME/.local/bin/bashpaste"
+  link_path "$script_dir/bin/extract" "$HOME/.local/bin/extract"
   link_path "$script_dir/bin/mp4-to-gif" "$HOME/.local/bin/mp4-to-gif"
+  link_path "$script_dir/bin/mkarchive" "$HOME/.local/bin/mkarchive"
+  link_path "$script_dir/bin/mkgpg" "$HOME/.local/bin/mkgpg"
   link_path "$script_dir/bin/pbcopy" "$HOME/.local/bin/pbcopy"
   link_path "$script_dir/bin/pbpaste" "$HOME/.local/bin/pbpaste"
 }

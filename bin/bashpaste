@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_name="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+Review and run a Bash snippet from the clipboard.
+
+Usage:
+  $script_name [--] [ARG...]
+
+Arguments after -- are passed to the snippet.
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+case "${1:-}" in
+  --help | -h)
+    usage
+    exit 0
+    ;;
+  --)
+    shift
+    ;;
+esac
+
+command -v bash >/dev/null 2>&1 || die "bash is required"
+command -v pbpaste >/dev/null 2>&1 || die "pbpaste is required"
+
+editor="${VISUAL:-${EDITOR:-vi}}"
+read -r -a editor_command <<<"$editor"
+[[ ${#editor_command[@]} -gt 0 ]] || die "editor is not configured"
+command -v "${editor_command[0]}" >/dev/null 2>&1 || die "editor not found: ${editor_command[0]}"
+
+snippet="$(mktemp "${TMPDIR:-/tmp}/bashpaste.XXXXXX")" || die "could not create a temporary file"
+cleanup() {
+  rm -f -- "$snippet"
+}
+trap cleanup EXIT
+
+if ! pbpaste >"$snippet"; then
+  die "could not read the clipboard"
+fi
+
+[[ -s "$snippet" ]] || die "clipboard is empty"
+
+"${editor_command[@]}" "$snippet"
+bash -n -- "$snippet"
+bash -- "$snippet" "$@"

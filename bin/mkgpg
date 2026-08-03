@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_name="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+Create a GPG-encrypted tar.gz archive without writing a plaintext archive.
+
+Usage:
+  $script_name [--force] BASENAME INPUT...
+
+Options:
+  --force, -f  Replace an existing .tar.gz.gpg file.
+  --help, -h   Show this help.
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+force=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --force | -f)
+      force=true
+      shift
+      ;;
+    --help | -h)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      die "unknown option: $1"
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [[ $# -lt 2 ]]; then
+  usage >&2
+  exit 2
+fi
+
+base="$1"
+shift
+encrypted_file="$base.tar.gz.gpg"
+
+for dependency in tar gzip gpg; do
+  command -v "$dependency" >/dev/null 2>&1 || die "$dependency is required"
+done
+
+for input in "$@"; do
+  [[ "$input" != "$encrypted_file" ]] || die "output archive cannot also be an input: $encrypted_file"
+  [[ -e "$input" ]] || die "input not found: $input"
+done
+
+[[ ! -d "$encrypted_file" ]] || die "output path is a directory: $encrypted_file"
+
+if [[ (-e "$encrypted_file" || -L "$encrypted_file") && "$force" != true ]]; then
+  die "output already exists: $encrypted_file (use --force to replace it)"
+fi
+
+output_dir="$(dirname -- "$encrypted_file")"
+[[ -d "$output_dir" ]] || die "output directory not found: $output_dir"
+
+umask 077
+temporary_dir="$(mktemp -d "$output_dir/.mkgpg.XXXXXX")" || die "could not create a temporary directory"
+temporary_output="$temporary_dir/archive.tar.gz.gpg"
+
+cleanup() {
+  rm -f -- "$temporary_output"
+  rmdir -- "$temporary_dir" 2>/dev/null || true
+}
+trap cleanup EXIT
+
+tar -cvf - -- "$@" |
+  gzip -c |
+  gpg --symmetric --cipher-algo AES256 --quiet --output "$temporary_output"
+
+mv -f -- "$temporary_output" "$encrypted_file"
+printf 'Wrote: %s\n' "$encrypted_file"

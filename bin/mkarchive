@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_name="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+Create an archive from one or more files or directories.
+
+Usage:
+  $script_name [--force] OUTPUT INPUT...
+
+Options:
+  --force, -f  Replace an existing output archive.
+  --help, -h   Show this help.
+
+Supported formats:
+  .tar, .tar.gz, .tgz, .zip
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+force=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --force | -f)
+      force=true
+      shift
+      ;;
+    --help | -h)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      die "unknown option: $1"
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [[ $# -lt 2 ]]; then
+  usage >&2
+  exit 2
+fi
+
+output="$1"
+shift
+
+case "$output" in
+  *.tar)
+    archive_type=tar
+    dependency=tar
+    ;;
+  *.tar.gz | *.tgz)
+    archive_type=tar_gzip
+    dependency=tar
+    ;;
+  *.zip)
+    archive_type=zip
+    dependency=zip
+    ;;
+  *)
+    die "unsupported output format: $output"
+    ;;
+esac
+
+command -v "$dependency" >/dev/null 2>&1 || die "$dependency is required for this archive"
+if [[ "$archive_type" == tar_gzip ]]; then
+  command -v gzip >/dev/null 2>&1 || die "gzip is required for this archive"
+fi
+
+for input in "$@"; do
+  [[ "$input" != "$output" ]] || die "output archive cannot also be an input: $output"
+  [[ -e "$input" ]] || die "input not found: $input"
+done
+
+[[ ! -d "$output" ]] || die "output path is a directory: $output"
+
+if [[ -e "$output" || -L "$output" ]]; then
+  [[ "$force" == true ]] || die "output already exists: $output (use --force to replace it)"
+fi
+
+output_dir="$(dirname -- "$output")"
+[[ -d "$output_dir" ]] || die "output directory not found: $output_dir"
+
+temporary_dir="$(mktemp -d "$output_dir/.mkarchive.XXXXXX")" || die "could not create a temporary directory"
+temporary_output="$temporary_dir/$(basename -- "$output")"
+
+cleanup() {
+  rm -f -- "$temporary_output"
+  rmdir -- "$temporary_dir" 2>/dev/null || true
+}
+trap cleanup EXIT
+
+case "$archive_type" in
+  tar)
+    tar -cvf "$temporary_output" -- "$@"
+    ;;
+  tar_gzip)
+    tar -cvf - -- "$@" | gzip -c >"$temporary_output"
+    ;;
+  zip)
+    zip -r -X "$temporary_output" -- "$@"
+    ;;
+esac
+
+mv -f -- "$temporary_output" "$output"
+printf 'Wrote: %s\n' "$output"

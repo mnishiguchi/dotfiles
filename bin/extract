@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_name="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+Extract an archive into the current directory.
+
+Usage:
+  $script_name ARCHIVE
+
+Supported formats:
+  .tar, .tar.gz, .tgz, .tar.bz2, .tbz2, .tar.xz, .txz, .zip, .gz
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+case "${1:-}" in
+  --help | -h)
+    usage
+    exit 0
+    ;;
+esac
+
+if [[ $# -ne 1 ]]; then
+  usage >&2
+  exit 2
+fi
+
+archive="$1"
+[[ -f "$archive" ]] || die "archive not found: $archive"
+
+case "$archive" in
+  *.tar | *.tar.gz | *.tgz | *.tar.bz2 | *.tbz2 | *.tar.xz | *.txz)
+    command -v tar >/dev/null 2>&1 || die "tar is required for this archive"
+    tar -xvf "$archive"
+    ;;
+  *.zip | *.ZIP)
+    command -v unzip >/dev/null 2>&1 || die "unzip is required for this archive"
+    unzip -- "$archive"
+    ;;
+  *.gz)
+    command -v gunzip >/dev/null 2>&1 || die "gunzip is required for this archive"
+    gunzip --keep -- "$archive"
+    ;;
+  *)
+    die "unsupported archive format: $archive"
+    ;;
+esac
