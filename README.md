@@ -26,6 +26,22 @@ Options:
   --debug            Enable shell tracing
   --force, -f        Overwrite destination files
   --check            Dry run (show what would change)
-  --only <sections>  Comma-separated list: rofi,shell,nvim,git,other
+  --only <sections>  Comma-separated list: shell,bin,rofi,nvim,git,other
   --help, -h         Show help
+```
+
+## Commands
+
+The `bin` section installs these commands into `~/.local/bin`:
+
+| Command | Description | Dependency |
+| --- | --- | --- |
+| `mp4-to-gif` | Convert a video to an optimized animated GIF | `ffmpeg` |
+| `pbcopy` | Copy standard input to the Wayland or X11 clipboard | `wl-clipboard`, `xclip`, or `xsel` |
+| `pbpaste` | Write the Wayland or X11 clipboard to standard output | `wl-clipboard`, `xclip`, or `xsel` |
+
+Install only the commands with:
+
+```bash
+./install.sh --only bin
 ```

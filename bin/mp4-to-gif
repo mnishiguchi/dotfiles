@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_name="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+Convert a video to an optimized animated GIF.
+
+Usage:
+  $script_name [--force] INPUT_VIDEO [OUTPUT_GIF]
+
+Options:
+  --force, -f  Overwrite an existing output file.
+  --help, -h   Show this help.
+
+Environment:
+  FPS          Frames per second (default: 12).
+  WIDTH        Output width in pixels (default: 480).
+  COLORS       Palette size (default: 128).
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+force=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --force | -f)
+      force=true
+      shift
+      ;;
+    --help | -h)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      die "unknown option: $1"
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+  usage >&2
+  exit 2
+fi
+
+command -v ffmpeg >/dev/null 2>&1 || die "ffmpeg is required"
+
+input="$1"
+fps="${FPS:-12}"
+width="${WIDTH:-480}"
+colors="${COLORS:-128}"
+
+if [[ $# -eq 2 ]]; then
+  output="$2"
+else
+  input_dir="$(dirname -- "$input")"
+  input_name="$(basename -- "$input")"
+  input_stem="${input_name%.*}"
+  output="$input_dir/${input_stem:-$input_name}.gif"
+fi
+
+[[ -f "$input" ]] || die "input file not found: $input"
+
+overwrite=(-n)
+if [[ "$force" == true ]]; then
+  overwrite=(-y)
+elif [[ -e "$output" ]]; then
+  die "output already exists: $output (use --force to overwrite)"
+fi
+
+ffmpeg \
+  -hide_banner \
+  -i "$input" \
+  -vf "fps=${fps},scale=${width}:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=${colors}[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5" \
+  -loop 0 \
+  "${overwrite[@]}" \
+  "$output"
+
+printf 'Wrote: %s\n' "$output"

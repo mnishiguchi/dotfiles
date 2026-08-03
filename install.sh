@@ -21,7 +21,7 @@ Options:
   --check            Dry run. Show what would change.
   --force, -f        Replace existing files after backing them up.
   --only <sections>  Install only selected sections.
-                     Available: shell,rofi,nvim,git,other
+                     Available: shell,bin,rofi,nvim,git,other
   --debug            Enable shell tracing.
   --help, -h         Show this help.
 EOF
@@ -229,7 +229,7 @@ validate_only_sections() {
 
   for section in "${selected_sections[@]}"; do
     case "$section" in
-    shell | rofi | nvim | git | other)
+    shell | bin | rofi | nvim | git | other)
       ;;
 
     "")
@@ -258,6 +258,14 @@ section_shell() {
 
   link_path "$script_dir/bash/bashrc" "$HOME/.bashrc"
   link_path "$script_dir/fish/config.fish" "$XDG_CONFIG_HOME/fish/config.fish"
+}
+
+section_bin() {
+  ensure_dir "$HOME/.local/bin"
+
+  link_path "$script_dir/bin/mp4-to-gif" "$HOME/.local/bin/mp4-to-gif"
+  link_path "$script_dir/bin/pbcopy" "$HOME/.local/bin/pbcopy"
+  link_path "$script_dir/bin/pbpaste" "$HOME/.local/bin/pbpaste"
 }
 
 section_rofi() {
@@ -324,6 +332,7 @@ main() {
   validate_only_sections
 
   run_section shell
+  run_section bin
   run_section rofi
   run_section nvim
   run_section git

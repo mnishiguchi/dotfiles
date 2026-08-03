@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+set -eu
+
+if command -v wl-copy >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+  exec wl-copy
+elif command -v xclip >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
+  exec xclip -selection clipboard
+elif command -v xsel >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
+  exec xsel --clipboard --input
+else
+  printf '%s\n' "pbcopy: no clipboard provider available (install wl-clipboard, xclip, or xsel)" >&2
+  exit 1
+fi
