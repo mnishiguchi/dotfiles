@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_name="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+List existing files changed from a Git base branch.
+
+Committed branch changes, staged and unstaged changes, and untracked files
+are included. Paths are relative to the repository root.
+
+Usage:
+  $script_name [OPTIONS] [--] [PATHSPEC...]
+
+Options:
+  --base REF   Compare committed changes with REF instead of the detected
+               default branch.
+  -z, --null   Terminate paths with NUL instead of newline.
+  --help, -h   Show this help.
+
+Examples:
+  $script_name
+  $script_name '*.sh'
+  $script_name --base origin/develop
+  $script_name -z | xargs -0 nvim
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+detect_base() {
+  local candidate
+  local remote
+  local remote_head
+  local -a ordered_remotes=()
+  local -a remotes=()
+
+  mapfile -t remotes < <(git remote)
+
+  if [[ " ${remotes[*]} " == *" origin "* ]]; then
+    ordered_remotes=(origin)
+    for remote in "${remotes[@]}"; do
+      [[ "$remote" == origin ]] || ordered_remotes+=("$remote")
+    done
+    remotes=("${ordered_remotes[@]}")
+  fi
+
+  for remote in "${remotes[@]}"; do
+    if remote_head="$(git symbolic-ref --quiet --short "refs/remotes/$remote/HEAD" 2>/dev/null)"; then
+      printf '%s\n' "$remote_head"
+      return
+    fi
+  done
+
+  for remote in "${remotes[@]}"; do
+    for candidate in "$remote/main" "$remote/master"; do
+      if git rev-parse --verify --quiet "$candidate^{commit}" >/dev/null; then
+        printf '%s\n' "$candidate"
+        return
+      fi
+    done
+  done
+
+  for candidate in main master; do
+    if git rev-parse --verify --quiet "$candidate^{commit}" >/dev/null; then
+      printf '%s\n' "$candidate"
+      return
+    fi
+  done
+
+  printf '%s\n' HEAD
+}
+
+base=""
+null_output=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --base)
+      [[ $# -ge 2 ]] || die "--base requires a Git reference"
+      base="$2"
+      shift 2
+      ;;
+    -z | --null)
+      null_output=true
+      shift
+      ;;
+    --help | -h)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      die "unknown option: $1"
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+command -v git >/dev/null 2>&1 || die "git is required"
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null)" || die "not inside a Git repository"
+cd -- "$repo_root"
+
+temporary_output="$(mktemp "${TMPDIR:-/tmp}/git-changed.XXXXXX")" || die "could not create a temporary file"
+cleanup() {
+  rm -f -- "$temporary_output"
+}
+trap cleanup EXIT
+
+if git rev-parse --verify --quiet 'HEAD^{commit}' >/dev/null; then
+  base="${base:-$(detect_base)}"
+  git rev-parse --verify --quiet "$base^{commit}" >/dev/null || die "invalid base reference: $base"
+  git diff --name-only --diff-filter=d -z --merge-base "$base" HEAD -- "$@" >>"$temporary_output"
+  git diff --name-only --diff-filter=d -z HEAD -- "$@" >>"$temporary_output"
+else
+  [[ -z "$base" ]] || die "--base cannot be used before the first commit"
+  git diff --cached --name-only --diff-filter=d -z -- "$@" >>"$temporary_output"
+  git diff --name-only --diff-filter=d -z -- "$@" >>"$temporary_output"
+fi
+
+git ls-files --others --exclude-standard -z -- "$@" >>"$temporary_output"
+
+if [[ "$null_output" == true ]]; then
+  LC_ALL=C sort -zu "$temporary_output"
+else
+  LC_ALL=C sort -zu "$temporary_output" | tr '\0' '\n'
+fi

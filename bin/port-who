@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_name="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+Show the process listening on a TCP or UDP port.
+
+Usage:
+  $script_name PORT
+
+Examples:
+  $script_name 3000
+  $script_name 5432
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+case "${1:-}" in
+  --help | -h)
+    usage
+    exit 0
+    ;;
+esac
+
+if [[ $# -ne 1 ]]; then
+  usage >&2
+  exit 2
+fi
+
+port="$1"
+[[ "$port" =~ ^[0-9]+$ ]] || die "port must be a number between 1 and 65535"
+((port >= 1 && port <= 65535)) || die "port must be a number between 1 and 65535"
+
+command -v ss >/dev/null 2>&1 || die "ss is required"
+
+listeners="$(ss -H -lntup "sport = :$port")"
+if [[ -z "$listeners" ]]; then
+  die "no TCP or UDP listener found on port $port"
+fi
+
+printf '%s\n' "$listeners"

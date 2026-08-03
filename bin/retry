@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+script_name="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+Retry a command when it exits unsuccessfully.
+
+Usage:
+  $script_name [OPTIONS] -- COMMAND [ARG...]
+
+Options:
+  --attempts, -n COUNT  Maximum attempts (default: 3).
+  --delay, -d SECONDS   Delay between attempts (default: 1).
+  --help, -h            Show this help.
+
+Use only with commands that are safe to run more than once.
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+attempts=3
+delay=1
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --attempts | -n)
+      [[ $# -ge 2 ]] || die "$1 requires a value"
+      attempts="$2"
+      shift 2
+      ;;
+    --delay | -d)
+      [[ $# -ge 2 ]] || die "$1 requires a value"
+      delay="$2"
+      shift 2
+      ;;
+    --help | -h)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      die "unknown option: $1"
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+[[ "$attempts" =~ ^[1-9][0-9]*$ ]] || die "attempts must be a positive integer"
+[[ "$delay" =~ ^[0-9]+([.][0-9]+)?$ ]] || die "delay must be a non-negative number"
+[[ $# -gt 0 ]] || die "a command is required"
+
+for ((attempt = 1; attempt <= attempts; attempt++)); do
+  if "$@"; then
+    exit 0
+  else
+    exit_status=$?
+  fi
+
+  if ((exit_status == 126 || exit_status == 127 || exit_status >= 128)); then
+    exit "$exit_status"
+  fi
+
+  if ((attempt == attempts)); then
+    exit "$exit_status"
+  fi
+
+  printf '%s: attempt %d/%d failed with status %d; retrying in %s second(s)\n' \
+    "$script_name" "$attempt" "$attempts" "$exit_status" "$delay" >&2
+  sleep "$delay"
+done

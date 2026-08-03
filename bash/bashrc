@@ -266,18 +266,6 @@ timestamp() {
   date "+%Y%m%d%H%M%S"
 }
 
-hexdocs() {
-  if [[ "$#" -ge 1 ]]; then
-    mix hex.docs online "$1"
-  else
-    mix hex.docs online elixir
-  fi
-}
-
-hexpm() {
-  open "https://hex.pm/packages?search=$*"
-}
-
 mkreadme() {
   local file
 

@@ -38,11 +38,16 @@ The `bin` section installs these commands into `~/.local/bin`:
 | --- | --- | --- |
 | `bashpaste` | Review and run a Bash snippet from the clipboard | `bash`, `pbpaste` |
 | `extract` | Extract a supported archive into the current directory | `tar`, `unzip`, or `gzip` |
+| `git-changed` | List existing files changed from a Git base branch | `git` |
+| `hexdocs` | Open Hex documentation for an Elixir package | `mix`, Hex |
+| `hexpm` | Search for packages on Hex.pm | `python3`, `xdg-open`, `gio`, or macOS `open` |
 | `mp4-to-gif` | Convert a video to an optimized animated GIF | `ffmpeg` |
 | `mkarchive` | Create a tarball or ZIP archive | `tar`, `gzip`, or `zip` |
 | `mkgpg` | Create a GPG-encrypted compressed archive | `tar`, `gzip`, `gpg` |
 | `pbcopy` | Copy standard input to the Wayland or X11 clipboard | `wl-clipboard`, `xclip`, or `xsel` |
 | `pbpaste` | Write the Wayland or X11 clipboard to standard output | `wl-clipboard`, `xclip`, or `xsel` |
+| `port-who` | Show the process listening on a TCP or UDP port | `ss` |
+| `retry` | Retry a command with a configurable delay | `bash` |
 
 Install only the commands with:
 

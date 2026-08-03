@@ -177,18 +177,6 @@ end
 abbr --add 2desk 'tee $HOME/Desktop/terminal-output-(date "+%Y%m%d%H%M%S").txt'
 abbr --add codium "flatpak run com.vscodium.codium"
 
-function hexdocs
-    if test (count $argv) -ge 1
-        mix hex.docs online $argv[1]
-    else
-        mix hex.docs online elixir
-    end
-end
-
-function hexpm
-    open "https://hex.pm/packages?search="(string join ' ' $argv)
-end
-
 function mkreadme
     set -l file README.md
 

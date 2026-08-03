@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_name="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+Search for packages on Hex.pm.
+
+Usage:
+  $script_name QUERY...
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+case "${1:-}" in
+  --help | -h)
+    usage
+    exit 0
+    ;;
+esac
+
+if [[ $# -lt 1 ]]; then
+  usage >&2
+  exit 2
+fi
+
+command -v python3 >/dev/null 2>&1 || die "python3 is required"
+
+query="$*"
+encoded_query="$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$query")"
+url="https://hex.pm/packages?search=$encoded_query"
+
+if command -v xdg-open >/dev/null 2>&1; then
+  opener=(xdg-open)
+elif command -v gio >/dev/null 2>&1; then
+  opener=(gio open)
+elif [[ "$(uname -s)" == Darwin ]] && command -v open >/dev/null 2>&1; then
+  opener=(open)
+else
+  die "no URL opener found (install xdg-open or gio)"
+fi
+
+printf 'Opening: %s\n' "$url"
+nohup "${opener[@]}" "$url" >/dev/null 2>&1 &
