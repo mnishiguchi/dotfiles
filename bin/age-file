@@ -1,0 +1,169 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+umask 077
+
+script_name="$(basename "$0")"
+temporary_output=""
+
+cleanup_temporary_output() {
+  if [ -n "$temporary_output" ]; then
+    rm -f -- "$temporary_output"
+  fi
+}
+
+trap cleanup_temporary_output EXIT
+
+print_usage() {
+  cat <<EOF
+Encrypt or decrypt one file with an age passphrase.
+
+Usage:
+  $script_name encrypt INPUT
+  $script_name decrypt INPUT.age
+
+Commands:
+  encrypt  Write ./BASENAME.age for INPUT.
+  decrypt  Write ./BASENAME for INPUT.age.
+
+The output is always created in the current directory. Existing files are
+never overwritten.
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+require_command() {
+  local command_name="$1"
+
+  command -v "$command_name" >/dev/null 2>&1 ||
+    die "required command not found: $command_name"
+}
+
+require_input_file() {
+  local input_file="$1"
+
+  [ -f "$input_file" ] || die "input file not found: $input_file"
+}
+
+require_available_output() {
+  local output_file="$1"
+
+  if [ -e "$output_file" ] || [ -L "$output_file" ]; then
+    die "refusing to overwrite existing file: $output_file"
+  fi
+}
+
+create_temporary_output() {
+  local output_file="$1"
+  local output_basename
+
+  output_basename="$(basename -- "$output_file")"
+  mktemp "./.${output_basename}.XXXXXX" ||
+    die "could not create a temporary output file"
+}
+
+encrypt_file() {
+  local input_file="$1"
+  local output_file="./$(basename -- "$input_file").age"
+
+  require_input_file "$input_file"
+  require_available_output "$output_file"
+
+  temporary_output="$(create_temporary_output "$output_file")"
+
+  printf 'Encrypting file:\n'
+  printf '  Source: %s\n' "$input_file"
+  printf '  Output: %s\n\n' "$output_file"
+  printf '%s\n\n' \
+    "Leave the passphrase prompt empty to let age generate a secure passphrase."
+
+  age \
+    --passphrase \
+    --output "$temporary_output" \
+    -- \
+    "$input_file"
+
+  [ -s "$temporary_output" ] || die "encrypted output was not created correctly"
+
+  mv -- "$temporary_output" "$output_file"
+  temporary_output=""
+
+  printf 'Encrypted file created:\n'
+  printf '  %s\n' "$output_file"
+}
+
+decrypt_file() {
+  local input_file="$1"
+  local input_basename
+  local output_file
+
+  require_input_file "$input_file"
+
+  if [[ "$input_file" != *.age ]]; then
+    die "expected an .age file: $input_file"
+  fi
+
+  input_basename="$(basename -- "$input_file")"
+  output_file="./${input_basename%.age}"
+  require_available_output "$output_file"
+
+  temporary_output="$(create_temporary_output "$output_file")"
+
+  printf 'Decrypting file:\n'
+  printf '  Source: %s\n' "$input_file"
+  printf '  Output: %s\n\n' "$output_file"
+
+  age \
+    --decrypt \
+    --output "$temporary_output" \
+    -- \
+    "$input_file"
+
+  [ -s "$temporary_output" ] || die "restored output was not created correctly"
+
+  mv -- "$temporary_output" "$output_file"
+  temporary_output=""
+
+  printf '\nRestored plaintext file:\n'
+  printf '  %s\n\n' "$output_file"
+  printf '%s\n' "This file is unencrypted. Delete it when you no longer need it."
+}
+
+main() {
+  local command_name="${1:-}"
+
+  case "$command_name" in
+  --help | -h)
+    print_usage
+    return
+    ;;
+  esac
+
+  case "$command_name" in
+  encrypt | decrypt)
+    if [ "$#" -ne 2 ]; then
+      print_usage >&2
+      exit 2
+    fi
+
+    require_command age
+    "$command_name"_file "$2"
+    ;;
+  "")
+    print_usage >&2
+    exit 2
+    ;;
+  *)
+    printf '%s: unknown command: %s\n\n' "$script_name" "$command_name" >&2
+    print_usage >&2
+    exit 2
+    ;;
+  esac
+}
+
+main "$@"

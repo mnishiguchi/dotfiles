@@ -36,6 +36,7 @@ The `bin` section installs these commands into `~/.local/bin`:
 
 | Command | Description | Dependency |
 | --- | --- | --- |
+| `age-file` | Encrypt or decrypt a file with an `age` passphrase | `age` |
 | `bashpaste` | Review and run a Bash snippet from the clipboard | `bash`, `pbpaste` |
 | `extract` | Extract a supported archive into the current directory | `tar`, `unzip`, or `gzip` |
 | `git-changed` | List existing files changed from a Git base branch | `git` |
