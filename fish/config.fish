@@ -37,27 +37,17 @@ end
 
 ## Editors
 
-if not set -q EDITOR
-    if type -q nvim
-        set -gx EDITOR nvim
-    else if type -q vim
-        set -gx EDITOR vim
-    else
-        set -gx EDITOR nano
-    end
+if type -q nvim
+    set -gx EDITOR (command -v nvim)
+else if type -q vim
+    set -gx EDITOR (command -v vim)
+else
+    set -gx EDITOR (command -v nano)
 end
 
-if not set -q VISUAL
-    if type -q code
-        set -gx VISUAL code
-    else
-        set -gx VISUAL $EDITOR
-    end
-end
-
-if not set -q GIT_EDITOR
-    set -gx GIT_EDITOR $EDITOR
-end
+set -gx VISUAL $EDITOR
+set -gx SUDO_EDITOR $EDITOR
+set -gx GIT_EDITOR $EDITOR
 
 if not set -q ELIXIR_EDITOR
     if type -q code

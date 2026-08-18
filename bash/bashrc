@@ -74,27 +74,17 @@ fi
 
 ## Editors
 
-if [[ -z "${EDITOR:-}" ]]; then
-  if command -v nvim >/dev/null 2>&1; then
-    export EDITOR="nvim"
-  elif command -v vim >/dev/null 2>&1; then
-    export EDITOR="vim"
-  else
-    export EDITOR="nano"
-  fi
+if command -v nvim >/dev/null 2>&1; then
+  export EDITOR="$(command -v nvim)"
+elif command -v vim >/dev/null 2>&1; then
+  export EDITOR="$(command -v vim)"
+else
+  export EDITOR="$(command -v nano)"
 fi
 
-if [[ -z "${VISUAL:-}" ]]; then
-  if command -v code >/dev/null 2>&1; then
-    export VISUAL="code"
-  else
-    export VISUAL="$EDITOR"
-  fi
-fi
-
-if [[ -z "${GIT_EDITOR:-}" ]]; then
-  export GIT_EDITOR="$EDITOR"
-fi
+export VISUAL="$EDITOR"
+export SUDO_EDITOR="$EDITOR"
+export GIT_EDITOR="$EDITOR"
 
 if [[ -z "${ELIXIR_EDITOR:-}" ]]; then
   if command -v code >/dev/null 2>&1; then
