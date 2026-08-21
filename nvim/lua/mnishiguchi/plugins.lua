@@ -9,9 +9,13 @@ vim.g.vimwiki_list = {
 		path = "~/Documents/vimwiki/",
 		syntax = "markdown",
 		ext = ".md",
+		links_space_char = "_",
 	},
 }
 vim.g.vimwiki_global_ext = 0
+vim.g.vimwiki_markdown_link_ext = 1
+vim.g.vimwiki_auto_header = 1
+vim.g.vimwiki_map_prefix = "<Leader>n"
 
 vim.api.nvim_create_autocmd("PackChanged", {
 	group = vim.api.nvim_create_augroup("mnishiguchi_pack", { clear = true }),
@@ -143,7 +147,11 @@ require("lualine").setup({
 	},
 })
 
-require("which-key").setup({})
+local which_key = require("which-key")
+which_key.setup({})
+which_key.add({
+	{ "<leader>n", group = "notes" },
+})
 
 do
 	local highlight = {
