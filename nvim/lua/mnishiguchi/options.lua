@@ -12,7 +12,6 @@ vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 
 -- indent
-vim.opt.autoindent = true
 vim.opt.smartindent = true
 vim.opt.breakindent = true
 
@@ -24,10 +23,8 @@ vim.opt.formatoptions:remove("t") -- no automatic wrap text when typing
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.hlsearch = false
-vim.opt.incsearch = true
 
 -- appearance
-vim.opt.termguicolors = true
 vim.opt.background = "dark"
 vim.opt.winborder = "rounded"
 vim.opt.winbar = "%=%m %f"
@@ -55,4 +52,3 @@ vim.opt.iskeyword:append("-") -- make "-" part of word
 -- responsiveness
 vim.opt.updatetime = 300 -- faster CursorHold events
 vim.opt.timeoutlen = 500 -- shorter timeout for key sequences
-vim.opt.autoread = true -- automatically reload files changed outside of Neovim
