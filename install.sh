@@ -315,7 +315,6 @@ section_other() {
   ensure_dir "$XDG_CONFIG_HOME/ghostty"
 
   link_path "$script_dir/alacritty/alacritty.toml" "$XDG_CONFIG_HOME/alacritty/alacritty.toml"
-  link_path "$script_dir/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty/alacritty.yml"
   link_path "$script_dir/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
   link_path "$script_dir/ghostty/config" "$XDG_CONFIG_HOME/ghostty/config"
 
