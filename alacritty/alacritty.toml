@@ -59,3 +59,7 @@ action = "Copy"
 key = "V"
 mods = "Control|Shift"
 action = "Paste"
+
+[terminal.shell]
+program = "/usr/bin/tmux"
+args = ["new-session", "-A", "-s", "main"]
