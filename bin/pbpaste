@@ -1,8 +1,81 @@
 #!/usr/bin/env sh
 set -eu
 
+usage() {
+  cat <<'EOF'
+Write the clipboard to standard output.
+
+Usage:
+  pbpaste [-help] [-pboard general] [-Prefer txt]
+
+Options:
+  -help                 Show this help.
+  -pboard general       Read from the general clipboard.
+  -Prefer txt           Prefer plain-text clipboard data.
+EOF
+}
+
+die() {
+  printf '%s\n' "pbpaste: $*" >&2
+  exit 2
+}
+
+pboard=general
+preferred_type=txt
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  -help | --help | -h)
+    usage
+    exit 0
+    ;;
+  -pboard)
+    [ "$#" -ge 2 ] || die "-pboard requires a pasteboard name"
+    pboard="$2"
+    shift 2
+    ;;
+  -Prefer)
+    [ "$#" -ge 2 ] || die "-Prefer requires a data type"
+    preferred_type="$2"
+    shift 2
+    ;;
+  --)
+    shift
+    [ "$#" -eq 0 ] || die "unexpected argument: $1"
+    ;;
+  -*)
+    die "unknown option: $1"
+    ;;
+  *)
+    die "unexpected argument: $1"
+    ;;
+  esac
+done
+
+case "$pboard" in
+general)
+  ;;
+ruler | find | font)
+  die "pasteboard '$pboard' is not supported on Wayland or X11"
+  ;;
+*)
+  die "unknown pasteboard: $pboard"
+  ;;
+esac
+
+case "$preferred_type" in
+txt | ascii)
+  ;;
+rtf | ps)
+  die "preferred type '$preferred_type' is not supported on Wayland or X11"
+  ;;
+*)
+  die "unknown preferred type: $preferred_type"
+  ;;
+esac
+
 if command -v wl-paste >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
-  exec wl-paste --no-newline
+  exec wl-paste --no-newline --type text
 elif command -v xclip >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
   exec xclip -selection clipboard -o
 elif command -v xsel >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then

@@ -69,7 +69,9 @@ create_temporary_output() {
 
 encrypt_file() {
   local input_file="$1"
-  local output_file="./$(basename -- "$input_file").age"
+  local output_file
+
+  output_file="./$(basename -- "$input_file").age"
 
   require_input_file "$input_file"
   require_available_output "$output_file"
@@ -123,8 +125,6 @@ decrypt_file() {
     --output "$temporary_output" \
     -- \
     "$input_file"
-
-  [ -s "$temporary_output" ] || die "restored output was not created correctly"
 
   mv -- "$temporary_output" "$output_file"
   temporary_output=""

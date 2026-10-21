@@ -1,0 +1,44 @@
+#!/usr/bin/env sh
+set -eu
+
+mode=encrypt
+output=""
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  --decrypt)
+    mode=decrypt
+    shift
+    ;;
+  --passphrase)
+    shift
+    ;;
+  --output)
+    output="$2"
+    shift 2
+    ;;
+  --)
+    shift
+    break
+    ;;
+  *)
+    break
+    ;;
+  esac
+done
+
+input="${1:-}"
+[ -n "$input" ] || exit 2
+
+if [ "${FAKE_AGE_FAIL:-}" = "$mode" ]; then
+  if [ -n "$output" ]; then
+    printf '%s' partial >"$output"
+  fi
+  exit 1
+fi
+
+if [ -n "$output" ]; then
+  cp -- "$input" "$output"
+else
+  cat -- "$input"
+fi

@@ -1,6 +1,61 @@
 #!/usr/bin/env sh
 set -eu
 
+usage() {
+  cat <<'EOF'
+Copy standard input to the clipboard.
+
+Usage:
+  pbcopy [-help] [-pboard general]
+
+Options:
+  -help                 Show this help.
+  -pboard general       Copy to the general clipboard.
+EOF
+}
+
+die() {
+  printf '%s\n' "pbcopy: $*" >&2
+  exit 2
+}
+
+pboard=general
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  -help | --help | -h)
+    usage
+    exit 0
+    ;;
+  -pboard)
+    [ "$#" -ge 2 ] || die "-pboard requires a pasteboard name"
+    pboard="$2"
+    shift 2
+    ;;
+  --)
+    shift
+    [ "$#" -eq 0 ] || die "unexpected argument: $1"
+    ;;
+  -*)
+    die "unknown option: $1"
+    ;;
+  *)
+    die "unexpected argument: $1"
+    ;;
+  esac
+done
+
+case "$pboard" in
+general)
+  ;;
+ruler | find | font)
+  die "pasteboard '$pboard' is not supported on Wayland or X11"
+  ;;
+*)
+  die "unknown pasteboard: $pboard"
+  ;;
+esac
+
 if command -v wl-copy >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
   exec wl-copy
 elif command -v xclip >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
