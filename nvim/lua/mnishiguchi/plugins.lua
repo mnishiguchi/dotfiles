@@ -47,6 +47,7 @@ local packages = {
 	{ src = gh("ThePrimeagen/harpoon"), version = "harpoon2" },
 	gh("nvim-telescope/telescope.nvim"),
 	gh("zk-org/zk-nvim"),
+	gh("brianhuster/live-preview.nvim"),
 	{ src = gh("nvim-treesitter/nvim-treesitter"), version = "main" },
 	gh("stevearc/conform.nvim"),
 	gh("neovim/nvim-lspconfig"),
@@ -265,6 +266,7 @@ do
 end
 
 require("zk").setup({ picker = "telescope" })
+require("livepreview.config").set({ dynamic_root = true })
 vim.keymap.set("n", "<leader>nn", "<cmd>ZkNotes<CR>", {
 	desc = "Zk: Browse notes",
 })
