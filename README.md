@@ -45,6 +45,7 @@ The `bin` section installs these commands into `~/.local/bin`:
 | `mp4-to-gif` | Convert a video to an optimized animated GIF | `ffmpeg` |
 | `mkarchive` | Create a tarball or ZIP archive | `tar`, `gzip`, or `zip` |
 | `mkgpg` | Create a GPG-encrypted compressed archive | `tar`, `gzip`, `gpg` |
+| `notes` | Initialize or list zk notes in Neovim | `nvim`, `zk`, `zk-nvim` |
 | `onepassword-backup` | Encrypt, verify, and restore 1Password 1PUX backups | `age` |
 | `pbcopy` | Copy standard input to the Wayland or X11 clipboard | `wl-clipboard`, `xclip`, or `xsel` |
 | `pbpaste` | Write the Wayland or X11 clipboard to standard output | `wl-clipboard`, `xclip`, or `xsel` |

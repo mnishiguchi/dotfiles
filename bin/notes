@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_name="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+Initialize the zk notebook or list its notes in Neovim.
+
+Usage:
+  $script_name [list]
+  $script_name init
+
+Commands:
+  list  Open Neovim and list notes (default).
+  init  Initialize the notebook if needed.
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+find_ancestor_notebook() {
+  local directory
+
+  directory="$(dirname -- "$notebook_dir")"
+  while :; do
+    if [[ -f "$directory/.zk/config.toml" ]]; then
+      printf '%s\n' "$directory"
+      return 0
+    fi
+
+    [[ "$directory" != "/" ]] || return 1
+    directory="$(dirname -- "$directory")"
+  done
+}
+
+if [[ $# -gt 1 ]]; then
+  printf '%s: unexpected argument: %s\n' "$script_name" "$2" >&2
+  usage >&2
+  exit 2
+fi
+
+notebook_dir="${ZK_NOTEBOOK_DIR:-$HOME/notes}"
+
+case "${1:-}" in
+--help | -h)
+  usage
+  exit 0
+  ;;
+init)
+  if [[ -f "$notebook_dir/.zk/config.toml" ]]; then
+    printf '%s: notebook already initialized: %s\n' "$script_name" "$notebook_dir"
+    exit 0
+  fi
+
+  command -v zk >/dev/null 2>&1 || die "zk is required"
+  [[ ! -e "$notebook_dir" || -d "$notebook_dir" ]] || die "notebook path is not a directory: $notebook_dir"
+
+  if ancestor_notebook="$(find_ancestor_notebook)"; then
+    die "cannot initialize $notebook_dir: another zk notebook exists at $ancestor_notebook; move $ancestor_notebook/.zk aside and retry"
+  fi
+
+  zk init --no-input "$notebook_dir"
+  [[ -f "$notebook_dir/.zk/config.toml" ]] || die "zk did not initialize a notebook in $notebook_dir"
+  printf '%s: initialized notebook: %s\n' "$script_name" "$notebook_dir"
+  exit 0
+  ;;
+list | "") ;;
+*)
+  printf '%s: unexpected argument: %s\n' "$script_name" "$1" >&2
+  usage >&2
+  exit 2
+  ;;
+esac
+
+[[ -d "$notebook_dir" ]] || die "notebook directory not found: $notebook_dir"
+[[ -f "$notebook_dir/.zk/config.toml" ]] || die "not a zk notebook: $notebook_dir"
+command -v nvim >/dev/null 2>&1 || die "nvim is required"
+command -v zk >/dev/null 2>&1 || die "zk is required"
+
+cd -- "$notebook_dir"
+exec nvim -c ZkNotes

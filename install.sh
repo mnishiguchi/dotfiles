@@ -272,6 +272,7 @@ section_bin() {
   link_path "$script_dir/bin/mp4-to-gif" "$HOME/.local/bin/mp4-to-gif"
   link_path "$script_dir/bin/mkarchive" "$HOME/.local/bin/mkarchive"
   link_path "$script_dir/bin/mkgpg" "$HOME/.local/bin/mkgpg"
+  link_path "$script_dir/bin/notes" "$HOME/.local/bin/notes"
   link_path \
     "$script_dir/bin/onepassword-backup" \
     "$HOME/.local/bin/onepassword-backup"

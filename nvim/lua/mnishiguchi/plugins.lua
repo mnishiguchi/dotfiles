@@ -265,6 +265,17 @@ do
 end
 
 require("zk").setup({ picker = "telescope" })
+vim.keymap.set("n", "<leader>nn", "<cmd>ZkNotes<CR>", {
+	desc = "Zk: Browse notes",
+})
+vim.keymap.set("n", "<leader>nc", function()
+	local title = vim.fn.input("Title: ")
+	if title ~= "" then
+		require("zk").new({ title = title })
+	end
+end, {
+	desc = "Zk: Create note",
+})
 
 ------------------------------------------------------------------------------
 -- Treesitter
