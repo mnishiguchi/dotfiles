@@ -6,6 +6,7 @@ set -gx XDG_CACHE_HOME "$HOME/.cache"
 set -gx XDG_CONFIG_HOME "$HOME/.config"
 set -gx XDG_DATA_HOME "$HOME/.local/share"
 set -gx XDG_STATE_HOME "$HOME/.local/state"
+set -q ZK_NOTEBOOK_DIR; or set -gx ZK_NOTEBOOK_DIR "$HOME/notes"
 mkdir -p $XDG_CACHE_HOME $XDG_CONFIG_HOME $XDG_DATA_HOME $XDG_STATE_HOME
 
 ## PATHs

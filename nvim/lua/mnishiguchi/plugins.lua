@@ -4,17 +4,6 @@ end
 
 -- These globals must be set before plugins are loaded.
 vim.g.material_style = "deep ocean"
-vim.g.vimwiki_list = {
-	{
-		path = "~/Documents/vimwiki/",
-		syntax = "markdown",
-		ext = ".md",
-		links_space_char = "_",
-	},
-}
-vim.g.vimwiki_global_ext = 0
-vim.g.vimwiki_markdown_link_ext = 1
-vim.g.vimwiki_auto_header = 1
 
 vim.api.nvim_create_autocmd("PackChanged", {
 	group = vim.api.nvim_create_augroup("mnishiguchi_pack", { clear = true }),
@@ -51,13 +40,13 @@ local packages = {
 	{ src = gh("kylechui/nvim-surround"), version = vim.version.range("*") },
 	gh("nvim-lua/plenary.nvim"),
 	gh("folke/todo-comments.nvim"),
-	gh("vimwiki/vimwiki"),
 	gh("tpope/vim-abolish"),
 	gh("tpope/vim-fugitive"),
 	gh("tpope/vim-rhubarb"),
 	gh("lewis6991/gitsigns.nvim"),
 	{ src = gh("ThePrimeagen/harpoon"), version = "harpoon2" },
 	gh("nvim-telescope/telescope.nvim"),
+	gh("zk-org/zk-nvim"),
 	{ src = gh("nvim-treesitter/nvim-treesitter"), version = "main" },
 	gh("stevearc/conform.nvim"),
 	gh("neovim/nvim-lspconfig"),
@@ -274,6 +263,8 @@ do
 		}))
 	end, keymap_opts("Fuzzy search in the current buffer"))
 end
+
+require("zk").setup({ picker = "telescope" })
 
 ------------------------------------------------------------------------------
 -- Treesitter

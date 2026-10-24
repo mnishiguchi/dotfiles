@@ -118,20 +118,6 @@ if empty(glob(s:plug_vim))
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-" Vimwiki reads these during startup, so define them before plug#end.
-let g:vimwiki_list = [
-      \ {
-      \   'path': '~/Documents/vimwiki/',
-      \   'syntax': 'markdown',
-      \   'ext': '.md',
-      \   'links_space_char': '_'
-      \ }
-      \ ]
-
-let g:vimwiki_global_ext = 0
-let g:vimwiki_markdown_link_ext = 1
-let g:vimwiki_auto_header = 1
-
 call plug#begin('~/.vim/plugged')
 
 " Theme / UI
@@ -162,9 +148,6 @@ Plug 'sbdchd/neoformat'
 " Fuzzy finder
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-
-" Notes
-Plug 'vimwiki/vimwiki'
 
 call plug#end()
 
