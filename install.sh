@@ -266,6 +266,7 @@ section_bin() {
   link_path "$script_dir/bin/age-file" "$HOME/.local/bin/age-file"
   link_path "$script_dir/bin/bashpaste" "$HOME/.local/bin/bashpaste"
   link_path "$script_dir/bin/extract" "$HOME/.local/bin/extract"
+  link_path "$script_dir/bin/git-backup" "$HOME/.local/bin/git-backup"
   link_path "$script_dir/bin/git-changed" "$HOME/.local/bin/git-changed"
   link_path "$script_dir/bin/hexdocs" "$HOME/.local/bin/hexdocs"
   link_path "$script_dir/bin/hexpm" "$HOME/.local/bin/hexpm"

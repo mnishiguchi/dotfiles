@@ -39,6 +39,7 @@ The `bin` section installs these commands into `~/.local/bin`:
 | `age-file` | Encrypt or decrypt a file with an `age` passphrase | `age` |
 | `bashpaste` | Review and run a Bash snippet from the clipboard | `bash`, `pbpaste` |
 | `extract` | Extract a supported archive into the current directory | `tar`, `unzip`, or `gzip` |
+| `git-backup` | Snapshot a Git working tree to a compressed archive | `git`, GNU `tar` |
 | `git-changed` | List existing files changed from a Git base branch | `git` |
 | `hexdocs` | Open Hex documentation for an Elixir package | `mix`, Hex |
 | `hexpm` | Search for packages on Hex.pm | `python3`, `xdg-open`, `gio`, or macOS `open` |

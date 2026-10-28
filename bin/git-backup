@@ -1,0 +1,158 @@
+#!/usr/bin/env bash
+# Back up the current Git working tree (not Git history).
+set -Eeuo pipefail
+
+usage() {
+  cat <<'HELP'
+Usage: git backup [--dry-run] [OUTPUT_DIRECTORY]
+       git-backup [--dry-run] [OUTPUT_DIRECTORY]
+       git backup --help
+
+Create a timestamped .tar.gz snapshot of the current Git working tree.
+Includes tracked files (with uncommitted changes) and non-ignored untracked
+files. Excludes Git metadata, ignored untracked files, and missing files.
+
+Options:
+  -n, --dry-run   Print the selected paths without creating a backup.
+  -h, --help      Show this help.
+
+OUTPUT_DIRECTORY defaults to a "backups" directory beside the repo.
+The output directory must be outside the repo; an existing archive is
+never overwritten.
+
+Requires Git and GNU tar (macOS: brew install gnu-tar).
+Submodules and nested Git repositories are rejected, not silently skipped.
+This is a working-tree snapshot: Git commits, branches, staged state,
+and ignored files are NOT backed up.
+HELP
+}
+
+fail() {
+  printf 'git-backup: %s\n' "$*" >&2
+  exit 1
+}
+
+dry_run=false
+while (( $# )); do
+  case $1 in
+    -h|--help) usage; exit 0 ;;
+    -n|--dry-run) dry_run=true; shift ;;
+    --) shift; break ;;
+    -*) fail "unknown option: $1 (see --help)" ;;
+    *) break ;;
+  esac
+done
+(( $# <= 1 )) || { usage >&2; exit 2; }
+
+command -v git >/dev/null 2>&1 || fail 'git is required'
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || fail 'run inside a Git working tree'
+repo_root=$(cd -- "$repo_root" && pwd -P)
+
+# GNU tar's transform scope is essential for correct symlink/hardlink handling.
+if command -v tar >/dev/null 2>&1 && [[ $(tar --version 2>/dev/null || :) == *'GNU tar'* ]]; then
+  tar_cmd=tar
+elif command -v gtar >/dev/null 2>&1 && [[ $(gtar --version 2>/dev/null || :) == *'GNU tar'* ]]; then
+  tar_cmd=gtar
+else
+  fail 'GNU tar is required (on macOS: brew install gnu-tar)'
+fi
+
+scratch=$(mktemp -d "${TMPDIR:-/tmp}/git-backup.XXXXXXXX") || fail 'could not create temporary directory'
+partial_archive=''
+cleanup() {
+  rm -rf -- "$scratch"
+  if [[ -n $partial_archive ]]; then
+    rm -f -- "$partial_archive"
+  fi
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+# Capture command failures instead of using process substitution, which can
+# hide a failed git invocation.
+git -C "$repo_root" ls-files --cached --others --exclude-standard --deduplicate -z > "$scratch/candidates"
+git -C "$repo_root" ls-files --stage -z > "$scratch/index"
+
+while IFS= read -r -d '' entry; do
+  if [[ $entry == '160000 '* ]]; then
+    fail "submodule detected: ${entry#*$'\t'} (back up submodules separately)"
+  fi
+done < "$scratch/index"
+
+file_count=0
+missing_count=0
+: > "$scratch/files"
+while IFS= read -r -d '' relative_path; do
+  # A tracked file below a directory replaced by a symlink could otherwise
+  # cause tar to read data OUTSIDE the repository. Reject this situation.
+  parent=$relative_path
+  while [[ $parent == */* ]]; do
+    parent=${parent%/*}
+    [[ ! -L "$repo_root/$parent" ]] || fail "symlinked parent directory: $parent"
+  done
+
+  full_path=$repo_root/$relative_path
+  if [[ -L $full_path || -f $full_path ]]; then
+    printf '%s\0' "$relative_path" >> "$scratch/files"
+    (( file_count += 1 ))
+  elif [[ -e $full_path ]]; then
+    fail "directory or special-file entry (possibly a nested Git repo): $relative_path"
+  else
+    (( missing_count += 1 ))
+  fi
+done < "$scratch/candidates"
+
+(( file_count > 0 )) || fail 'no files are available to back up'
+
+if [[ $dry_run == true ]]; then
+  printf 'Repository: %s\nSelected:   %d files\nMissing:    %d paths skipped\n' \
+    "$repo_root" "$file_count" "$missing_count"
+  while IFS= read -r -d '' relative_path; do
+    printf '  %q\n' "$relative_path"
+  done < "$scratch/files"
+  exit 0
+fi
+
+output_directory=${1:-"$(dirname -- "$repo_root")/backups"}
+mkdir -p -- "$output_directory"
+output_directory=$(cd -- "$output_directory" && pwd -P)
+case "$output_directory/" in
+  "$repo_root/"*) fail "output directory must be outside the repository: $output_directory" ;;
+esac
+
+repo_name=${repo_root##*/}
+safe_repo_name=${repo_name//[^A-Za-z0-9._-]/-}
+[[ -n $safe_repo_name ]] || safe_repo_name=repository
+timestamp=$(date '+%Y%m%d-%H%M%S')
+archive_root="${safe_repo_name}-${timestamp}"
+archive_path="${output_directory}/${archive_root}.tar.gz"
+[[ ! -e $archive_path && ! -L $archive_path ]] || fail "archive already exists: $archive_path"
+
+# Create a private file on the output filesystem, then publish it atomically.
+partial_archive=$(mktemp "${output_directory}/.${archive_root}.partial.XXXXXXXX")
+"$tar_cmd" \
+  --create --gzip --format=posix \
+  --file "$partial_archive" \
+  --directory "$repo_root" \
+  --no-recursion --null --verbatim-files-from \
+  --files-from "$scratch/files" \
+  --transform "flags=rh;s|^|${archive_root}/|"
+
+"$tar_cmd" --list --gzip --file "$partial_archive" >/dev/null
+
+# ln fails if a second process already published the same filename.
+ln -- "$partial_archive" "$archive_path" || fail "could not publish archive: $archive_path"
+rm -f -- "$partial_archive"
+partial_archive=''
+
+printf 'Created: %s\n' "$archive_path"
+printf 'Files:   %d\n' "$file_count"
+printf 'Missing: %d skipped\n' "$missing_count"
+if command -v sha256sum >/dev/null 2>&1; then
+  printf 'SHA-256: '
+  sha256sum < "$archive_path" | awk '{print $1}'
+elif command -v shasum >/dev/null 2>&1; then
+  printf 'SHA-256: '
+  shasum -a 256 < "$archive_path" | awk '{print $1}'
+fi
