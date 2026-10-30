@@ -36,3 +36,15 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     end
   end,
 })
+
+-- Wrap Markdown visually without reformatting the file or changing other filetypes.
+vim.api.nvim_create_autocmd("FileType", {
+  group = mnishiguchi_augroup,
+  pattern = "markdown",
+  callback = function()
+    vim.opt_local.wrap = true
+    vim.opt_local.linebreak = true
+    vim.opt_local.breakindent = true
+    vim.opt_local.colorcolumn = ""
+  end,
+})

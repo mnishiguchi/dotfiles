@@ -48,6 +48,7 @@ local packages = {
 	gh("nvim-telescope/telescope.nvim"),
 	gh("zk-org/zk-nvim"),
 	gh("brianhuster/live-preview.nvim"),
+	gh("MeanderingProgrammer/render-markdown.nvim"),
 	{ src = gh("nvim-treesitter/nvim-treesitter"), version = "main" },
 	gh("stevearc/conform.nvim"),
 	gh("neovim/nvim-lspconfig"),
@@ -359,6 +360,17 @@ do
 
 			pcall(vim.treesitter.start, args.buf)
 		end,
+	})
+end
+
+------------------------------------------------------------------------------
+-- Markdown
+------------------------------------------------------------------------------
+do
+	-- Render notes in Normal mode and show the Markdown source in Insert mode.
+	-- The existing live-preview.nvim remains available for browser previews.
+	require("render-markdown").setup({
+		max_file_size = 1.0, -- Match the large-file threshold in autocmds.lua.
 	})
 end
 
