@@ -1,0 +1,221 @@
+#!/usr/bin/env bash
+# Inspect installed Debian kernels and conservatively prune old packages.
+set -euo pipefail
+
+script_name=${0##*/}
+mode=inspect
+keep_releases=()
+
+usage() {
+  cat <<'HELP'
+Inspect old Debian/LMDE kernel packages and optionally purge safe candidates.
+
+Usage:
+  debian-kernel-prune [--keep RELEASE]
+  debian-kernel-prune --dry-run [--keep RELEASE]
+  debian-kernel-prune --apply [--keep RELEASE]
+
+Options:
+  --dry-run       Show APT's proposed removal plan; change nothing.
+  --apply         Recheck the plan and request interactive confirmation.
+  --keep RELEASE  Protect an additional installed kernel (repeatable).
+  -h, --help      Show this help.
+
+Safety policy:
+  * Always preserve the running kernel and newest installed kernel.
+  * Preserve at least the three newest installed kernels, as extra fallbacks.
+  * Never request removal of a kernel meta-package (e.g. linux-image-amd64).
+  * Reject any APT removal outside the selected kernel images and their
+    directly matching headers/modules/build helpers.
+  * Require a terminal and the word PURGE before making changes.
+
+This tool is intended for Debian/LMDE versioned linux-image packages matching
+this machine's kernel flavour. It does not run apt autoremove, change APT's
+automatic/manual package marks, or delete files from /boot directly.
+Only you can establish which older kernel is known to boot successfully.
+HELP
+}
+
+fail() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+usage_error() {
+  printf '%s: %s (see --help)\n' "$script_name" "$*" >&2
+  exit 2
+}
+
+while (( $# )); do
+  case $1 in
+    --dry-run)
+      [[ $mode == inspect ]] || usage_error '--dry-run and --apply cannot be combined'
+      mode=dry-run
+      shift
+      ;;
+    --apply)
+      [[ $mode == inspect ]] || usage_error '--dry-run and --apply cannot be combined'
+      mode=apply
+      shift
+      ;;
+    --keep)
+      (( $# >= 2 )) || usage_error '--keep requires a kernel release'
+      [[ -n $2 && $2 != -* ]] || usage_error '--keep requires a kernel release'
+      keep_releases+=("$2")
+      shift 2
+      ;;
+    -h|--help) usage; exit 0 ;;
+    *) usage_error "unknown argument: $1" ;;
+  esac
+done
+
+for cmd in dpkg-query uname df sort; do
+  command -v "$cmd" >/dev/null 2>&1 || fail "missing required command: $cmd"
+done
+[[ -d /boot ]] || fail '/boot does not exist'
+
+running=$(uname -r)
+[[ $running == *-* ]] || fail "unsupported running kernel release: $running"
+flavour=${running##*-}
+
+# Query the dpkg database, not the presence of individual files in /boot.
+# Exclude residual config entries (rc) and kernels for other flavours.
+installed=()
+query_output=$(dpkg-query -W -f='${Package}\t${db:Status-Abbrev}\n' 'linux-image-[0-9]*') ||
+  fail 'could not query installed kernel packages'
+while IFS=$'\t' read -r package status; do
+  [[ $status == ii* ]] || continue
+  [[ $package == linux-image-* ]] || continue
+  release=${package#linux-image-}
+  [[ $release == [0-9]*-"$flavour" ]] || continue
+  installed+=("$release")
+done <<< "$query_output"
+
+(( ${#installed[@]} > 0 )) || fail "no installed versioned linux-image packages for flavour $flavour"
+mapfile -t releases < <(printf '%s\n' "${installed[@]}" | LC_ALL=C sort -Vu)
+
+declare -A protected=()
+declare -A installed_set=()
+for release in "${releases[@]}"; do
+  installed_set["$release"]=1
+done
+[[ -n ${installed_set[$running]+yes} ]] ||
+  fail "running kernel $running is not in the installed package set; refusing to suggest removals"
+
+# Keep the three newest releases, plus the running kernel even if much older.
+count=${#releases[@]}
+for (( i=count-1; i>=0 && i>=count-3; i-- )); do
+  protected["${releases[i]}"]=1
+done
+protected["$running"]=1
+for release in "${keep_releases[@]}"; do
+  [[ -n ${installed_set[$release]+yes} ]] || fail "--keep release is not installed: $release"
+  protected["$release"]=1
+done
+
+candidates=()
+newest=${releases[count-1]}
+
+printf 'Kernel cleanup (Debian / LMDE)\n\n'
+printf 'Boot partition:\n'
+df -h /boot || fail 'could not inspect /boot disk usage'
+printf '\nRunning: %s\nNewest:  %s\n\n' "$running" "$newest"
+printf 'Installed kernels (oldest first):\n'
+for release in "${releases[@]}"; do
+  if [[ -n ${protected[$release]+yes} ]]; then
+    reasons=()
+    [[ $release == "$running" ]] && reasons+=(running)
+    [[ $release == "$newest" ]] && reasons+=(newest)
+    for keep in "${keep_releases[@]}"; do
+      [[ $release == "$keep" ]] && reasons+=(explicitly-kept)
+    done
+    if (( ${#reasons[@]} == 0 )); then
+      reasons+=(recent-fallback)
+    fi
+    label=$(IFS=,; printf '%s' "${reasons[*]}")
+    printf '  %-36s protected (%s)\n' "$release" "$label"
+  else
+    candidates+=("linux-image-$release")
+    printf '  %-36s candidate\n' "$release"
+  fi
+done
+
+if (( ${#candidates[@]} == 0 )); then
+  printf '\nNo old kernel packages meet the conservative removal policy.\n'
+  exit 0
+fi
+
+printf '\nCandidate packages:\n'
+printf '  %s\n' "${candidates[@]}"
+
+if [[ $mode == inspect ]]; then
+  printf '\nInspection only; nothing has changed.\n'
+  printf 'Run %s --dry-run to inspect the APT removal plan.\n' "$script_name"
+  exit 0
+fi
+
+# apt-get is upstream APT on LMDE; the `apt` command can be a Mint wrapper.
+# Resolve it once so the simulation and actual purge use the same binary.
+apt_get=$(command -v apt-get) || fail 'apt-get is required'
+[[ -n $apt_get ]] || fail 'apt-get is required'
+
+printf '\nAPT simulation:\n'
+if ! simulation=$(LC_ALL=C "$apt_get" -s purge -- "${candidates[@]}" 2>&1); then
+  printf '%s\n' "$simulation" >&2
+  fail 'APT simulation failed; nothing has changed'
+fi
+printf '%s\n' "$simulation"
+
+# Fail closed: a purge that also removes an unrelated dependency, other kernel,
+# meta-package or application is not a cleanup we should automate.
+declare -A allowed=()
+declare -A seen=()
+for package in "${candidates[@]}"; do
+  release=${package#linux-image-}
+  stem=${release%-*}
+  allowed["$package"]=1
+  allowed["linux-headers-$release"]=1
+  allowed["linux-headers-$stem-common"]=1
+  allowed["linux-kbuild-$stem"]=1
+  allowed["linux-modules-$release"]=1
+  allowed["linux-modules-extra-$release"]=1
+done
+while IFS= read -r line; do
+  if [[ $line =~ ^(Purg|Remv)[[:space:]]+([^[:space:]]+) ]]; then
+    removed=${BASH_REMATCH[2]}
+    [[ -n ${allowed[$removed]+yes} ]] ||
+      fail "APT wants to remove an unrelated package: $removed; refusing"
+    seen["$removed"]=1
+  elif [[ $line =~ ^(Inst|Conf)[[:space:]]+([^[:space:]]+) ]]; then
+    fail "APT wants to change another package: ${BASH_REMATCH[2]}; refusing"
+  fi
+done <<< "$simulation"
+for package in "${candidates[@]}"; do
+  [[ -n ${seen[$package]+yes} ]] ||
+    fail "APT did not propose removing $package; refusing"
+done
+
+printf '\nAPT plan validated: only candidate kernels and matching packages.\n'
+if [[ $mode == dry-run ]]; then
+  printf 'Dry run; nothing has changed.\n'
+  exit 0
+fi
+
+# Never silently approve the actual APT transaction.
+[[ -t 0 && -t 1 ]] || fail '--apply requires an interactive terminal'
+printf '\nConfirm which kernel you have actually booted successfully.\n'
+printf 'Type PURGE to request removal of the listed packages: '
+if ! IFS= read -r response || [[ $response != PURGE ]]; then
+  printf '\nCancelled; nothing has changed.\n'
+  exit 1
+fi
+
+printf '\nStarting APT purge (APT will ask for confirmation again):\n'
+if (( EUID == 0 )); then
+  "$apt_get" purge -- "${candidates[@]}"
+else
+  command -v sudo >/dev/null 2>&1 || fail 'sudo is required for --apply'
+  sudo "$apt_get" purge -- "${candidates[@]}"
+fi
+printf '\nPost-cleanup boot partition:\n'
+df -h /boot

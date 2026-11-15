@@ -36,5 +36,7 @@ assert_usage_error "unknown option: --bogus" \
   "$project_dir/bin/hexdocs" --bogus
 assert_usage_error "unknown option: --bogus" \
   "$project_dir/bin/hexpm" --bogus
+assert_usage_error "unknown argument: --bogus" \
+  "$project_dir/bin/debian-kernel-prune" --bogus
 
 printf '%s\n' "bin_options_test: ok"
