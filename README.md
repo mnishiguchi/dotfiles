@@ -45,6 +45,7 @@ The `bin` section installs these commands into `~/.local/bin`:
 | `hexpm` | Search for packages on Hex.pm | `python3`, `xdg-open`, `gio`, or macOS `open` |
 | `debian-kernel-prune` | Inspect and safely purge old Debian/LMDE kernels | `bash`, `dpkg-query`, `apt-get`, `sudo` (for apply) |
 | `mp4-to-gif` | Convert a video to an optimized animated GIF | `ffmpeg` |
+| `video-share` | Make a smaller MP4 and normalize audible audio for sharing | `ffmpeg`, `ffprobe` |
 | `mkarchive` | Create a tarball or ZIP archive | `tar`, `gzip`, or `zip` |
 | `mkgpg` | Create a GPG-encrypted compressed archive | `tar`, `gzip`, `gpg` |
 | `notes` | Initialize or list zk notes in Neovim | `nvim`, `zk`, `zk-nvim` |
@@ -59,6 +60,31 @@ Install only the commands with:
 ```bash
 ./install.sh --only bin
 ```
+
+## Share-friendly video conversion
+
+Use `video-share` to compress a video into an MP4 suitable for sending online:
+
+```bash
+video-share recording.mov
+# -> recording-share.mp4
+video-share --max-size 1920x1080 --crf 25 recording.mov
+video-share -f recording.mov custom-share.mp4
+```
+
+Defaults: up to **1280x720** (without upscaling), H.264 CRF 27, and AAC
+96 kb/s. When the audio contains meaningful signal, it is normalized toward
+**-16 LUFS**, with a -1.5 dBTP true-peak ceiling. Missing or essentially
+silent audio is not amplified. Audio detection uses an approximate -55 dBFS
+peak threshold; very faint recordings below that threshold are treated as
+near-silent rather than having their background noise boosted.
+
+The original stays untouched. An existing output requires `--force`, and the
+script never overwrites its input. If encoding produces a file that is not
+smaller, no output is saved; increase `--crf` or reduce `--max-size`.
+Output contains the first video and first audio stream; subtitles, additional
+tracks, chapters, and metadata are omitted for simple sharing. You need
+`ffmpeg` built with `libx264` and `loudnorm`, plus `ffprobe`.
 
 ## Conservative Debian/LMDE kernel cleanup
 

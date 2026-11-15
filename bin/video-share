@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+# Prepare a smaller, comfortably audible MP4 for sharing.
+set -euo pipefail
+
+script_name=${0##*/}
+
+usage() {
+  cat <<'HELP'
+Compress a video for sharing and normalize audible audio.
+
+Usage:
+  video-share [OPTIONS] INPUT_VIDEO [OUTPUT_MP4]
+
+Options:
+  --max-size WxH  Maximum video dimensions (default: 1280x720).
+  --crf N         H.264 quality, 18 (higher) to 35 (smaller); default: 27.
+  --force, -f     Replace an existing output file (never the input).
+  --help, -h      Show this help.
+
+The default output is INPUT_STEM-share.mp4 in the input directory.
+Audio with meaningful signal is normalized toward -16 LUFS, with a
+-1.5 dBTP ceiling. Missing or essentially silent audio is not boosted.
+The original is always preserved. If compression fails to save space,
+no output is created; try a higher --crf or smaller --max-size.
+
+Dependencies: ffmpeg and ffprobe (with libx264 and loudnorm support).
+HELP
+}
+
+fail() {
+  printf '%s: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+
+usage_error() {
+  printf '%s: %s (see --help)\n' "$script_name" "$*" >&2
+  exit 2
+}
+
+force=false
+max_size=1280x720
+crf=27
+
+while (( $# )); do
+  case $1 in
+    --max-size | --crf)
+      (( $# >= 2 )) || usage_error "$1 requires a value"
+      case $1 in
+        --max-size) max_size=$2 ;;
+        --crf) crf=$2 ;;
+      esac
+      shift 2
+      ;;
+    --force | -f) force=true; shift ;;
+    --help | -h) usage; exit 0 ;;
+    --) shift; break ;;
+    -*) usage_error "unknown option: $1" ;;
+    *) break ;;
+  esac
+done
+
+(( $# == 1 || $# == 2 )) || usage_error 'expected INPUT_VIDEO [OUTPUT_MP4]'
+[[ $max_size =~ ^([1-9][0-9]*)x([1-9][0-9]*)$ ]] || usage_error '--max-size must be WxH (e.g. 1280x720)'
+max_width=${BASH_REMATCH[1]}
+max_height=${BASH_REMATCH[2]}
+(( max_width >= 2 && max_width <= 8192 && max_height >= 2 && max_height <= 8192 )) ||
+  usage_error '--max-size dimensions must be between 2 and 8192'
+[[ $crf =~ ^(1[89]|[2][0-9]|3[0-5])$ ]] || usage_error '--crf must be between 18 and 35'
+
+for command in ffmpeg ffprobe; do
+  command -v "$command" >/dev/null 2>&1 || fail "missing required command: $command"
+done
+
+input=$1
+[[ -f $input ]] || fail "input file not found: $input"
+
+if (( $# == 2 )); then
+  output=$2
+else
+  input_dir=$(dirname -- "$input")
+  input_name=$(basename -- "$input")
+  stem=${input_name%.*}
+  output="$input_dir/${stem:-$input_name}-share.mp4"
+fi
+[[ $output == *.mp4 ]] || usage_error 'output must have a .mp4 extension'
+[[ ! -d $output ]] || fail "output is a directory: $output"
+[[ ! $input -ef $output ]] || fail 'input and output refer to the same file'
+[[ ! -e $output && ! -L $output || $force == true ]] ||
+  fail "output already exists: $output (use --force to replace it)"
+
+output_dir=$(dirname -- "$output")
+[[ -d $output_dir ]] || fail "output directory not found: $output_dir"
+[[ -w $output_dir ]] || fail "output directory is not writable: $output_dir"
+
+# Reject audio-only files; output only the first video and first audio stream.
+video_index=$(ffprobe -v error -select_streams v:0 \
+  -show_entries stream=index -of csv=p=0 "$input") || fail 'could not inspect input video'
+[[ -n $video_index ]] || fail 'input has no video stream'
+audio_index=$(ffprobe -v error -select_streams a:0 \
+  -show_entries stream=index -of csv=p=0 "$input") || fail 'could not inspect input audio'
+
+maps=(-map 0:v:0)
+audio_args=(-an)
+if [[ -n $audio_index ]]; then
+  maps+=(-map 0:a:0)
+  audio_args=(-c:a aac -b:a 96k -ar 48000)
+  printf 'Checking audio level...\n'
+  volume_report=$(ffmpeg -hide_banner -nostdin -nostats -v info \
+    -i "$input" -map 0:a:0 -vn -af volumedetect -f null - 2>&1) ||
+    fail 'could not analyze input audio'
+  if [[ ! $volume_report =~ max_volume:[[:space:]]*(-inf|[-+]?[0-9]+([.][0-9]+)?)[[:space:]]dB ]]; then
+    fail 'could not read audio peak level'
+  fi
+  peak=${BASH_REMATCH[1]}
+
+  # Skip empty audio and nearly inaudible background noise rather than
+  # bringing microphone hiss up to full loudness.
+  if [[ $peak == -inf ]] || awk -v peak="$peak" 'BEGIN {exit !(peak < -55)}'; then
+    printf 'Audio: silent or near-silent; leaving level unchanged.\n'
+  else
+    audio_args+=(-af 'loudnorm=I=-16:TP=-1.5:LRA=11')
+    printf 'Audio: normalizing toward -16 LUFS (true peak <= -1.5 dBTP).\n'
+  fi
+else
+  printf 'Audio: no audio stream; exporting silent video.\n'
+fi
+
+# Keep the temporary output in the destination directory for an atomic move.
+temporary_dir=$(mktemp -d "$output_dir/.video-share.XXXXXX") || fail 'could not create temporary directory'
+temporary_output=$temporary_dir/video.mp4
+cleanup() {
+  rm -f -- "$temporary_output"
+  rmdir -- "$temporary_dir" 2>/dev/null || true
+}
+trap cleanup EXIT
+
+printf 'Compressing to MP4 (up to %sx%s, CRF %s)...\n' "$max_width" "$max_height" "$crf"
+ffmpeg -hide_banner -nostdin -loglevel warning -stats \
+  -i "$input" \
+  "${maps[@]}" \
+  -vf "scale=w='min(${max_width},iw)':h='min(${max_height},ih)':force_original_aspect_ratio=decrease:force_divisible_by=2:flags=lanczos" \
+  -c:v libx264 -preset medium -crf "$crf" -pix_fmt yuv420p \
+  "${audio_args[@]}" \
+  -sn -dn -map_metadata -1 -map_chapters -1 -movflags +faststart \
+  -y "$temporary_output" || fail 'encoding failed; original is unchanged'
+
+input_bytes=$(wc -c < "$input")
+output_bytes=$(wc -c < "$temporary_output")
+if (( output_bytes >= input_bytes )); then
+  fail 'compressed file was not smaller; no output saved (try --crf 30 or --max-size 854x480)'
+fi
+
+mv -f -- "$temporary_output" "$output"
+printf 'Wrote: %s\n' "$output"
+awk -v before="$input_bytes" -v after="$output_bytes" \
+  'BEGIN {printf "Size: %.2f MB -> %.2f MB (%.0f%% smaller)\n", before/1000000, after/1000000, 100*(before-after)/before}'
