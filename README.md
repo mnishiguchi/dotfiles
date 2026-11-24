@@ -26,6 +26,7 @@ Options:
   --debug            Enable shell tracing
   --force, -f        Overwrite destination files
   --check            Dry run (show what would change)
+  --verify           Dry run; exit 3 for drift, 1 for errors, 0 when ready
   --only <sections>  Comma-separated list: shell,bin,rofi,nvim,git,other
   --help, -h         Show help
 ```
@@ -42,6 +43,7 @@ The `bin` section installs these commands into `~/.local/bin`:
 
 | Command | Description | Dependency |
 | --- | --- | --- |
+| `dotfiles-doctor` | Check managed links and terminal tool health | `bash` |
 | `age-file` | Encrypt or decrypt a file with an `age` passphrase | `age` |
 | `bashpaste` | Review and run a Bash snippet from the clipboard | `bash`, `pbpaste` |
 | `extract` | Extract a supported archive into the current directory | `tar`, `unzip`, or `gzip` |
@@ -91,6 +93,12 @@ smaller, no output is saved; increase `--crf` or reduce `--max-size`.
 Output contains the first video and first audio stream; subtitles, additional
 tracks, chapters, and metadata are omitted for simple sharing. You need
 `ffmpeg` built with `libx264` and `loudnorm`, plus `ffprobe`.
+
+## Diagnostics
+
+Run `dotfiles-doctor` after setup or an OS upgrade. It reports required tool failures
+and advisory warnings without installing software or changing configuration.
+Use `./install.sh --verify` for machine-readable link drift checks.
 
 ## Tests
 

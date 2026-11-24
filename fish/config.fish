@@ -72,7 +72,7 @@ end
 
 ## ls aliases
 
-if type -q eza
+if type -q eza; and command eza --version >/dev/null 2>&1
     alias ls='eza --group-directories-first --classify --time-style="+%Y-%m-%d %H:%M"'
     alias ll='ls --long'
     alias la='ls --long --all'
@@ -132,7 +132,7 @@ alias be='bundle exec'
 
 ## Integrations
 
-if type -q fzf
+if type -q fzf; and command fzf --version >/dev/null 2>&1
     set -l fzf_opts \
         --reverse \
         --color=dark \
@@ -151,15 +151,26 @@ if type -q fzf
     end
 
     # fzf keybindings: Ctrl-T (files), Alt-C (cd), Ctrl-R (history).
-    fzf --fish | source
+    if set -l fzf_init (command fzf --fish 2>/dev/null)
+        printf "%s\n" $fzf_init | source
+    end
 end
 
 if type -q direnv
     direnv hook fish | source
 end
 
-if type -q zoxide
-    zoxide init fish | source
+if type -q zoxide; and command zoxide --version >/dev/null 2>&1
+    if set -l zoxide_init (command zoxide init fish)
+        printf "%s\n" $zoxide_init | source
+    end
+    # Keep noninteractive z available even without a working fzf.
+    if not type -q fzf; or not command fzf --version >/dev/null 2>&1
+        function zi
+            printf '%s\n' 'zi requires a working fzf; use z instead.' >&2
+            return 127
+        end
+    end
 end
 
 function y

@@ -28,3 +28,4 @@ jobs:
             sudo apt-get install -y fish
           fi
           fish -n fish/config.fish
+          bash tests/shell_health_test.sh

@@ -116,7 +116,7 @@ fi
 
 ## ls aliases
 
-if command -v eza >/dev/null 2>&1; then
+if command -v eza >/dev/null 2>&1 && command eza --version >/dev/null 2>&1; then
   alias ls='eza --group-directories-first --classify --time-style="+%Y-%m-%d %H:%M"'
   alias ll='ls --long'
   alias la='ls --long --all'
@@ -190,7 +190,7 @@ fi
 
 ## Integrations
 
-if command -v fzf >/dev/null 2>&1; then
+if command -v fzf >/dev/null 2>&1 && command fzf --version >/dev/null 2>&1; then
   fzf_default_opts=(
     "--reverse"
     "--color=dark"
@@ -225,8 +225,15 @@ if command -v direnv >/dev/null 2>&1; then
   eval "$(direnv hook bash)"
 fi
 
-if command -v zoxide >/dev/null 2>&1; then
-  eval "$(zoxide init bash)"
+if command -v zoxide >/dev/null 2>&1 && command zoxide --version >/dev/null 2>&1; then
+  if zoxide_init="$(command zoxide init bash)"; then
+    eval "$zoxide_init"
+  fi
+  unset zoxide_init
+  if ! command -v fzf >/dev/null 2>&1 || ! command fzf --version >/dev/null 2>&1; then
+    unalias zi 2>/dev/null || true
+    zi() { printf '%s\n' 'zi requires a working fzf; use z instead.' >&2; return 127; }
+  fi
 fi
 
 y() {

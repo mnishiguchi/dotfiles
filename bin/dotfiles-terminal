@@ -10,7 +10,7 @@ fi
 export PATH="$HOME/.local/bin:$PATH"
 
 # tmux uses the user's login shell for new panes. Avoid nesting sessions.
-if [ -z "${TMUX:-}" ] && command -v tmux >/dev/null 2>&1; then
+if [ -z "${TMUX:-}" ] && command -v tmux >/dev/null 2>&1 && tmux -V >/dev/null 2>&1; then
   exec tmux new-session -A -s main
 fi
 

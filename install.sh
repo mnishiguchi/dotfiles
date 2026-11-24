@@ -8,6 +8,8 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd -
 debug=false
 force=false
 check=false
+verify=false
+drift=false
 only_sections=""
 
 help() {
@@ -19,6 +21,7 @@ Usage:
 
 Options:
   --check            Dry run. Show what would change.
+  --verify           Dry run; exit 3 for drift, 1 for errors, 0 when ready.
   --force, -f        Replace existing files after backing them up.
   --only <sections>  Install only selected sections.
                      Available: shell,bin,rofi,nvim,git,other
@@ -59,6 +62,13 @@ parse_args() {
     case "$1" in
     --check)
       check=true
+      shift
+      ;;
+
+    --verify)
+      check=true
+      verify=true
+      force=true
       shift
       ;;
 
@@ -104,7 +114,12 @@ ensure_dir() {
     err "ensure_dir received an empty path"
   fi
 
+  [[ ! -d "$path" ]] || return 0
+  if [[ -e "$path" || -L "$path" ]]; then
+    err "not a directory: $path"
+  fi
   if [[ "$check" == true ]]; then
+    drift=true
     say "mkdir  $path"
     return
   fi
@@ -137,6 +152,7 @@ backup_existing_path() {
 
   destination="$(backup_path_for "$target")"
 
+  drift=true
   say "backup $target -> $destination"
 
   if [[ "$check" == true ]]; then
@@ -177,6 +193,7 @@ link_path() {
     fi
   fi
 
+  drift=true
   say "link   $target -> $source"
 
   if [[ "$check" == true ]]; then
@@ -250,6 +267,7 @@ section_shell() {
 section_bin() {
   ensure_dir "$HOME/.local/bin"
 
+  link_path "$script_dir/bin/dotfiles-doctor" "$HOME/.local/bin/dotfiles-doctor"
   link_path "$script_dir/bin/age-file" "$HOME/.local/bin/age-file"
   if [[ "$(uname -s)" == Linux ]]; then
     link_path "$script_dir/bin/debian-kernel-prune" "$HOME/.local/bin/debian-kernel-prune"
@@ -357,6 +375,7 @@ main() {
   run_section other
 
   say "done"
+  if [[ "$verify" == true && "$drift" == true ]]; then exit 3; fi
 }
 
 main "$@"

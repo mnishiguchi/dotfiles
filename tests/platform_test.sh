@@ -11,6 +11,9 @@ export XDG_STATE_HOME="$HOME/.local/state"
 mkdir -p "$HOME/.local/bin" "$scratch/mock"
 # Exercise the real platform before installing uname stubs.
 native_preview="$("$project_dir/install.sh" --only bin --check)"
+status=0
+"$project_dir/install.sh" --only bin --verify >/dev/null || status=$?
+[[ "$status" == 3 && ! -e "$XDG_CONFIG_HOME" ]]
 case "$(uname -s)" in
   Linux) [[ "$native_preview" == *'/.local/bin/debian-kernel-prune'* ]] ;;
   Darwin) [[ "$native_preview" != *'/.local/bin/debian-kernel-prune'* ]] ;;
@@ -27,6 +30,15 @@ export TEST_PLATFORM=Linux
 [[ -L "$HOME/.local/bin/dotfiles-terminal" ]]
 [[ -L "$XDG_CONFIG_HOME/alacritty/alacritty.toml" ]]
 "$project_dir/install.sh" --only shell,bin,other >/dev/null
+
+clean_preview="$("$project_dir/install.sh" --only shell,bin,other --check --force)"
+[[ "$clean_preview" != *'mkdir  '* && "$clean_preview" != *'link   '* ]]
+"$project_dir/install.sh" --only shell,bin,other --verify >/dev/null
+rm "$HOME/.local/bin/dotfiles-doctor"
+status=0
+"$project_dir/install.sh" --only bin --verify >/dev/null || status=$?
+[[ "$status" == 3 && ! -e "$HOME/.local/bin/dotfiles-doctor" ]]
+"$project_dir/install.sh" --only bin >/dev/null
 
 export TEST_PLATFORM=Darwin
 "$project_dir/install.sh" --only bin,rofi --check --force >/dev/null
