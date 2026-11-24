@@ -21,8 +21,9 @@ without terminating existing panes using `tmux set-option -g default-shell`
 with the absolute Fish path.
 
 Run `dotfiles-doctor` in a terminal after setup. It checks link drift and
-executes core tools. Open Alacritty from the Dock and manually verify tmux,
-Fish, clipboard, Neovim UI and font rendering. If the terminal fails, use
+executes core tools. Use `dotfiles-doctor --verbose` to show managed links
+and executable paths even when checks pass. Open Alacritty from the Dock
+and manually verify tmux, Fish, clipboard, Neovim UI and font rendering. If the terminal fails, use
 Apple Terminal and launch Alacritty with `-vv -e /bin/zsh -l`.
 
 Shell startup probes eza, fzf and zoxide before enabling integrations. If

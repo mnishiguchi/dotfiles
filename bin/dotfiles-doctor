@@ -3,11 +3,39 @@
 set -u
 failures=0
 warnings=0
+verbose=false
 ok() { printf 'OK: %s\n' "$*"; }
 fail() { printf 'FAIL: %s\n' "$*" >&2; failures=$((failures + 1)); }
 warn() { printf 'Warning: %s\n' "$*" >&2; warnings=$((warnings + 1)); }
-case "${1:-}" in -h|--help) echo 'Usage: dotfiles-doctor (checks current PATH and installed links)'; exit 0;; '') ;; *) exit 2;; esac
-printf 'Platform: %s / %s\n' "$(uname -s)" "$(uname -m)"
+
+usage() {
+  cat <<'HELP'
+Usage: dotfiles-doctor [--verbose | -v]
+
+Check managed links and terminal tool health without changing configuration.
+Show concise results by default; show diagnostic details on failure or with
+--verbose. Exit 0 when required checks pass, 1 on failure, 2 on invalid usage.
+HELP
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -v|--verbose) verbose=true;;
+    -h|--help) usage; exit 0;;
+    *) printf 'Unknown option: %s\n' "$1" >&2; usage >&2; exit 2;;
+  esac
+  shift
+done
+
+ok_detail() {
+  if [[ "$verbose" == true ]]; then ok "$1: $2"; else ok "$1"; fi
+}
+
+show_details() {
+  if [[ -n "$1" ]]; then printf '%s\n' "$1"; fi
+}
+
+printf 'Platform: %s / %s\n\n' "$(uname -s)" "$(uname -m)"
 # This executable is normally symlinked from ~/.local/bin. Resolve the source
 # without GNU readlink -f, which is not available on all Macs.
 source_path=${BASH_SOURCE[0]}
@@ -17,25 +45,67 @@ for ((i=0; i<20; i++)); do
   case "$target" in /*) source_path=$target;; *) source_path="$(dirname "$source_path")/$target";; esac
 done
 root=$(cd -P -- "$(dirname "$source_path")/.." && pwd -P) || exit 1
-if bash "$root/install.sh" --verify; then ok 'Managed links'; else fail 'Managed links differ or cannot be checked'; fi
+
+# Use the verification exit status, not the text of the installer output.
+if details=$(bash "$root/install.sh" --verify 2>&1); then
+  if [[ "$verbose" == true ]]; then show_details "$details"; fi
+  ok 'Managed links'
+else
+  status=$?
+  show_details "$details" >&2
+  case "$status" in
+    3)
+      fail 'Managed links differ. Run ./install.sh from the checkout to reconcile them.'
+      printf '  Checkout: %s\n  Preview replacements first with ./install.sh --check --force.\n' "$root" >&2
+      ;;
+    *)
+      fail "Managed links could not be checked (installer exit $status). Review the error above."
+      ;;
+  esac
+fi
+
+report_tool_problem() {
+  case "$1" in
+    eza|fzf|zoxide|lazygit) warn "$2";;
+    *) fail "$2";;
+  esac
+}
+
 for tool in fish tmux git mise nvim yazi fzf rg eza zoxide just lazygit; do
   case "$tool" in tmux) flag=-V;; *) flag=--version;; esac
-  if command -v "$tool" >/dev/null 2>&1 && "$tool" "$flag" >/dev/null 2>&1; then
-    ok "$tool: $(command -v "$tool")"
+  if ! path=$(command -v "$tool"); then
+    report_tool_problem "$tool" "$tool not found on PATH; install it or check PATH."
+  elif details=$("$tool" "$flag" 2>&1); then
+    ok_detail "$tool" "$path"
   else
-    case "$tool" in eza|fzf|zoxide|lazygit) warn "$tool unavailable or broken";; *) fail "$tool unavailable or broken";; esac
+    status=$?
+    report_tool_problem "$tool" "$tool failed its version check (exit $status): $path"
+    show_details "$details" >&2
   fi
 done
-if command -v fish >/dev/null 2>&1 && fish -n "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish"; then ok 'Fish syntax'; else fail 'Fish config syntax'; fi
-if [[ -x "$HOME/.local/bin/dotfiles-terminal" ]]; then ok 'Terminal launcher'; else fail 'Terminal launcher missing'; fi
+
+fish_config="${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish"
+if command -v fish >/dev/null 2>&1 && details=$(fish -n "$fish_config" 2>&1); then
+  if [[ "$verbose" == true ]]; then show_details "$details"; fi
+  ok_detail 'Fish syntax' "$fish_config"
+else
+  fail "Fish config syntax check failed: $fish_config"
+  if command -v fish >/dev/null 2>&1; then show_details "$details" >&2; fi
+fi
+launcher="$HOME/.local/bin/dotfiles-terminal"
+if [[ -x "$launcher" ]]; then
+  ok_detail 'Terminal launcher' "$launcher"
+else
+  fail "Terminal launcher missing or not executable: $launcher. Run ./install.sh from the checkout."
+fi
 if [[ "$(uname -s)" == Darwin ]]; then
   login=$(dscl . -read "/Users/$(id -un)" UserShell 2>/dev/null) || login=''
-  case "$login" in */fish) ok "Login shell: $login";; *) warn "Login shell is not Fish: $login";; esac
+  case "$login" in */fish) ok_detail 'Login shell' "$login";; *) warn "Login shell is not Fish: $login";; esac
 else
-  case "${SHELL:-}" in */fish) ok "Login environment: $SHELL";; *) warn 'Login environment is not Fish'; esac
+  case "${SHELL:-}" in */fish) ok_detail 'Login environment' "$SHELL";; *) warn 'Login environment is not Fish';; esac
 fi
 if shell=$(tmux show-options -gv default-shell 2>/dev/null); then
-  case "$shell" in */fish) ok "tmux default-shell: $shell";; *) warn "tmux default-shell: $shell";; esac
+  case "$shell" in */fish) ok_detail 'tmux default-shell' "$shell";; *) warn "tmux default-shell: $shell";; esac
 else warn 'No accessible tmux server; test a new terminal manually'; fi
-printf 'Required failures: %s; advisory warnings: %s\n' "$failures" "$warnings"
+printf '\nRequired failures: %s; advisory warnings: %s\n' "$failures" "$warnings"
 ((failures == 0))

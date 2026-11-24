@@ -98,13 +98,28 @@ tracks, chapters, and metadata are omitted for simple sharing. You need
 
 Run `dotfiles-doctor` after setup or an OS upgrade. It reports required tool failures
 and advisory warnings without installing software or changing configuration.
-Use `./install.sh --verify` for machine-readable link drift checks.
+Successful checks are concise by default; failure details are shown automatically.
+
+```bash
+dotfiles-doctor
+dotfiles-doctor --verbose  # Show all managed links and executable paths.
+```
+
+If managed links differ, preview changes with `./install.sh --check --force`
+from the dotfiles checkout, then run `./install.sh`. Use `--force` only after
+reviewing any existing-file conflicts; replacements are backed up.
+
+The doctor exits 0 when required checks pass (even with advisory warnings),
+1 when a required check fails, and 2 for invalid usage. Use
+`./install.sh --verify` for machine-readable link drift checks (0: ready,
+3: drift, 1: error).
 
 ## Tests
 
 Run `bash tests/platform_test.sh` for cross-platform installer and terminal
-smoke tests. Run the other scripts in `tests/` on Linux with their respective
-prerequisites.
+smoke tests and `bash tests/doctor_test.sh` for diagnostic output and exit
+status regressions. Run the other scripts in `tests/` on Linux with their
+respective prerequisites.
 
 ## Conservative Debian/LMDE kernel cleanup
 

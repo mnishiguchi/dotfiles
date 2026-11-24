@@ -12,6 +12,7 @@ jobs:
       - name: Check Bash and POSIX shell syntax
         run: |
           bash -n install.sh
+          bash -n bin/dotfiles-doctor
           bash -n bash/bashrc
           sh -n bin/dotfiles-terminal
           sh -n bin/pbcopy
@@ -19,6 +20,8 @@ jobs:
           bash -n bin/port-who
       - name: Check installation and terminal launcher
         run: /bin/bash tests/platform_test.sh
+      - name: Check doctor output and exit statuses
+        run: /bin/bash tests/doctor_test.sh
       - name: Check Fish syntax
         run: |
           if [ "$(uname -s)" = Darwin ]; then
