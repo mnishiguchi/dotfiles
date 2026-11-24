@@ -50,16 +50,7 @@ magenta = '#FF92DF'
 cyan = '#A4FFFF'
 white = '#F8F8F2'
 
-[[keyboard.bindings]]
-key = "C"
-mods = "Control|Shift"
-action = "Copy"
-
-[[keyboard.bindings]]
-key = "V"
-mods = "Control|Shift"
-action = "Paste"
-
+# Use native clipboard shortcuts on each platform.
 [terminal.shell]
-program = "/usr/bin/tmux"
-args = ["new-session", "-A", "-s", "main"]
+program = "/bin/sh"
+args = ["-c", 'exec "$HOME/.local/bin/dotfiles-terminal"']

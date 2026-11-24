@@ -150,21 +150,8 @@ backup_existing_path() {
 same_symlink_target() {
   local source="$1"
   local target="$2"
-  local current_source
-  local desired_source
-
-  if [[ ! -L "$target" ]]; then
-    return 1
-  fi
-
-  current_source="$(readlink -f -- "$target" 2>/dev/null || true)"
-  desired_source="$(readlink -f -- "$source" 2>/dev/null || true)"
-
-  if [[ -z "$current_source" || -z "$desired_source" ]]; then
-    return 1
-  fi
-
-  [[ "$current_source" == "$desired_source" ]]
+  # Bash's -ef follows symlinks and works without GNU readlink on macOS.
+  [[ -L "$target" && "$source" -ef "$target" ]]
 }
 
 link_path() {
@@ -264,7 +251,15 @@ section_bin() {
   ensure_dir "$HOME/.local/bin"
 
   link_path "$script_dir/bin/age-file" "$HOME/.local/bin/age-file"
-  link_path "$script_dir/bin/debian-kernel-prune" "$HOME/.local/bin/debian-kernel-prune"
+  if [[ "$(uname -s)" == Linux ]]; then
+    link_path "$script_dir/bin/debian-kernel-prune" "$HOME/.local/bin/debian-kernel-prune"
+  elif same_symlink_target "$script_dir/bin/debian-kernel-prune" "$HOME/.local/bin/debian-kernel-prune"; then
+    if [[ "$force" == true ]]; then
+      backup_existing_path "$HOME/.local/bin/debian-kernel-prune"
+    else
+      say_warn "old Linux-only kernel helper installed; use --force to back it up"
+    fi
+  fi
   link_path "$script_dir/bin/bashpaste" "$HOME/.local/bin/bashpaste"
   link_path "$script_dir/bin/extract" "$HOME/.local/bin/extract"
   link_path "$script_dir/bin/git-backup" "$HOME/.local/bin/git-backup"
@@ -286,6 +281,11 @@ section_bin() {
 }
 
 section_rofi() {
+  if [[ "$(uname -s)" != Linux ]]; then
+    say "skip   rofi (Linux only)"
+    return
+  fi
+
   if ! command -v rofi >/dev/null 2>&1; then
     say_warn "rofi not found; skipping rofi section"
     return
@@ -318,6 +318,8 @@ section_other() {
   ensure_dir "$XDG_CONFIG_HOME/direnv"
   ensure_dir "$XDG_CONFIG_HOME/ghostty"
 
+  # Install the launcher with its consumer, even with --only other.
+  link_path "$script_dir/bin/dotfiles-terminal" "$HOME/.local/bin/dotfiles-terminal"
   link_path "$script_dir/alacritty/alacritty.toml" "$XDG_CONFIG_HOME/alacritty/alacritty.toml"
   link_path "$script_dir/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
   link_path "$script_dir/ghostty/config" "$XDG_CONFIG_HOME/ghostty/config"

@@ -32,7 +32,16 @@ mkdir -p \
 
 ## PATHs
 
-export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+if [[ "$(uname -s)" == Darwin ]]; then
+  if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv bash)"
+  elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv bash)"
+  fi
+  export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+else
+  export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+fi
 
 path_prepend() {
   local directory
@@ -115,7 +124,11 @@ if command -v eza >/dev/null 2>&1; then
   alias lr='ls --recurse'
   alias l.='ls --long --list-dirs .*'
 else
-  alias ls='ls -Fh --color=auto'
+  if [[ "$(uname -s)" == Darwin ]]; then
+    alias ls='ls -FGh'
+  else
+    alias ls='ls -Fh --color=auto'
+  fi
   alias ll='ls -l'
   alias la='ls -lA'
   alias lt='ls -lt'
@@ -151,13 +164,19 @@ alias ..='cd ../'
 alias ...='cd ../../'
 alias cp='cp -iv'
 alias mv='mv -iv'
-alias rm='rm -vI'
+if [[ "$(uname -s)" == Darwin ]]; then
+  alias rm='rm -vi'
+else
+  alias rm='rm -vI'
+fi
 alias grep='grep --color=auto'
 alias rg='rg --color=auto --smart-case'
 alias wget='wget --continue'
 alias be='bundle exec'
 alias 2desk='tee "$HOME/Desktop/terminal-output-$(date "+%Y%m%d%H%M%S").txt'
-alias codium='flatpak run com.vscodium.codium'
+if [[ "$(uname -s)" == Linux ]] && command -v flatpak >/dev/null 2>&1; then
+  alias codium='flatpak run com.vscodium.codium'
+fi
 
 ## Bash completion
 
@@ -273,6 +292,11 @@ mkreadme() {
 capslock() {
   local mode
 
+  if [[ "$(uname -s)" == Darwin ]]; then
+    echo "capslock: use System Settings > Keyboard > Keyboard Shortcuts > Modifier Keys" >&2
+    return 1
+  fi
+
   if ! command -v setxkbmap >/dev/null 2>&1; then
     echo "capslock: setxkbmap not found" >&2
     return 1
@@ -283,7 +307,7 @@ capslock() {
     return 2
   fi
 
-  mode="${1,,}"
+  mode="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
 
   case "$mode" in
   on)

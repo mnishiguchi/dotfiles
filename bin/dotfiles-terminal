@@ -1,0 +1,21 @@
+#!/bin/sh
+# GUI apps on macOS may not inherit the login shell's PATH.
+if [ "$(uname -s)" = Darwin ]; then
+  if [ -d /opt/homebrew/bin ]; then
+    PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+  elif [ -d /usr/local/bin ]; then
+    PATH="/usr/local/bin:/usr/local/sbin:$PATH"
+  fi
+fi
+export PATH="$HOME/.local/bin:$PATH"
+
+# tmux uses the user's login shell for new panes. Avoid nesting sessions.
+if [ -z "${TMUX:-}" ] && command -v tmux >/dev/null 2>&1; then
+  exec tmux new-session -A -s main
+fi
+
+# Keep the terminal usable before tmux is installed.
+if [ -n "${SHELL:-}" ] && [ -x "$SHELL" ]; then
+  exec "$SHELL" -l
+fi
+exec /bin/sh -l

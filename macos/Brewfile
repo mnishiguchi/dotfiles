@@ -1,0 +1,27 @@
+# Core CLI tools shared with Linux. Runtimes are managed separately by mise.
+brew "bash"
+brew "coreutils"
+brew "git"
+brew "fish"
+brew "tmux"
+brew "mise"
+brew "neovim"
+brew "eza"
+brew "fzf"
+brew "ripgrep"
+brew "fd"
+brew "zoxide"
+brew "direnv"
+brew "lazygit"
+brew "yazi"
+brew "just"
+brew "wget"
+brew "age"
+brew "gnupg"
+brew "ffmpeg"
+brew "zk"
+brew "jq"
+
+# Alacritty is installed separately; its Homebrew cask is disabled.
+# Shared terminal font.
+cask "font-fira-code-nerd-font"

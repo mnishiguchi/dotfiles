@@ -37,6 +37,19 @@ port="$1"
 [[ "$port" =~ ^[0-9]+$ ]] || die "port must be a number between 1 and 65535"
 ((port >= 1 && port <= 65535)) || die "port must be a number between 1 and 65535"
 
+if [[ "$(uname -s)" == Darwin ]]; then
+  command -v lsof >/dev/null 2>&1 || die "lsof is required"
+  # UDP has no TCP-style LISTEN state; include sockets bound to the local port.
+  tcp="$(lsof -nP -a -iTCP:"$port" -sTCP:LISTEN)" || true
+  udp="$(lsof -nP -iUDP:"$port")" || true
+  # lsof can also match a UDP peer port. Retain local-port matches only.
+  udp="$(printf '%s\n' "$udp" | awk -v p="$port" 'NR == 1 { header=$0; next } { split($9, addr, "->"); if (addr[1] ~ (":" p "$")) { if (!shown++) print header; print } }')"
+  [[ -n "$tcp$udp" ]] || die "no visible TCP or UDP listener found on port $port"
+  [[ -z "$tcp" ]] || printf '%s\n' "$tcp"
+  [[ -z "$udp" ]] || printf '%s\n' "$udp"
+  exit 0
+fi
+
 command -v ss >/dev/null 2>&1 || die "ss is required"
 
 listeners="$(ss -H -lntup "sport = :$port")"

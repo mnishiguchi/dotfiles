@@ -1,4 +1,4 @@
-status is-interactive; or exit
+status is-interactive; or return
 
 ## XDG & common dirs
 
@@ -11,8 +11,20 @@ mkdir -p $XDG_CACHE_HOME $XDG_CONFIG_HOME $XDG_DATA_HOME $XDG_STATE_HOME
 
 ## PATHs
 
+if test (uname -s) = Darwin
+    if test -x /opt/homebrew/bin/brew
+        /opt/homebrew/bin/brew shellenv fish | source
+    else if test -x /usr/local/bin/brew
+        /usr/local/bin/brew shellenv fish | source
+    end
+end
+
 if not set -q ANDROID_HOME
-    set -gx ANDROID_HOME "$HOME/Android/Sdk"
+    if test (uname -s) = Darwin
+        set -gx ANDROID_HOME "$HOME/Library/Android/sdk"
+    else
+        set -gx ANDROID_HOME "$HOME/Android/Sdk"
+    end
 end
 
 for p in \
@@ -68,7 +80,11 @@ if type -q eza
     alias lr='ls --recurse'
     alias l.='ls --long --list-dirs .*'
 else
-    alias ls='ls -Fh --color=auto'
+    if test (uname -s) = Darwin
+        alias ls='ls -FGh'
+    else
+        alias ls='ls -Fh --color=auto'
+    end
     alias ll='ls -l'
     alias la='ls -lA'
     alias lt='ls -lt'
@@ -104,7 +120,11 @@ alias ..='cd ../'
 alias ...='cd ../../'
 alias cp='cp -iv'
 alias mv='mv -iv'
-alias rm='rm -vI'
+if test (uname -s) = Darwin
+    alias rm='rm -vi'
+else
+    alias rm='rm -vI'
+end
 alias grep='grep --color=auto'
 alias rg='rg --color=auto --smart-case'
 alias wget='wget --continue'
@@ -166,7 +186,9 @@ function timestamp
 end
 
 abbr --add 2desk 'tee $HOME/Desktop/terminal-output-(date "+%Y%m%d%H%M%S").txt'
-abbr --add codium "flatpak run com.vscodium.codium"
+if test (uname -s) = Linux; and type -q flatpak
+    abbr --add codium "flatpak run com.vscodium.codium"
+end
 
 function mkreadme
     set -l file README.md
@@ -180,6 +202,10 @@ function mkreadme
 end
 
 function capslock
+    if test (uname -s) = Darwin
+        echo "capslock: use System Settings > Keyboard > Keyboard Shortcuts > Modifier Keys" >&2
+        return 1
+    end
     if not type -q setxkbmap
         echo "capslock: setxkbmap not found" >&2
         return 1

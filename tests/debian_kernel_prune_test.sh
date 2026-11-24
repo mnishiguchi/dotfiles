@@ -14,8 +14,11 @@ fail() {
 
 cat > "$tmp/bin/uname" <<'MOCK'
 #!/usr/bin/env bash
-[[ $1 == -r ]] || exit 2
-printf '%s\n' "$MOCK_RUNNING"
+case "$1" in
+  -r) printf '%s\n' "$MOCK_RUNNING" ;;
+  -s) printf '%s\n' Linux ;;
+  *) exit 2 ;;
+esac
 MOCK
 
 cat > "$tmp/bin/dpkg-query" <<'MOCK'

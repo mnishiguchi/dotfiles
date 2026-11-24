@@ -1,6 +1,11 @@
 #!/usr/bin/env sh
 set -eu
 
+# Existing dotfile symlinks must not shadow the native macOS pasteboard.
+if [ "$(uname -s)" = Darwin ]; then
+  exec /usr/bin/pbcopy "$@"
+fi
+
 usage() {
   cat <<'EOF'
 Copy standard input to the clipboard.

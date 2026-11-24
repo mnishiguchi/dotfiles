@@ -43,6 +43,4 @@ palette = 13=#FF92DF
 palette = 14=#A4FFFF
 palette = 15=#F8F8F2
 
-# Keybindings
-keybind = ctrl+shift+c=copy_to_clipboard
-keybind = ctrl+shift+v=paste_from_clipboard
+# Use the platform's default clipboard shortcuts.

@@ -1,0 +1,30 @@
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  platform:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Bash and POSIX shell syntax
+        run: |
+          bash -n install.sh
+          bash -n bash/bashrc
+          sh -n bin/dotfiles-terminal
+          sh -n bin/pbcopy
+          sh -n bin/pbpaste
+          bash -n bin/port-who
+      - name: Check installation and terminal launcher
+        run: /bin/bash tests/platform_test.sh
+      - name: Check Fish syntax
+        run: |
+          if [ "$(uname -s)" = Darwin ]; then
+            brew install fish
+          else
+            sudo apt-get update
+            sudo apt-get install -y fish
+          fi
+          fish -n fish/config.fish

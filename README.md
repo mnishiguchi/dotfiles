@@ -1,6 +1,6 @@
 # dotfiles
 
-My collection of dotfiles.
+My collection of dotfiles for Linux and macOS.
 
 ## Get started
 
@@ -30,6 +30,12 @@ Options:
   --help, -h         Show help
 ```
 
+## macOS
+
+See [macOS setup](macos/README.md) for Homebrew, the shared CLI toolchain,
+Alacritty, Fish and tmux. Package installation and dotfile linking are separate.
+On Linux, continue using the distribution package manager.
+
 ## Commands
 
 The `bin` section installs these commands into `~/.local/bin`:
@@ -50,9 +56,9 @@ The `bin` section installs these commands into `~/.local/bin`:
 | `mkgpg` | Create a GPG-encrypted compressed archive | `tar`, `gzip`, `gpg` |
 | `notes` | Initialize or list zk notes in Neovim | `nvim`, `zk`, `zk-nvim` |
 | `onepassword-backup` | Encrypt, verify, and restore 1Password 1PUX backups | `age` |
-| `pbcopy` | Copy standard input to the Wayland or X11 clipboard | `wl-clipboard`, `xclip`, or `xsel` |
-| `pbpaste` | Write the Wayland or X11 clipboard to standard output | `wl-clipboard`, `xclip`, or `xsel` |
-| `port-who` | Show the process listening on a TCP or UDP port | `ss` |
+| `pbcopy` | Copy standard input to the system clipboard | Native macOS or `wl-clipboard`, `xclip`, or `xsel` |
+| `pbpaste` | Write the system clipboard to standard output | Native macOS or `wl-clipboard`, `xclip`, or `xsel` |
+| `port-who` | Show the process listening on a TCP or UDP port | `ss` (Linux), `lsof` (macOS) |
 | `retry` | Retry a command with a configurable delay | `bash` |
 
 Install only the commands with:
@@ -85,6 +91,12 @@ smaller, no output is saved; increase `--crf` or reduce `--max-size`.
 Output contains the first video and first audio stream; subtitles, additional
 tracks, chapters, and metadata are omitted for simple sharing. You need
 `ffmpeg` built with `libx264` and `loudnorm`, plus `ffprobe`.
+
+## Tests
+
+Run `bash tests/platform_test.sh` for cross-platform installer and terminal
+smoke tests. Run the other scripts in `tests/` on Linux with their respective
+prerequisites.
 
 ## Conservative Debian/LMDE kernel cleanup
 

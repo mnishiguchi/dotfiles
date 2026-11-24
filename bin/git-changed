@@ -39,24 +39,26 @@ detect_base() {
   local -a ordered_remotes=()
   local -a remotes=()
 
-  mapfile -t remotes < <(git remote)
+  while IFS= read -r remote; do
+    remotes+=("$remote")
+  done < <(git remote)
 
-  if [[ " ${remotes[*]} " == *" origin "* ]]; then
+  if [[ " ${remotes[*]-} " == *" origin "* ]]; then
     ordered_remotes=(origin)
-    for remote in "${remotes[@]}"; do
+    for remote in ${remotes[@]+"${remotes[@]}"}; do
       [[ "$remote" == origin ]] || ordered_remotes+=("$remote")
     done
     remotes=("${ordered_remotes[@]}")
   fi
 
-  for remote in "${remotes[@]}"; do
+  for remote in ${remotes[@]+"${remotes[@]}"}; do
     if remote_head="$(git symbolic-ref --quiet --short "refs/remotes/$remote/HEAD" 2>/dev/null)"; then
       printf '%s\n' "$remote_head"
       return
     fi
   done
 
-  for remote in "${remotes[@]}"; do
+  for remote in ${remotes[@]+"${remotes[@]}"}; do
     for candidate in "$remote/main" "$remote/master"; do
       if git rev-parse --verify --quiet "$candidate^{commit}" >/dev/null; then
         printf '%s\n' "$candidate"
@@ -129,8 +131,14 @@ fi
 
 git ls-files --others --exclude-standard -z -- "$@" >>"$temporary_output"
 
+sort_cmd=sort
+if [[ "$(uname -s)" == Darwin ]]; then
+  command -v gsort >/dev/null 2>&1 || die "GNU sort is required (brew install coreutils)"
+  sort_cmd=gsort
+fi
+
 if [[ "$null_output" == true ]]; then
-  LC_ALL=C sort -zu "$temporary_output"
+  LC_ALL=C "$sort_cmd" -zu "$temporary_output"
 else
-  LC_ALL=C sort -zu "$temporary_output" | tr '\0' '\n'
+  LC_ALL=C "$sort_cmd" -zu "$temporary_output" | tr '\0' '\n'
 fi
