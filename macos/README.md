@@ -26,6 +26,22 @@ and executable paths even when checks pass. Open Alacritty from the Dock
 and manually verify tmux, Fish, clipboard, Neovim UI and font rendering. If the terminal fails, use
 Apple Terminal and launch Alacritty with `-vv -e /bin/zsh -l`.
 
+## Alacritty font size
+
+The shared default is 10 pt. For a Retina display, 14 pt is a useful starting
+point. Create or edit `~/.config/alacritty/local.toml` (or the corresponding
+path under a custom `XDG_CONFIG_HOME`):
+
+```toml
+[font]
+size = 14.0
+```
+
+Run `./install.sh --only other` from the checkout to ensure both shared
+Alacritty config links are installed. The local override is unmanaged and
+survives repeated installs, including `--force`. Restart Alacritty to verify
+its appearance. See [local overrides](../README.md#alacritty-local-overrides).
+
 ## Launch Alacritty with Command + Return
 
 Use the built-in macOS Shortcuts app to reproduce the Linux `Super + Enter`

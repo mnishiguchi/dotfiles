@@ -29,6 +29,21 @@ export TEST_PLATFORM=Linux
 [[ -L "$HOME/.local/bin/debian-kernel-prune" ]]
 [[ -L "$HOME/.local/bin/dotfiles-terminal" ]]
 [[ -L "$XDG_CONFIG_HOME/alacritty/alacritty.toml" ]]
+[[ -L "$XDG_CONFIG_HOME/alacritty/base.toml" ]]
+[[ "$XDG_CONFIG_HOME/alacritty/base.toml" -ef "$project_dir/alacritty/base.toml" ]]
+local_config="$XDG_CONFIG_HOME/alacritty/local.toml"
+[[ ! -e "$local_config" && ! -L "$local_config" ]]
+# Missing base is managed drift; a missing local override is not.
+rm "$XDG_CONFIG_HOME/alacritty/base.toml"
+status=0
+"$project_dir/install.sh" --only other --verify >/dev/null || status=$?
+[[ "$status" == 3 && ! -e "$XDG_CONFIG_HOME/alacritty/base.toml" ]]
+printf '[font]\nsize = 14.0\n' > "$local_config"
+cp "$local_config" "$scratch/local.toml.expected"
+"$project_dir/install.sh" --only other --force >/dev/null
+[[ -L "$XDG_CONFIG_HOME/alacritty/base.toml" ]]
+[[ -f "$local_config" && ! -L "$local_config" ]]
+cmp "$local_config" "$scratch/local.toml.expected"
 "$project_dir/install.sh" --only shell,bin,other >/dev/null
 
 clean_preview="$("$project_dir/install.sh" --only shell,bin,other --check --force)"
@@ -48,7 +63,19 @@ export TEST_PLATFORM=Darwin
 [[ -L "$HOME/.local/bin/pbcopy" ]]
 [[ -L "$HOME/.local/bin/pbpaste" ]]
 [[ ! -e "$XDG_CONFIG_HOME/rofi" ]]
-"$project_dir/install.sh" --only other >/dev/null
+"$project_dir/install.sh" --only other --force >/dev/null
+cmp "$local_config" "$scratch/local.toml.expected"
+"$project_dir/install.sh" --only other --verify >/dev/null
+
+# A non-default XDG config directory also receives both managed files.
+(
+  export XDG_CONFIG_HOME="$scratch/custom-config"
+  "$project_dir/install.sh" --only other >/dev/null
+  [[ "$XDG_CONFIG_HOME/alacritty/alacritty.toml" -ef "$project_dir/alacritty/alacritty.toml" ]]
+  [[ "$XDG_CONFIG_HOME/alacritty/base.toml" -ef "$project_dir/alacritty/base.toml" ]]
+  [[ ! -e "$XDG_CONFIG_HOME/alacritty/local.toml" ]]
+  "$project_dir/install.sh" --only other --verify >/dev/null
+)
 
 # --only other must install a runnable launcher in a fresh home.
 rm "$HOME/.local/bin/dotfiles-terminal"

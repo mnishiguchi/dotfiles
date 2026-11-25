@@ -338,6 +338,7 @@ section_other() {
 
   # Install the launcher with its consumer, even with --only other.
   link_path "$script_dir/bin/dotfiles-terminal" "$HOME/.local/bin/dotfiles-terminal"
+  link_path "$script_dir/alacritty/base.toml" "$XDG_CONFIG_HOME/alacritty/base.toml"
   link_path "$script_dir/alacritty/alacritty.toml" "$XDG_CONFIG_HOME/alacritty/alacritty.toml"
   link_path "$script_dir/direnv/direnv.toml" "$XDG_CONFIG_HOME/direnv/direnv.toml"
   link_path "$script_dir/ghostty/config" "$XDG_CONFIG_HOME/ghostty/config"

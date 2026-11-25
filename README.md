@@ -37,6 +37,27 @@ See [macOS setup](macos/README.md) for Homebrew, the shared CLI toolchain,
 Alacritty, Fish and tmux. Package installation and dotfile linking are separate.
 On Linux, continue using the distribution package manager.
 
+## Alacritty local overrides
+
+The installer links `alacritty.toml` and `base.toml` into
+`${XDG_CONFIG_HOME:-$HOME/.config}/alacritty/`. The shared base retains the
+10 pt default. Alacritty loads an optional `local.toml` from the same directory
+last, so machine-specific settings take precedence. Keep the local file outside
+this checkout; the installer never creates, replaces or removes it.
+
+For example, create or edit `~/.config/alacritty/local.toml` (adjust the path
+if using a custom XDG config directory):
+
+```toml
+[font]
+size = 14.0
+```
+
+Run `./install.sh --only other` to install the shared config links after
+updating this repository. Restart Alacritty to verify the resulting font size.
+If no override is needed, leave `local.toml` absent. See the
+[Alacritty configuration reference](https://alacritty.org/config-alacritty.html).
+
 ## Commands
 
 The `bin` section installs these commands into `~/.local/bin`:
