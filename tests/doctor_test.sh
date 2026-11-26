@@ -22,7 +22,13 @@ if [ "$name" = "${BROKEN_TOOL:-}" ]; then
   echo "simulated runtime failure: $name" >&2
   exit 42
 fi
-if [ "$name" = tmux ] && [ "$1" = show-options ]; then
+if [ "$name" = docker ]; then
+  case "$*" in
+    --version) echo 'Docker mock version';;
+    'compose version') [ "${NO_COMPOSE:-}" != yes ] || exit 42; echo 'Compose mock version';;
+    *) echo 'unexpected Docker daemon operation' >&2; exit 99;;
+  esac
+elif [ "$name" = tmux ] && [ "$1" = show-options ]; then
   if [ "${NO_TMUX:-}" = yes ]; then exit 1; fi
   echo /usr/bin/fish
 elif [ "$name" = fish ] && [ "$1" = -n ]; then
@@ -32,12 +38,21 @@ else
   echo "$name mock version"
 fi
 SH
+cat > "$scratch/mock/rofi" <<'SH'
+#!/bin/sh
+echo 'rofi mock version'
+SH
 cat > "$scratch/mock/dscl" <<'SH'
 #!/bin/sh
 echo 'UserShell: /opt/homebrew/bin/fish'
 SH
+cat > "$scratch/mock/dotfiles-macos-snippets-sync" <<'SH'
+#!/bin/sh
+case "${1:-}" in --verify) exit 0;; esac
+exit 2
+SH
 chmod +x "$scratch/mock/"*
-for tool in fish tmux git mise nvim yazi fzf rg eza zoxide just lazygit; do
+for tool in fish tmux git mise nvim yazi fzf rg eza zoxide just lazygit copyq docker; do
   ln -s tool "$scratch/mock/$tool"
 done
 
@@ -47,6 +62,8 @@ bash "$root/install.sh" >/dev/null
 doctor="$HOME/.local/bin/dotfiles-doctor"
 output=$("$doctor" 2>&1)
 [[ "$output" == *'OK: Managed links'* && "$output" == *'OK: Terminal launcher'* ]]
+[[ "$output" == *'OK: CopyQ clipboard manager'* ]]
+[[ "$output" == *'OK: Docker CLI'* && "$output" == *'OK: Docker Compose'* ]]
 [[ "$output" == *'Required failures: 0; advisory warnings: 0'* ]]
 [[ "$output" != *'install.sh:'* && "$output" != *'OK: fish:'* ]]
 output=$("$doctor" --verbose 2>&1)
@@ -93,11 +110,26 @@ output=$(BAD_SYNTAX=yes "$doctor" 2>&1) || status=$?
 output=$(NO_TMUX=yes "$doctor" 2>&1)
 [[ "$output" == *'Required failures: 0; advisory warnings: 1'* ]]
 
+# CopyQ is optional because dotfiles also run in headless sessions.
+rm "$scratch/mock/copyq"
+output=$("$doctor" 2>&1)
+[[ "$output" == *'Warning: CopyQ clipboard manager not found'* ]]
+[[ "$output" == *'Required failures: 0; advisory warnings: 1'* ]]
+ln -s tool "$scratch/mock/copyq"
+
+# Docker CLI and plugin are advisory; no daemon is needed.
+output=$(NO_COMPOSE=yes "$doctor" 2>&1)
+[[ "$output" == *'Warning: Docker Compose plugin unavailable'* ]]
+[[ "$output" == *'Required failures: 0; advisory warnings: 1'* ]]
+output=$(BROKEN_TOOL=docker "$doctor" 2>&1)
+[[ "$output" == *'Warning: Docker CLI version check failed'* ]]
+[[ "$output" == *'Required failures: 0; advisory warnings: 1'* ]]
+
 # Check Darwin-specific login-shell branch with the actual installer.
 export TEST_PLATFORM=Darwin
 bash "$root/install.sh" --force >/dev/null
 output=$("$doctor" 2>&1)
-[[ "$output" == *'Platform: Darwin / test-arch'* && "$output" == *'OK: Login shell'* ]]
+[[ "$output" == *'Platform: Darwin / test-arch'* && "$output" == *'OK: Login shell'* && "$output" == *'OK: Spotlight snippets'* ]]
 [[ "$output" == *'Required failures: 0; advisory warnings: 0'* ]]
 output=$("$doctor" --help)
 [[ "$output" == *'--verbose'* ]]

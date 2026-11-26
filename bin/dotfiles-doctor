@@ -84,6 +84,60 @@ for tool in fish tmux git mise nvim yazi fzf rg eza zoxide just lazygit; do
   fi
 done
 
+# Check the platform-native launcher integration without opening a GUI.
+case "$(uname -s)" in
+  Linux)
+    if menu_path=$(command -v rofi) && [[ -x "$HOME/.local/bin/dotfiles-menu" ]]; then
+      ok_detail 'Graphical menu' "$menu_path"
+    else
+      warn 'Rofi menu unavailable; install Rofi and run ./install.sh --only bin,rofi'
+    fi
+    ;;
+  Darwin)
+    if sync_path=$(command -v dotfiles-macos-snippets-sync); then
+      if details=$("$sync_path" --verify 2>&1); then
+        ok_detail 'Spotlight snippets' "$HOME/Applications/Dotfiles Snippets"
+      else
+        warn 'Spotlight snippet apps need synchronization; run dotfiles-macos-snippets-sync'
+        if [[ "$verbose" == true ]]; then show_details "$details"; fi
+      fi
+    else
+      warn 'macOS Spotlight snippet synchronizer missing; run ./install.sh --only bin'
+    fi
+    ;;
+esac
+
+# CopyQ is an optional desktop application, not a required terminal tool.
+# Check its CLI path without launching the GUI or touching clipboard contents.
+if copyq_path=$(command -v copyq); then
+  if [[ -x "$copyq_path" ]]; then
+    ok_detail 'CopyQ clipboard manager' "$copyq_path"
+  else
+    warn "CopyQ is not executable: $copyq_path"
+  fi
+else
+  warn 'CopyQ clipboard manager not found; install it with the workstation installer for this OS.'
+fi
+
+# Container development is optional. Client-only checks never contact the
+# daemon, start Colima, or pull images. A stopped VM is not a warning.
+if docker_path=$(command -v docker); then
+  if details=$(docker --version 2>&1); then
+    ok_detail 'Docker CLI' "$docker_path"
+    if details=$(docker compose version 2>&1); then
+      ok_detail 'Docker Compose' "$details"
+    else
+      warn 'Docker Compose plugin unavailable; review workstation container setup.'
+      show_details "$details" >&2
+    fi
+  else
+    warn 'Docker CLI version check failed; review workstation container setup.'
+    show_details "$details" >&2
+  fi
+else
+  warn 'Docker CLI not found; optional container development tools are not installed.'
+fi
+
 fish_config="${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish"
 if command -v fish >/dev/null 2>&1 && details=$(fish -n "$fish_config" 2>&1); then
   if [[ "$verbose" == true ]]; then show_details "$details"; fi

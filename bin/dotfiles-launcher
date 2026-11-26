@@ -1,0 +1,23 @@
+#!/bin/bash
+# Combined application and snippet launcher for Linux/Rofi.
+set -euo pipefail
+usage() {
+  printf '%s\n' 'Usage: dotfiles-launcher' 'Open the Rofi combined application and snippet menu (Linux only).'
+}
+die() { printf 'dotfiles-launcher: %s\n' "$*" >&2; exit 2; }
+case "${1:-}" in
+  -h|--help) usage; exit 0;;
+esac
+[[ $# == 0 ]] || die 'unexpected argument'
+case "$(uname -s)" in
+  Linux)
+    command -v rofi-combi-menu >/dev/null || die 'install Rofi section first'
+    exec rofi-combi-menu
+    ;;
+  Darwin)
+    die 'dotfiles-launcher is Linux/Rofi-only. On macOS, use Spotlight.'
+    ;;
+  *)
+    die 'unsupported OS'
+    ;;
+esac

@@ -264,8 +264,53 @@ section_shell() {
   link_path "$script_dir/fish/config.fish" "$XDG_CONFIG_HOME/fish/config.fish"
 }
 
+install_shared_snippet_links() {
+  link_path "$script_dir/bin/pbcopy" "$HOME/.local/bin/pbcopy"
+  link_path "$script_dir/bin/dotfiles-snippets" "$HOME/.local/bin/dotfiles-snippets"
+  link_path "$script_dir/snippets/snippets.txt" "$XDG_CONFIG_HOME/dotfiles/snippets.txt"
+}
+
+install_rofi_links() {
+  link_path "$script_dir/bin/dotfiles-menu" "$HOME/.local/bin/dotfiles-menu"
+  link_path "$script_dir/bin/dotfiles-launcher" "$HOME/.local/bin/dotfiles-launcher"
+}
+
+# Back up only links that point to this checkout. Never remove a user's
+# replacement command or unrelated file at one of these paths.
+retire_managed_link() {
+  local source="$1"
+  local target="$2"
+  local actual=""
+
+  if [[ -L "$target" ]]; then
+    actual=$(readlink "$target") || actual=""
+    if [[ "$actual" == "$source" || ( -e "$source" && "$source" -ef "$target" ) ]]; then
+      backup_existing_path "$target"
+    else
+      say_warn "leaving unmanaged symlink untouched: $target"
+    fi
+  elif [[ -e "$target" ]]; then
+    say_warn "leaving unmanaged path untouched: $target"
+  fi
+}
+
 section_bin() {
   ensure_dir "$HOME/.local/bin"
+  install_shared_snippet_links
+
+  case "$(uname -s)" in
+    Darwin)
+      link_path "$script_dir/bin/dotfiles-macos-snippets-sync" "$HOME/.local/bin/dotfiles-macos-snippets-sync"
+      retire_managed_link "$script_dir/bin/dotfiles-snippets-sync" "$HOME/.local/bin/dotfiles-snippets-sync"
+      retire_managed_link "$script_dir/bin/dotfiles-menu" "$HOME/.local/bin/dotfiles-menu"
+      retire_managed_link "$script_dir/bin/dotfiles-launcher" "$HOME/.local/bin/dotfiles-launcher"
+      ;;
+    Linux)
+      install_rofi_links
+      retire_managed_link "$script_dir/bin/dotfiles-macos-snippets-sync" "$HOME/.local/bin/dotfiles-macos-snippets-sync"
+      retire_managed_link "$script_dir/bin/dotfiles-snippets-sync" "$HOME/.local/bin/dotfiles-snippets-sync"
+      ;;
+  esac
 
   link_path "$script_dir/bin/dotfiles-doctor" "$HOME/.local/bin/dotfiles-doctor"
   link_path "$script_dir/bin/age-file" "$HOME/.local/bin/age-file"
@@ -292,7 +337,6 @@ section_bin() {
   link_path \
     "$script_dir/bin/onepassword-backup" \
     "$HOME/.local/bin/onepassword-backup"
-  link_path "$script_dir/bin/pbcopy" "$HOME/.local/bin/pbcopy"
   link_path "$script_dir/bin/pbpaste" "$HOME/.local/bin/pbpaste"
   link_path "$script_dir/bin/port-who" "$HOME/.local/bin/port-who"
   link_path "$script_dir/bin/retry" "$HOME/.local/bin/retry"
@@ -311,6 +355,11 @@ section_rofi() {
 
   ensure_dir "$HOME/.local/bin"
   ensure_dir "$XDG_CONFIG_HOME/rofi"
+  # A Rofi-only install also needs the shared snippet engine and menu commands.
+  if ! section_enabled bin; then
+    install_shared_snippet_links
+    install_rofi_links
+  fi
 
   link_path "$script_dir/rofi/bin/rofi-snippets-modi" "$HOME/.local/bin/rofi-snippets-modi"
   link_path "$script_dir/rofi/bin/rofi-combi-menu" "$HOME/.local/bin/rofi-combi-menu"

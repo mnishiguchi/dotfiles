@@ -1,0 +1,40 @@
+# Format:
+#
+#   name!value
+#
+# Examples:
+#
+#   greeting/hello!Hello
+#   cmd uuid!uuidgen
+#
+# Lines whose names start with `cmd ` are executed as shell commands.
+# Treat this file as executable code.
+#
+# dotfiles-snippets copies the value by default; --paste is opt-in.
+# See snippets/README.md for legacy Rofi behavior and local overrides.
+
+cmd date/now!date +"%Y-%m-%d"
+cmd date/today!date +"%Y-%m-%d"
+
+cmd hash/md5!printf '%s' "example" | openssl dgst -md5 | awk '{print $NF}'
+cmd hash/sha256!printf '%s' "example" | openssl dgst -sha256 | awk '{print $NF}'
+cmd hash/sha512!printf '%s' "example" | openssl dgst -sha512 | awk '{print $NF}'
+
+cmd password/default!openssl rand -base64 16
+cmd password/hex!openssl rand -hex 16
+cmd password/strong!openssl rand -base64 32
+
+cmd time/ET!TZ=America/New_York date +"%Y-%m-%d %H:%M:%S"
+cmd time/JST!TZ=Asia/Tokyo date +"%Y-%m-%d %H:%M:%S"
+cmd time/UTC!date -u +"%Y-%m-%d %H:%M:%S"
+cmd time/now!date +"%H:%M:%S"
+
+cmd timestamp/db migration!date +"%Y%m%d%H%M%S"
+cmd timestamp/default!date +"%Y-%m-%d %H:%M"
+cmd timestamp/full!date +"%Y-%m-%d %H:%M:%S"
+cmd timestamp/iso8601!date +"%Y-%m-%dT%H:%M:%S%z" | sed 's/\([+-][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/'
+cmd timestamp/rfc2822!LC_ALL=C date +"%a, %d %b %Y %H:%M:%S %z"
+cmd timestamp/unix!date +%s
+cmd timestamp/utc!date -u +"%Y-%m-%dT%H:%M:%SZ"
+
+cmd uuid!uuidgen

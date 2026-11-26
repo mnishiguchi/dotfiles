@@ -1,138 +1,27 @@
 #!/usr/bin/env bash
-#
-# Rofi Snippets Modi - A Rofi module for selecting and inserting text snippets.
-#
-# Inspired by: https://github.com/raphaelfournier/rofi-modi-snippets
-#
-# Features:
-# - Reads snippets from `~/.config/rofi/snippets.txt`
-# - Supports executing "cmd snippets" (evaluated commands)
-# - Can insert snippets via `xdotool` or copy them to clipboard
-# - Provides an option to edit the snippets file
-#
-# Workflow:
-# 1. First call (`ROFI_RETV=0`)
-#    - Lists available snippets
-#    - Adds "Quit" as an option
-#
-# 2. User selection (`ROFI_RETV=1`)
-#    - If "cmd snippet", executes it and inserts the result
-#    - Otherwise, inserts the snippet text via `xdotool`
-#
-# 3. Copy to clipboard (`ROFI_RETV=2`)
-#    - When the user selects a snippet and presses Shift+Enter in Rofi,
-#      `ROFI_RETV` is set to `2`, triggering the copy-to-clipboard action.
-#    - The selected snippet is copied to the clipboard instead of being typed.
-#
-# Examples:
-#    - `ROFI_RETV=0 rofi-snippets-modi`
-#    - `ROFI_RETV=1 rofi-snippets-modi "git empty commit"`
-#    - `ROFI_RETV=2 rofi-snippets-modi "git empty commit"` (Copies to clipboard)
-
+# Native Rofi script mode; share parsing and evaluation with macOS.
 set -euo pipefail
-
-# Configuration
-SNIPFILE="$HOME/.config/rofi/snippets.txt"
-SEPARATOR='!'
-QUIT_ENTRY="Quit"
-
-# Detect clipboard manager.
-if [ -n "${WAYLAND_DISPLAY:-}" ] && command -v wl-copy >/dev/null 2>&1; then
-  CLIPBOARD_CMD=(wl-copy)
-elif command -v xclip >/dev/null 2>&1; then
-  CLIPBOARD_CMD=(xclip -selection clipboard)
-elif command -v xsel >/dev/null 2>&1; then
-  CLIPBOARD_CMD=(xsel --clipboard --input)
-else
-  echo "No clipboard manager found" >&2
-  exit 1
-fi
-
-# Ensure snippets file exists.
-if [ ! -f "$SNIPFILE" ]; then
-  echo "No snippet file found at $SNIPFILE" >&2
-  exit 1
-fi
-
-# Print available snippets.
-print_snippets() {
-  printf '\0prompt\x1fsnippet\n'
-  printf '\0markup-rows\x1ftrue\n'
-  printf '\0message\x1fSnippets starting with <i>cmd</i> are executed.\n'
-
-  awk -v separator="$SEPARATOR" '
-    $0 !~ /^#/ && index($0, separator) > 0 {
-      print substr($0, 1, index($0, separator) - 1)
-    }
-  ' "$SNIPFILE"
-
-  printf '%s\n' "$QUIT_ENTRY"
-}
-
-# Copy snippet to clipboard.
-copy_to_clipboard() {
-  printf '%s' "$1" | "${CLIPBOARD_CMD[@]}"
-  notify-send "Snippet copied to clipboard"
-}
-
-# Insert snippet via xdotool.
-insert_snippet() {
-  coproc (printf '%s' "$1" | xdotool type --clearmodifiers --file -)
-}
-
-# Execute command snippets.
-execute_snippet() {
-  local result
-
-  result=$(bash -c "$1")
-  insert_snippet "$result"
-}
-
-# Retrieve snippet value.
-get_snippet_value() {
-  local snippet_name="$1"
-
-  awk -v name="$snippet_name" -v separator="$SEPARATOR" '
-    index($0, name separator) == 1 {
-      print substr($0, length(name separator) + 1)
-      exit
-    }
-  ' "$SNIPFILE"
-}
-
-# Handle user selection.
+engine="$HOME/.local/bin/dotfiles-snippets"
+[[ -x "$engine" ]] || { echo 'Install dotfiles-snippets with install.sh --only bin,rofi' >&2; exit 1; }
 case "${1:-}" in
-"$QUIT_ENTRY")
-  exit 0
-  ;;
-"")
-  print_snippets
-  exit 0
-  ;;
-*)
-  snippet_value=$(get_snippet_value "$1")
-
-  if [ -z "$snippet_value" ]; then
-    exit 1
-  fi
-
-  case "${ROFI_RETV:-0}" in
-  1)
-    if [[ "$1" == cmd* ]]; then
-      execute_snippet "$snippet_value"
-    else
-      insert_snippet "$snippet_value"
-    fi
-
-    exit 0
-    ;;
-  2)
-    copy_to_clipboard "$snippet_value"
-    exit 0
-    ;;
+  Quit) exit 0;;
+  '')
+    printf '\0prompt\x1fsnippet\n'
+    printf '\0message\x1fSnippets starting with cmd are executed.\n'
+    "$engine" --list
+    printf '%s\n' Quit;;
   *)
-    exit 1
-    ;;
-  esac
-  ;;
+    case "${ROFI_RETV:-0}" in
+      1)
+        # Preserve the existing X11 typing behavior and let Rofi close first.
+        command -v xdotool >/dev/null || { echo 'xdotool required' >&2; exit 1; }
+        value=$("$engine" --print "$1") || exit $?
+        (printf '%s' "$value" | xdotool type --clearmodifiers --file -) &
+        ;;
+      2)
+        # Match the documented behavior: copy evaluated command output.
+        "$engine" --copy "$1"
+        if command -v notify-send >/dev/null; then notify-send 'Snippet copied to clipboard' || true; fi;;
+      *) exit 1;;
+    esac;;
 esac

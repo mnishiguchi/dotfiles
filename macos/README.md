@@ -42,6 +42,19 @@ Alacritty config links are installed. The local override is unmanaged and
 survives repeated installs, including `--force`. Restart Alacritty to verify
 its appearance. See [local overrides](../README.md#alacritty-local-overrides).
 
+## CopyQ clipboard history
+
+CopyQ is installed by the `installers` repository, not by `dotfiles/install.sh`.
+On macOS, use the opt-in installer documented in
+[CopyQ on LMDE and macOS](https://github.com/mnishiguchi/installers/blob/main/docs/copyq.md).
+The official upstream DMG is unsigned; the installer verifies its published
+SHA-512 checksum but does not remove quarantine, ad-hoc sign the app, or bypass
+Gatekeeper. First-launch approval is a deliberate manual step.
+
+Set CopyQ to open at login in System Settings > General > Login Items. In
+CopyQ's Commands dialog (`F6`), add “Show/hide main window” and assign
+Command+Shift+V. This GUI preference is intentionally not managed by dotfiles.
+
 ## Launch Alacritty with Command + Return
 
 Use the built-in macOS Shortcuts app to reproduce the Linux `Super + Enter`
@@ -89,6 +102,18 @@ Shortcuts' internal database to automate a single key binding.
 
 See Apple's [shortcut keyboard setup](https://support.apple.com/guide/shortcuts-mac/apd163eb9f95/mac)
 and [shortcut export guide](https://support.apple.com/guide/shortcuts-mac/apdf01f8c054/mac).
+
+## Spotlight snippet applications
+
+macOS uses native Spotlight for application launching and generated snippet
+applications; no third-party launcher is required. See
+[Spotlight snippet applications](spotlight-snippets.md) for installation,
+synchronization, and the one-time dmenu-mac retirement procedure.
+
+After installing the dotfiles `bin` section, run
+`dotfiles-macos-snippets-sync` to generate or refresh the snippet apps. Keep
+Cmd+Space enabled for Spotlight. The installer does not change Spotlight
+shortcuts or indexing preferences.
 
 Shell startup probes eza, fzf and zoxide before enabling integrations. If
 eza is broken or missing, use the native ls aliases; if fzf is unavailable,

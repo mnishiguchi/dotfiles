@@ -1,0 +1,153 @@
+#!/bin/bash
+# Bash 3.2 compatible. Commands in the trusted snippet file are executable code.
+set -euo pipefail
+# GUI launchers do not necessarily inherit an interactive shell's PATH.
+export PATH="$HOME/.local/bin:$PATH"
+if [[ $(uname -s) == Darwin ]]; then export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"; fi
+
+usage() {
+  cat <<'HELP'
+Usage: dotfiles-snippets [--copy|--paste] [NAME]
+       dotfiles-snippets --list | --check | --print NAME | --raw NAME
+Choose a trusted name!value snippet; default copies text/command output.
+Interactive selection uses Rofi on Linux. On macOS, use Spotlight or pass NAME.
+--paste  Also paste into the previously focused window, if it is still active.
+--print  Evaluate and print only; --raw prints the literal value without execution.
+--list   Print names; --check validates the file without executing anything.
+DOTFILES_SNIPPETS_FILE overrides the default XDG config file.
+HELP
+}
+die() { printf 'dotfiles-snippets: %s\n' "$*" >&2; exit 2; }
+warn() { printf 'dotfiles-snippets: %s\n' "$*" >&2; }
+mode=copy
+case "${1:-}" in
+  -h|--help) usage; exit 0;;
+  --copy|--paste|--list|--check|--print|--raw) mode=${1#--}; shift;;
+  --*) die "unknown option: $1";;
+esac
+case "$mode" in
+  list|check) [[ $# == 0 ]] || die 'unexpected argument';;
+  print|raw) [[ $# == 1 ]] || die 'one snippet name required';;
+  copy|paste) [[ $# -le 1 ]] || die 'at most one snippet name expected';;
+esac
+name=${1:-}
+config=${XDG_CONFIG_HOME:-$HOME/.config}
+shared=$config/dotfiles/snippets.txt
+legacy=$config/rofi/snippets.txt
+if [[ -n ${DOTFILES_SNIPPETS_FILE:-} ]]; then
+  file=$DOTFILES_SNIPPETS_FILE
+elif [[ -f "$shared" ]]; then
+  if [[ -f "$legacy" && ! "$shared" -ef "$legacy" ]]; then
+    die "conflicting shared and legacy snippet files; merge them or set DOTFILES_SNIPPETS_FILE explicitly"
+  fi
+  file=$shared
+elif [[ -f "$legacy" ]]; then
+  file=$legacy
+else
+  die "missing $shared; run install.sh --only bin"
+fi
+[[ -f "$file" && -r "$file" ]] || die "cannot read $file"
+
+# Load a single snapshot into arrays. Never evaluate selected UI text itself.
+names=(); values=(); count=0; line_no=0
+while IFS= read -r line || [[ -n "$line" ]]; do
+  line_no=$((line_no+1))
+  line=${line%$'\r'}
+  [[ -n "${line//[[:space:]]/}" && ! "$line" =~ ^[[:space:]]*# ]] || continue
+  [[ "$line" == *'!'* ]] || die "$file:$line_no: expected name!value"
+  key=${line%%!*}; value=${line#*!}
+  [[ -n "$key" && ! "$key" =~ [[:cntrl:]] && "$key" != Quit && "$key" != -* ]] || die "$file:$line_no: invalid or reserved name"
+  [[ "$key" != 'cmd ' && ( "$key" != 'cmd '* || -n "${value//[[:space:]]/}" ) ]] || die "$file:$line_no: empty command"
+  for ((i=0;i<count;i++)); do [[ "${names[i]}" != "$key" ]] || die "$file:$line_no: duplicate name: $key"; done
+  names[count]=$key; values[count]=$value; count=$((count+1))
+done < "$file"
+[[ "$count" -gt 0 ]] || die "no snippets in $file"
+if [[ "$mode" == list ]]; then printf '%s\n' "${names[@]}"; exit 0; fi
+if [[ "$mode" == check ]]; then printf 'OK: %s (%s snippets)\n' "$file" "$count"; exit 0; fi
+
+os=$(uname -s)
+if [[ -z "$name" && "$os" == Darwin ]]; then
+  die 'On macOS, select an individual snippet app in Spotlight or pass NAME explicitly.'
+fi
+# Capture only for explicit paste. Never activate or switch to another app.
+capture_target() {
+  case "$os" in
+    Darwin)
+      osascript <<'APPLESCRIPT'
+tell application "System Events"
+    set p to first application process whose frontmost is true
+    return unix id of p
+end tell
+APPLESCRIPT
+      ;;
+    Linux)
+      [[ -z ${WAYLAND_DISPLAY:-} && ${XDG_SESSION_TYPE:-} != wayland && -n ${DISPLAY:-} ]] || return 1
+      xdotool getactivewindow;;
+    *) return 1;;
+  esac
+}
+paste_target() {
+  case "$os" in
+    Darwin)
+      osascript - "$1" <<'APPLESCRIPT'
+on run argv
+    set targetPID to item 1 of argv as integer
+    tell application "System Events"
+        repeat 20 times
+            if (unix id of first application process whose frontmost is true) is targetPID then
+                keystroke "v" using command down
+                return
+            end if
+            delay 0.1
+        end repeat
+        error "Original application is no longer focused."
+    end tell
+end run
+APPLESCRIPT
+      ;;
+    Linux)
+      local current attempt
+      for ((attempt=0;attempt<20;attempt++)); do
+        current=$(xdotool getactivewindow) || return 1
+        if [[ "$current" == "$1" ]]; then
+          xdotool key --clearmodifiers ctrl+v
+          return
+        fi
+        sleep 0.1
+      done
+      return 1;;
+    *) return 1;;
+  esac
+}
+target=''
+if [[ "$mode" == paste ]]; then
+  if ! target=$(capture_target); then warn 'Cannot capture a paste target; will copy only.'; target=''; fi
+  if [[ ! "$target" =~ ^[0-9]+$ ]]; then target=''; fi
+fi
+if [[ -z "$name" ]]; then
+  [[ "$mode" == copy || "$mode" == paste ]] || die 'snippet name required'
+  command -v dotfiles-menu >/dev/null || die 'dotfiles-menu not on PATH'
+  rc=0
+  name=$(printf '%s\n' "${names[@]}" | dotfiles-menu -p 'Snippet:') || rc=$?
+  if [[ "$rc" == 1 ]]; then exit 0; elif [[ "$rc" != 0 ]]; then exit "$rc"; fi
+fi
+found=false
+for ((i=0;i<count;i++)); do
+  if [[ "${names[i]}" == "$name" ]]; then value=${values[i]}; found=true; break; fi
+done
+[[ "$found" == true ]] || die 'unknown snippet name'
+if [[ "$mode" != raw && "$name" == 'cmd '* ]]; then
+  # Match the existing Rofi behavior: text output, without trailing newlines.
+  if ! value=$(bash -o pipefail -c "$value"); then warn "command snippet failed: $name"; exit 1; fi
+fi
+case "$mode" in
+  raw|print) printf '%s' "$value";;
+  copy|paste)
+    command -v pbcopy >/dev/null || die 'pbcopy not on PATH'
+    printf '%s' "$value" | pbcopy
+    if [[ "$mode" == paste ]]; then
+      if [[ -z "$target" ]] || ! paste_target "$target"; then
+        warn 'Copied to clipboard; automatic paste skipped or failed. Paste manually.'; exit 1
+      fi
+    fi;;
+esac

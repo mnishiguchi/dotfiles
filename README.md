@@ -58,13 +58,34 @@ updating this repository. Restart Alacritty to verify the resulting font size.
 If no override is needed, leave `local.toml` absent. See the
 [Alacritty configuration reference](https://alacritty.org/config-alacritty.html).
 
+## Clipboard history
+
+Use [CopyQ](https://copyq.readthedocs.io/) on both LMDE and macOS. The
+`installers` repository owns package installation; this repository only checks
+that the optional `copyq` CLI is available. The existing LMDE Cinnamon shortcut
+is Super+V. On macOS, configure CopyQ's “Show/hide main window” global command
+with Command+Shift+V. See the
+[cross-platform CopyQ guide](https://github.com/mnishiguchi/installers/blob/main/docs/copyq.md).
+
+Clipboard history can retain passwords, tokens, and other sensitive content.
+Configure and test CopyQ's ignore rules before copying real secrets; they are
+not guaranteed to recognize every password-manager window.
+
 ## Commands
+
+See [shared snippets and native launchers](snippets/README.md) for the
+cross-platform `dotfiles-snippets` engine, Linux/Rofi menus, and macOS Spotlight
+snippet applications.
 
 The `bin` section installs these commands into `~/.local/bin`:
 
 | Command | Description | Dependency |
 | --- | --- | --- |
 | `dotfiles-doctor` | Check managed links and terminal tool health | `bash` |
+| `dotfiles-snippets` | Validate, evaluate, and copy shared text/command snippets | `bash`, clipboard provider |
+| `dotfiles-macos-snippets-sync` | Generate and verify native Spotlight snippet apps (macOS only) | `osacompile` |
+| `dotfiles-menu` | Select a line from a Rofi menu (Linux only) | `rofi` |
+| `dotfiles-launcher` | Combined Rofi application and snippet menu (Linux only) | `rofi` |
 | `age-file` | Encrypt or decrypt a file with an `age` passphrase | `age` |
 | `bashpaste` | Review and run a Bash snippet from the clipboard | `bash`, `pbpaste` |
 | `extract` | Extract a supported archive into the current directory | `tar`, `unzip`, or `gzip` |
@@ -89,6 +110,9 @@ Install only the commands with:
 ```bash
 ./install.sh --only bin
 ```
+
+`dotfiles-menu` and `dotfiles-launcher` are linked only on Linux. The
+macOS-only `dotfiles-macos-snippets-sync` command is linked only on macOS.
 
 ## Share-friendly video conversion
 
@@ -119,6 +143,8 @@ tracks, chapters, and metadata are omitted for simple sharing. You need
 
 Run `dotfiles-doctor` after setup or an OS upgrade. It reports required tool failures
 and advisory warnings without installing software or changing configuration.
+Docker CLI and Compose checks are advisory and do not contact the daemon. A
+stopped Colima VM is not an error. See the [Colima setup guide](https://github.com/mnishiguchi/installers/blob/main/docs/colima.md).
 Successful checks are concise by default; failure details are shown automatically.
 
 ```bash

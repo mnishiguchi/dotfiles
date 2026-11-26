@@ -13,6 +13,13 @@ jobs:
         run: |
           bash -n install.sh
           bash -n bin/dotfiles-doctor
+          bash -n bin/dotfiles-menu
+          bash -n bin/dotfiles-launcher
+          bash -n bin/dotfiles-snippets
+          /bin/bash -n rofi/bin/rofi-snippets-modi
+          bash -n bin/dotfiles-macos-snippets-sync
+          bash -n tests/snippets_test.sh
+          bash -n tests/macos_snippet_apps_test.sh
           bash -n bash/bashrc
           sh -n bin/dotfiles-terminal
           sh -n bin/pbcopy
@@ -22,6 +29,10 @@ jobs:
         run: /bin/bash tests/platform_test.sh
       - name: Check doctor output and exit statuses
         run: /bin/bash tests/doctor_test.sh
+      - name: Check shared snippets and Spotlight app generation
+        run: |
+          bash tests/snippets_test.sh
+          bash tests/macos_snippet_apps_test.sh
       - name: Check Fish syntax
         run: |
           if [ "$(uname -s)" = Darwin ]; then

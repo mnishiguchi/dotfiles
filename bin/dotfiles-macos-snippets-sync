@@ -1,0 +1,186 @@
+#!/bin/bash
+# Generate native macOS applets from trusted shared snippet names (Bash 3.2).
+set -euo pipefail
+usage() {
+  cat <<'HELP'
+Usage: dotfiles-macos-snippets-sync [--check|--verify|--clean]
+  (default) Generate or refresh managed macOS snippet apps.
+  --check   Preview changes; do not write to Applications or preferences.
+  --verify  Read-only: 0 ready, 3 drift, 1 error.
+  --clean   Confirm and archive the managed app directory outside Applications.
+HELP
+}
+die() { printf 'dotfiles-macos-snippets-sync: %s\n' "$*" >&2; exit 1; }
+mode=apply
+[[ $# -le 1 ]] || die 'too many arguments'
+case "${1:-}" in
+  '') ;;
+  --check|--verify|--clean) mode=${1#--};;
+  -h|--help) usage; exit 0;;
+  *) usage >&2; exit 2;;
+esac
+[[ $(uname -s) == Darwin ]] || die 'macOS only; Linux uses rofi-combi-menu'
+[[ $(id -u) != 0 ]] || die 'run as your normal user, not root'
+apps=$HOME/Applications
+root=$apps/'Dotfiles Snippets'
+manifest=.dotfiles-snippet-apps-v1
+state=${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/snippet-apps
+config=${XDG_CONFIG_HOME:-$HOME/.config}
+engine=$HOME/.local/bin/dotfiles-snippets
+[[ "$config" == /* && "$state" == /* ]] || die 'XDG paths must be absolute'
+[[ ! "$config" =~ [[:cntrl:]] ]] || die 'invalid XDG_CONFIG_HOME'
+[[ ! -L "$apps" && ! -L "$root" ]] || die 'refusing symlinked Applications or managed directory'
+[[ ! -e "$apps" || -d "$apps" ]] || die 'Applications is not a directory'
+command -v shasum >/dev/null || die 'shasum required'
+shopt -s nullglob dotglob
+
+# Read-only temporary plan; no snippet values or command output are stored.
+work=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-snippet-plan.XXXXXX")
+lock=''; stage=''
+cleanup() {
+  [[ -z "$stage" ]] || rm -rf -- "$stage"
+  [[ -z "$lock" ]] || rmdir -- "$lock" 2>/dev/null || true
+  rm -rf -- "$work"
+}
+trap cleanup EXIT
+hash_file() { shasum -a 256 < "$1" | awk '{print $1}'; }
+valid_app() { [[ "$1" == 'Snippet '*.app && "$1" != */* && "$1" != *:* && ! "$1" =~ [[:cntrl:]] ]]; }
+valid_hash() { [[ "$1" =~ ^[0-9a-f]{64}$ ]]; }
+
+# The compiled payload and plist must match the manifest before a directory can
+# be retired. Unknown files at the top level are never silently swept away.
+inspect_current() {
+  : > "$work/current"
+  [[ ! -L "$root" ]] || die 'managed directory is a symlink'
+  [[ -e "$root" ]] || return 0
+  [[ -d "$root" && -f "$root/$manifest" && ! -L "$root/$manifest" ]] || die "unmanaged directory: $root"
+  local header app source payload plist extra path sub
+  {
+    IFS= read -r header || die 'empty manifest'
+    [[ "$header" == 'dotfiles-snippet-apps-v1' ]] || die 'unrecognized manifest'
+    while IFS=$'\t' read -r app source payload plist extra; do
+      valid_app "$app" && valid_hash "$source" && valid_hash "$payload" && valid_hash "$plist" && [[ -z "$extra" ]] || die 'invalid manifest row'
+      if grep -Fqx -- "$app" "$work/owned"; then die "duplicate manifest app: $app"; fi
+      printf '%s\n' "$app" >> "$work/owned"
+      path=$root/$app
+      [[ -d "$path" && ! -L "$path" ]] || die "missing or replaced managed app: $app"
+      for sub in Contents Contents/Resources Contents/Resources/Scripts; do
+        [[ -d "$path/$sub" && ! -L "$path/$sub" ]] || die "unexpected bundle structure: $app"
+      done
+      for sub in Contents/Resources/Scripts/main.scpt Contents/Info.plist; do
+        [[ -f "$path/$sub" && ! -L "$path/$sub" ]] || die "unexpected bundle file: $app"
+      done
+      [[ $(hash_file "$path/Contents/Resources/Scripts/main.scpt") == "$payload" && $(hash_file "$path/Contents/Info.plist") == "$plist" ]] || die "modified managed app: $app; review manually"
+      printf '%s\t%s\n' "$app" "$source" >> "$work/current"
+    done
+  } < "$root/$manifest"
+  for path in "$root"/*; do
+    app=${path##*/}
+    case "$app" in
+      "$manifest") ;;
+      .DS_Store) [[ -f "$path" && ! -L "$path" ]] || die 'unexpected .DS_Store';;
+      *) grep -Fqx -- "$app" "$work/owned" || die "unmanaged item in managed directory: $app";;
+    esac
+  done
+  LC_ALL=C sort -o "$work/current" "$work/current"
+}
+: > "$work/owned"
+inspect_current
+
+# Source literals are AppleScript-escaped; quoted form of handles shell quoting.
+as_string() {
+  local s=$1
+  s=${s//\\/\\\\}; s=${s//\"/\\\"}
+  printf '"%s"' "$s"
+}
+write_source() {
+  local name=$1 prefix suffix
+  prefix='export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"; unset DOTFILES_SNIPPETS_FILE; cd "$HOME"; export XDG_CONFIG_HOME='
+  suffix='; exec "$HOME/.local/bin/dotfiles-snippets" --copy '
+  printf 'do shell script (%s & quoted form of %s & %s & quoted form of %s)\n' \
+    "$(as_string "$prefix")" "$(as_string "$config")" "$(as_string "$suffix")" "$(as_string "$name")"
+}
+plan() {
+  [[ -x "$engine" ]] || die 'install the snippet engine first: ./install.sh --only bin'
+  [[ -z ${DOTFILES_SNIPPETS_FILE:-} ]] || die 'sync uses the shared XDG configuration; unset DOTFILES_SNIPPETS_FILE'
+  XDG_CONFIG_HOME="$config" "$engine" --list > "$work/names" || die 'cannot read snippet names'
+  : > "$work/desired"; : > "$work/folded"
+  local name app folded n=0 source
+  while IFS= read -r name; do
+    # Preserve searchable words and the command/text distinction. A slash or
+    # colon in a snippet name is represented by a dash in the app filename.
+    app="Snippet ${name//\// - }"; app="${app//:/ - }.app"
+    valid_app "$app" || die "invalid generated app name: $app"
+    [[ $(printf '%s' "$app" | LC_ALL=C wc -c | tr -d ' ') -le 240 ]] || die "app name too long: $app"
+    folded=$(printf '%s' "$app" | LC_ALL=C tr '[:upper:]' '[:lower:]')
+    if grep -Fqx -- "$folded" "$work/folded"; then die "app name collision: $app"; fi
+    printf '%s\n' "$folded" >> "$work/folded"
+    n=$((n+1)); write_source "$name" > "$work/source-$n"
+    source=$(hash_file "$work/source-$n")
+    printf '%s\t%s\n' "$app" "$source" >> "$work/desired"
+  done < "$work/names"
+  [[ "$n" -gt 0 ]] || die 'no snippets'
+  LC_ALL=C sort "$work/desired" > "$work/desired-sorted"
+}
+lock_mutation() {
+  mkdir -p -- "$state" "$apps"
+  local candidate=$state/.lock
+  mkdir -- "$candidate" || die "another sync may be running: $candidate"
+  lock=$candidate
+  # Reinspect after obtaining the lock. A concurrent edit is never overwritten.
+  cp "$work/current" "$work/before"
+  : > "$work/owned"; inspect_current
+  cmp -s "$work/before" "$work/current" || die 'managed apps changed during planning; retry'
+}
+archive_current() {
+  backup=''
+  [[ -e "$root" ]] || return 0
+  backup=$(mktemp -d "$state/retired.XXXXXX")
+  # Archive, do not delete. Old applets are no longer in Applications.
+  mv -- "$root" "$backup/apps" || die 'could not archive previous applets'
+  printf 'Previous applets archived: %s\n' "$backup/apps"
+}
+if [[ "$mode" == clean ]]; then
+  [[ -e "$root" ]] || { echo 'No managed apps to clean.'; exit 0; }
+  printf 'Archive managed apps in %s? Type CLEAN to continue: ' "$root" >&2
+  IFS= read -r answer </dev/tty || exit 1
+  [[ "$answer" == CLEAN ]] || { echo 'Cancelled.'; exit 0; }
+  lock_mutation; archive_current; exit 0
+fi
+plan
+if cmp -s "$work/current" "$work/desired-sorted"; then
+  printf 'OK: %s (all snippet apps current)\n' "$root"; exit 0
+fi
+printf 'Managed app directory: %s\n' "$root"
+printf 'Planned app changes (- old, + new or changed):\n'
+rc=0; diff -u "$work/current" "$work/desired-sorted" || rc=$?
+[[ "$rc" == 1 ]] || die 'cannot compare plans'
+case "$mode" in check) exit 0;; verify) exit 3;; esac
+command -v osacompile >/dev/null || die 'osacompile required'
+lock_mutation
+# Compile the entire new set before moving any existing apps. Stage outside
+# Applications, so Spotlight cannot discover a partially generated set.
+stage=$(mktemp -d "$state/staging.XXXXXX")
+printf '%s\n' 'dotfiles-snippet-apps-v1' > "$stage/$manifest"
+n=0
+while IFS=$'\t' read -r app source; do
+  n=$((n+1)); path=$stage/$app
+  [[ ! -e "$path" && ! -L "$path" ]] || die "filesystem name collision: $app"
+  osacompile -o "$path" "$work/source-$n" || die "compilation failed: $app"
+  [[ -f "$path/Contents/Resources/Scripts/main.scpt" && -f "$path/Contents/Info.plist" ]] || die "incomplete applet: $app"
+  printf '%s\t%s\t%s\t%s\n' "$app" "$source" \
+    "$(hash_file "$path/Contents/Resources/Scripts/main.scpt")" "$(hash_file "$path/Contents/Info.plist")" >> "$stage/$manifest"
+done < "$work/desired"
+# Confirm no changes occurred during compilation, including snippet names.
+cp "$work/desired-sorted" "$work/compiled-plan"; plan
+cmp -s "$work/compiled-plan" "$work/desired-sorted" || die 'snippet names changed during compilation; retry'
+: > "$work/owned"; inspect_current
+cmp -s "$work/before" "$work/current" || die 'managed apps changed during compilation; retry'
+archive_current
+if [[ -e "$root" || -L "$root" ]] || ! mv -- "$stage" "$root"; then
+  if [[ -n "$backup" && ! -e "$root" && ! -L "$root" ]]; then mv -- "$backup/apps" "$root" || true; fi
+  die 'could not publish new applets; inspect archives before retrying'
+fi
+stage=''
+printf 'OK: generated %s snippet apps in %s\n' "$n" "$root"
+printf 'Search for a snippet in Spotlight; allow time for indexing if it is not visible yet.\n'

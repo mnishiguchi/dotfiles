@@ -56,12 +56,19 @@ status=0
 "$project_dir/install.sh" --only bin >/dev/null
 
 export TEST_PLATFORM=Darwin
+# Simulate an older macOS install that linked Rofi-style commands and the old sync name.
+ln -s "$project_dir/bin/dotfiles-snippets-sync" "$HOME/.local/bin/dotfiles-snippets-sync"
 "$project_dir/install.sh" --only bin,rofi --check --force >/dev/null
 [[ -L "$HOME/.local/bin/debian-kernel-prune" ]]
+[[ -L "$HOME/.local/bin/dotfiles-menu" && -L "$HOME/.local/bin/dotfiles-launcher" ]]
 "$project_dir/install.sh" --only bin,rofi --force >/dev/null
 [[ ! -e "$HOME/.local/bin/debian-kernel-prune" && ! -L "$HOME/.local/bin/debian-kernel-prune" ]]
 [[ -L "$HOME/.local/bin/pbcopy" ]]
 [[ -L "$HOME/.local/bin/pbpaste" ]]
+[[ -L "$HOME/.local/bin/dotfiles-macos-snippets-sync" ]]
+[[ ! -e "$HOME/.local/bin/dotfiles-menu" && ! -L "$HOME/.local/bin/dotfiles-menu" ]]
+[[ ! -e "$HOME/.local/bin/dotfiles-launcher" && ! -L "$HOME/.local/bin/dotfiles-launcher" ]]
+[[ ! -e "$HOME/.local/bin/dotfiles-snippets-sync" && ! -L "$HOME/.local/bin/dotfiles-snippets-sync" ]]
 [[ ! -e "$XDG_CONFIG_HOME/rofi" ]]
 "$project_dir/install.sh" --only other --force >/dev/null
 cmp "$local_config" "$scratch/local.toml.expected"
