@@ -148,6 +148,14 @@ for attempt in 1 2 3 4 5; do
   /bin/sleep 0.1
 done
 [[ $(cat "$scratch/typed") == $'MiXeD\nline 2' ]]
+# A background typer must not keep Rofi's stdout pipe open.
+cat > "$HOME/.local/bin/xdotool" <<'SH'
+#!/bin/sh
+/bin/sleep 2
+cat > "$MOCK_DIR/typed-slow"
+SH
+chmod +x "$HOME/.local/bin/xdotool"
+timeout 1 bash -c 'ROFI_RETV=1 "$1" "cmd output" | cat >/dev/null' _ "$root/rofi/bin/rofi-snippets-modi"
 ROFI_RETV=2 "$root/rofi/bin/rofi-snippets-modi" 'cmd output'
 [[ $(cat "$scratch/clipboard") == $'MiXeD\nline 2' ]]
 # Old and new managed paths point to one source. Conflicting local files stop.

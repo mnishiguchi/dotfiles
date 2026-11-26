@@ -16,7 +16,9 @@ case "${1:-}" in
         # Preserve the existing X11 typing behavior and let Rofi close first.
         command -v xdotool >/dev/null || { echo 'xdotool required' >&2; exit 1; }
         value=$("$engine" --print "$1") || exit $?
-        (printf '%s' "$value" | xdotool type --clearmodifiers --file -) &
+        # Close Rofi's output pipe immediately so it can dismiss the menu
+        # before xdotool types into the previously focused window.
+        (sleep 0.2; printf '%s' "$value" | xdotool type --clearmodifiers --file -) >/dev/null 2>&1 &
         ;;
       2)
         # Match the documented behavior: copy evaluated command output.
