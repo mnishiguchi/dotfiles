@@ -572,8 +572,14 @@ require("mason").setup({
 	},
 })
 
+-- Mason does not provide clangd for Linux ARM64; use the system package there.
+local uname = vim.uv.os_uname()
+local use_system_clangd = uname.sysname == "Linux" and uname.machine == "aarch64"
+
 require("mason-lspconfig").setup({
-	ensure_installed = {
+	ensure_installed = vim.tbl_filter(function(server)
+		return not (use_system_clangd and server == "clangd")
+	end, {
 		"basedpyright",
 		"bashls",
 		"clangd",
@@ -586,8 +592,12 @@ require("mason-lspconfig").setup({
 		"ruff",
 		"taplo",
 		"yamlls",
-	},
+	}),
 })
+
+if use_system_clangd and vim.fn.executable("clangd") == 1 then
+	vim.lsp.enable("clangd")
+end
 
 require("mason-tool-installer").setup({
 	ensure_installed = {
