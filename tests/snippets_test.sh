@@ -155,7 +155,16 @@ cat > "$HOME/.local/bin/xdotool" <<'SH'
 cat > "$MOCK_DIR/typed-slow"
 SH
 chmod +x "$HOME/.local/bin/xdotool"
-timeout 1 bash -c 'ROFI_RETV=1 "$1" "cmd output" | cat >/dev/null' _ "$root/rofi/bin/rofi-snippets-modi"
+(
+  ROFI_RETV=1 "$root/rofi/bin/rofi-snippets-modi" 'cmd output' | cat >/dev/null
+  touch "$scratch/pipe-closed"
+) &
+pipeline_pid=$!
+/bin/sleep 1
+pipe_closed=yes
+[[ -e "$scratch/pipe-closed" ]] || pipe_closed=no
+wait "$pipeline_pid"
+[[ "$pipe_closed" == yes ]] || { echo 'Rofi stdout pipe remained open' >&2; exit 1; }
 ROFI_RETV=2 "$root/rofi/bin/rofi-snippets-modi" 'cmd output'
 [[ $(cat "$scratch/clipboard") == $'MiXeD\nline 2' ]]
 # Old and new managed paths point to one source. Conflicting local files stop.
