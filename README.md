@@ -1,6 +1,7 @@
 # dotfiles
 
-My collection of dotfiles for Linux and macOS.
+My collection of dotfiles for Linux (including LMDE and Fedora Asahi ARM64)
+and macOS.
 
 ## Get started
 
@@ -35,7 +36,12 @@ Options:
 
 See [macOS setup](macos/README.md) for Homebrew, the shared CLI toolchain,
 Alacritty, Fish and tmux. Package installation and dotfile linking are separate.
-On Linux, continue using the distribution package manager.
+On Linux, continue using the distribution package manager. Fedora Asahi
+Remix ARM64 uses the native distribution `clangd` package; Mason is skipped
+for that server on Linux aarch64. KDE uses KRunner as its application launcher,
+so Rofi is not required for the KDE desktop integration. KDE global shortcuts
+and default applications remain managed in Plasma System Settings, not by
+this repository; see the [Fedora Asahi workstation guide](https://github.com/mnishiguchi/installers/blob/main/docs/fedora-asahi.md).
 
 ## Alacritty local overrides
 
@@ -60,10 +66,11 @@ If no override is needed, leave `local.toml` absent. See the
 
 ## Clipboard history
 
-Use [CopyQ](https://copyq.readthedocs.io/) on both LMDE and macOS. The
+Use [CopyQ](https://copyq.readthedocs.io/) on LMDE, Fedora Asahi, and macOS. The
 `installers` repository owns package installation; this repository only checks
 that the optional `copyq` CLI is available. The existing LMDE Cinnamon shortcut
-is Super+V. On macOS, configure CopyQ's “Show/hide main window” global command
+is Super+V. On Fedora Asahi KDE, configure a KDE global shortcut to run
+`copyq toggle`. On macOS, configure CopyQ's “Show/hide main window” global command
 with Command+Shift+V. See the
 [cross-platform CopyQ guide](https://github.com/mnishiguchi/installers/blob/main/docs/copyq.md).
 
@@ -74,8 +81,8 @@ not guaranteed to recognize every password-manager window.
 ## Commands
 
 See [shared snippets and native launchers](snippets/README.md) for the
-cross-platform `dotfiles-snippets` engine, Linux/Rofi menus, and macOS Spotlight
-snippet applications.
+cross-platform `dotfiles-snippets` engine, Linux/Rofi menus, KDE's native
+application launcher, and macOS Spotlight snippet applications.
 
 The `bin` section installs these commands into `~/.local/bin`:
 
@@ -145,7 +152,10 @@ Run `dotfiles-doctor` after setup or an OS upgrade. It reports required tool fai
 and advisory warnings without installing software or changing configuration.
 Docker CLI and Compose checks are advisory and do not contact the daemon. A
 stopped Colima VM is not an error. See the [Colima setup guide](https://github.com/mnishiguchi/installers/blob/main/docs/colima.md).
-Successful checks are concise by default; failure details are shown automatically.
+On KDE, `dotfiles-doctor` checks KRunner rather than warning about a missing
+Rofi launcher. On Linux aarch64 it also checks for native `clangd`, which the
+Neovim configuration uses instead of Mason. Successful checks are concise by
+default; failure details are shown automatically.
 
 ```bash
 dotfiles-doctor

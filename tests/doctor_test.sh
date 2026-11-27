@@ -13,7 +13,7 @@ mkdir -p "$HOME" "$scratch/mock"
 export PATH="$scratch/mock:$PATH"
 cat > "$scratch/mock/uname" <<'SH'
 #!/bin/sh
-case "$1" in -s) echo "$TEST_PLATFORM";; -m) echo test-arch;; *) echo "$TEST_PLATFORM";; esac
+case "$1" in -s) echo "$TEST_PLATFORM";; -m) echo "${TEST_ARCH:-test-arch}";; *) echo "$TEST_PLATFORM";; esac
 SH
 cat > "$scratch/mock/tool" <<'SH'
 #!/bin/sh
@@ -41,6 +41,10 @@ SH
 cat > "$scratch/mock/rofi" <<'SH'
 #!/bin/sh
 echo 'rofi mock version'
+SH
+cat > "$scratch/mock/krunner" <<'SH'
+#!/bin/sh
+echo 'krunner mock version'
 SH
 cat > "$scratch/mock/dscl" <<'SH'
 #!/bin/sh
@@ -124,6 +128,22 @@ output=$(NO_COMPOSE=yes "$doctor" 2>&1)
 output=$(BROKEN_TOOL=docker "$doctor" 2>&1)
 [[ "$output" == *'Warning: Docker CLI version check failed'* ]]
 [[ "$output" == *'Required failures: 0; advisory warnings: 1'* ]]
+
+# KDE uses KRunner rather than treating the absence of Rofi as a problem.
+# Linux ARM64 also expects a distro-provided clangd for the Neovim LSP config.
+rm "$scratch/mock/rofi"
+ln -s tool "$scratch/mock/clangd"
+export XDG_CURRENT_DESKTOP=KDE TEST_ARCH=aarch64
+output=$("$doctor" 2>&1)
+[[ "$output" == *'OK: Application launcher (KRunner)'* ]]
+[[ "$output" == *'OK: Native clangd'* ]]
+[[ "$output" != *'Rofi menu unavailable'* ]]
+output=$(BROKEN_TOOL=clangd "$doctor" 2>&1)
+[[ "$output" == *'Warning: Native clangd missing'* ]]
+[[ "$output" == *'Required failures: 0; advisory warnings: 1'* ]]
+unset XDG_CURRENT_DESKTOP
+export TEST_ARCH=test-arch
+ln -s tool "$scratch/mock/rofi"
 
 # Check Darwin-specific login-shell branch with the actual installer.
 export TEST_PLATFORM=Darwin

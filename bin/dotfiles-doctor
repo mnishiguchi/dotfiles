@@ -87,10 +87,30 @@ done
 # Check the platform-native launcher integration without opening a GUI.
 case "$(uname -s)" in
   Linux)
-    if menu_path=$(command -v rofi) && [[ -x "$HOME/.local/bin/dotfiles-menu" ]]; then
-      ok_detail 'Graphical menu' "$menu_path"
-    else
-      warn 'Rofi menu unavailable; install Rofi and run ./install.sh --only bin,rofi'
+    case "${XDG_CURRENT_DESKTOP:-}" in
+      *KDE*|*Plasma*)
+        if launcher_path=$(command -v krunner); then
+          ok_detail 'Application launcher (KRunner)' "$launcher_path"
+        elif menu_path=$(command -v rofi) && [[ -x "$HOME/.local/bin/dotfiles-menu" ]]; then
+          ok_detail 'Graphical menu (Rofi)' "$menu_path"
+        else
+          warn 'KRunner unavailable; install Rofi or use the desktop application launcher'
+        fi
+        ;;
+      *)
+        if menu_path=$(command -v rofi) && [[ -x "$HOME/.local/bin/dotfiles-menu" ]]; then
+          ok_detail 'Graphical menu (Rofi)' "$menu_path"
+        else
+          warn 'Rofi menu unavailable; install Rofi and run ./install.sh --only bin,rofi'
+        fi
+        ;;
+    esac
+    if [[ "$(uname -m)" == aarch64 ]]; then
+      if clangd_path=$(command -v clangd) && clangd --version >/dev/null 2>&1; then
+        ok_detail 'Native clangd' "$clangd_path"
+      else
+        warn 'Native clangd missing; install the distribution package (Fedora: clang-tools-extra) for Neovim C/C++ LSP'
+      fi
     fi
     ;;
   Darwin)
