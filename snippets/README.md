@@ -110,6 +110,22 @@ the clipboard and the script reports failure. A PID check cannot guarantee
 that the original text field is still focused; use copy mode in sensitive
 contexts. No Enter is sent and the clipboard is not restored.
 
+## KDE Wayland: native frontend under evaluation
+
+KRunner handles application launch; no Rofi or CopyQ dependency is required
+for named snippet copying. Test the existing engine directly:
+
+```sh
+dotfiles-snippets --check
+dotfiles-snippets --copy 'cmd uuid'
+```
+
+Paste into a disposable text editor using its usual shortcut. A future KDE
+frontend may expose the names as user desktop entries searchable in KRunner,
+similar to the Spotlight implementation. This is not yet implemented or
+verified. Keep command execution and shared snippet data independent of the
+frontend; do not simulate typing on Wayland.
+
 ## Linux: Rofi integration
 
 The native `rofi-combi-menu` and `rofi-snippets-modi` commands remain available;

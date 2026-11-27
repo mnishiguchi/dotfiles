@@ -3,6 +3,8 @@
 My collection of dotfiles for Linux (including LMDE and Fedora Asahi ARM64)
 and macOS.
 
+See [Workstation Philosophy](docs/workstation-philosophy.md) for shared design principles.
+
 ## Get started
 
 ```bash
@@ -40,8 +42,8 @@ On Linux, continue using the distribution package manager. Fedora Asahi
 Remix ARM64 uses the native distribution `clangd` package; Mason is skipped
 for that server on Linux aarch64. KDE uses KRunner as its application launcher,
 so Rofi is not required for the KDE desktop integration. KDE global shortcuts
-and default applications remain managed in Plasma System Settings, not by
-this repository; see the [Fedora Asahi workstation guide](https://github.com/mnishiguchi/installers/blob/main/docs/fedora-asahi.md).
+and default applications remain owned by desktop integration in `installers`,
+not by this repository; see the [Fedora Asahi workstation guide](https://github.com/mnishiguchi/installers/blob/main/docs/fedora-asahi.md).
 
 ## Alacritty local overrides
 
@@ -66,11 +68,13 @@ If no override is needed, leave `local.toml` absent. See the
 
 ## Clipboard history
 
-Use [CopyQ](https://copyq.readthedocs.io/) on LMDE, Fedora Asahi, and macOS. The
+Use [CopyQ](https://copyq.readthedocs.io/) on LMDE and macOS. On Fedora Asahi
+KDE, native Klipper is under evaluation; CopyQ remains installed and checked
+for now. The
 `installers` repository owns package installation; this repository only checks
 that the optional `copyq` CLI is available. The existing LMDE Cinnamon shortcut
-is Super+V. On Fedora Asahi KDE, configure a KDE global shortcut to run
-`copyq toggle`. On macOS, configure CopyQ's “Show/hide main window” global command
+is Super+V. On Fedora Asahi KDE, keep Super+V for Klipper during evaluation;
+if CopyQ is needed, configure a different shortcut to run `copyq toggle`. On macOS, configure CopyQ's “Show/hide main window” global command
 with Command+Shift+V. See the
 [cross-platform CopyQ guide](https://github.com/mnishiguchi/installers/blob/main/docs/copyq.md).
 
